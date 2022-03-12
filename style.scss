@@ -1,0 +1,68 @@
+body{
+  background-color: black;
+}
+
+canvas{
+  cursor: none;
+}
+
+input:read-only{
+  background-color: #cccccc;
+}
+
+.viewport{
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+span.title{
+  color: wheat;
+  position: absolute;
+  margin-left: 5px;
+  margin-top: 5px;
+}
+
+.content{
+  box-sizing: border-box;
+  position: absolute;
+  top: 50px;
+  left: 50px;
+  width: 815px;
+  padding: 5px;
+
+  .lower-content{
+    display: flex;
+    flex-direction: row;
+
+    .controls-box{
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 5px;
+      margin-left: 5px;
+      gap: 10px;
+      color: white;
+      
+      input{
+        max-width: 130px !important;
+      }
+    }
+  }
+}
+
+.dimension-input{
+  display: flex;
+  flex-direction: row;
+  input{
+    width: 30%;
+  }
+}
+
+.bordered{
+  border: 1px solid grey;
+}
