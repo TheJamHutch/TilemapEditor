@@ -9,63 +9,80 @@
   <body>
     <div class="viewport">
       <span class="title" style="color: wheat;">Tilemap Editor v0.1.0</span>
-      <div class="content bordered">
+      <div class="container column content bordered">
+
+        <div class="topbar bordered">
+          <div>
+            <label>Name:</label>
+            <input id="mapNameInput" type="text" />
+
+            <div class="dimension-input">
+              <label>Dimensions:</label>
+              <input id="xDimInput" type="number" min="1" /> x <input id="yDimInput" type="number" min="1" />
+            </div>
+          </div>
+          <div>
+            <button id="newBtn" type="button">New</button>
+            <button id="saveBtn" type="button" disabled>Save</button>
+            <button id="loadBtn" type="button">Load</button>
+          </div>
+        </div>
         
-        <div>
+        <div class="editor-box">
           <canvas id="editor-canvas"></canvas>
         </div>
 
-        <div class="lower-content">
-          <div class="bordered">
-            <canvas id="palette-canvas"></canvas>
+        <div>
+
+          <div class="container toolbar bordered">
+            <div class="tab bordered">
+              <span>Tilemap</span>
+            </div>
+            <div class="tab bordered">
+              <span>Entities</span>
+            </div>
           </div>
-
-          <div class="controls-box bordered">
-
-            <div>
-              <label>New:</label>
-              <div class="dimension-input">
-                <span>
-                  <input id="xDimInput" type="number" value="1" min="1" /> x <input id="yDimInput" type="number" value="1" min="1" />
-                </span>
+          
+          <div class="container lower-content bordered">
+            <div class="palette-box">
+              <canvas id="palette-canvas"></canvas>
+            </div>
+  
+            <div class="container column controls-box">
+              <span class="heading">Tile Properties</span>
+              <div class="container">
+                <label>Solid:</label>
+                <input id="solidCheckbox" type="checkbox">
               </div>
-              <button id="newBtn" type="button">Create</button>
-            </div>
-
-            <div>
-              <label>Save:</label>
-              <div class="browse-input">
-                <input id="saveInput" type="text" />
-                <button id="saveBtn" type="button" disabled>S</button>
+              <div class="container">
+                <label>Effect:</label>
+                <select id="tileEffectSelect">
+                  <option value=0>None</option>
+                  <option value=1>Hurt</option>
+                  <option value=2>Teleport</option>
+                  <option value=3>Transition</option>
+                </select>
               </div>
-            </div>
 
-            <div>
-              <label>Load:</label>
-              <div class="browse-input">
-                <input id="loadInput" type="text" readonly />
-                <button id="loadBtn" type="button">...</button>
+              <hr/>
+              <span class="heading">Tilesheet Properties</span>
+
+              <div class="container">
+                <label>Tilesheet:</label>
+                <select id="tilesheetSelect" multiple>
+                </select>
               </div>
+              
+              <button id="createTilesheetBtn" type="button">Create Tilesheet</button>
+              <button id="loadTilesheetBtn"  type="button">Load Tilesheet</button>
             </div>
-
-            <div>
-              <label>Effect:</label>
-              <select>
-                <option value="None">None</option>
-                <option value="Solid">Solid</option>
-                <option value="None">Hurt</option>
-                <option value="None">Teleport</option>
-              </select>
-            </div>
-
           </div>
         </div>
-
       </div>
     </div>
 
     <!-- Invisble input to open file dialog -->
-    <input id="loadFileInput" type="file" style="display: none;" />
+    <input id="downloadInput" type="file" style="display: none;" />
     <!-- Invisible link to download file -->
    
 

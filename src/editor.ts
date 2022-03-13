@@ -15,17 +15,18 @@ export class Editor{
   resolution: Vector;
   selectedTile: number;
   cursor: Rect;
+  tilesheet: any;
 
-  constructor(events: Events, context: CanvasRenderingContext2D, config: any, texture: Bitmap){
+  constructor(events: Events, context: CanvasRenderingContext2D, config: any, texture: Bitmap, tilesheet: any){
     this.events = events;
     this.context = context;
-
-    
     
     this.tilemap = initTilemap(config.mapDimensions, []);
     this.camera = new Camera(config.resolution, this.tilemap.resolution, { x: 0, y: 0 });
     this.texture = texture;
     this.resolution = config.resolution;
+
+    this.tilesheet = tilesheet;
 
     this.cursor = new Rect({ x: 0, y: 0, w: this.tilemap.tileSize, h: this.tilemap.tileSize });
 
@@ -46,7 +47,7 @@ export class Editor{
   }
 
   saveMap(mapName: string): any {
-    let saveTiles = _.clone(this.tilemap.tiles) as any;
+    let saveTiles = this.tilemap.tiles.slice(0);
     
     return {
       name: mapName,
@@ -102,9 +103,9 @@ export class Editor{
     if ((this.cursor.x < this.tilemap.resolution.x) && (this.cursor.y < this.tilemap.resolution.y)){
       // Update tile
       const tileIdx = posToIndex(this.viewToWorld(this.cursor), this.tilemap.dimensions);
-      this.tilemap.tiles[tileIdx] = { texture: this.selectedTile, effect: 0 };
-      console.log(tileIdx);
-      
+      const solid = this.tilesheet.solidMap[this.selectedTile]
+      const effect = this.tilesheet.effectMap[this.selectedTile];
+      this.tilemap.tiles[tileIdx] = { texture: this.selectedTile, solid, effect };
     }
   }
 

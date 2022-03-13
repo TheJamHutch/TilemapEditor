@@ -6,10 +6,6 @@ canvas{
   cursor: none;
 }
 
-input:read-only{
-  background-color: #cccccc;
-}
-
 .viewport{
   position: fixed;
   top: 0px;
@@ -26,43 +22,91 @@ span.title{
   margin-top: 5px;
 }
 
+.container{
+  display: flex;
+  flex-direction: row;
+
+  &.column{
+    flex-direction: column;
+  }
+}
+
 .content{
   box-sizing: border-box;
-  position: absolute;
-  top: 50px;
-  left: 50px;
+  margin-top: 50px;
+  margin-left: 50px;
   width: 815px;
   padding: 5px;
+  
+  color: white;
 
-  .lower-content{
+  .topbar{
+    padding: 5px;
+    margin-bottom: 5px;
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
 
-    .controls-box{
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      padding: 5px;
-      margin-left: 5px;
-      gap: 10px;
-      color: white;
-      
-      input{
-        max-width: 130px !important;
-      }
+    button{
+      width: 60px;
+      height: 40px;
+    }
+  }
+
+  .editor-box{
+
+  }
+
+  .toolbar{
+    
+  }
+
+  .palette-box{
+    flex: 4;
+  }
+
+  .controls-box{
+    border-left: 1px solid grey;
+    flex: 1;
+    padding: 5px;
+    margin-left: 5px;
+    gap: 10px;
+  
+    hr{
+      width: 100%;
+    }
+
+    span.heading{
+      font-size: 16px;
+      text-decoration: underline;
+    }
+
+    select{
+      width: 100px;
     }
   }
 }
 
 .dimension-input{
-  display: flex;
-  flex-direction: row;
   input{
-    width: 30%;
+    width: 50px;
   }
 }
 
 .bordered{
   border: 1px solid grey;
+}
+
+.tab{
+  width: 90px;
+  text-align: center;
+  cursor: pointer;
+  padding: 5px;
+  span{
+    font-size: 24px;
+  }
+}
+
+.tab:hover{
+  transform: translateY(-4px);
 }

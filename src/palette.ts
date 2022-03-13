@@ -27,6 +27,8 @@ export class Palette{
 
     this.cursor = new Rect({ x: 0, y: 0, w: this.viewSize, h: this.viewSize });
     this.marker = new Rect(this.cursor);
+
+    this.events.raise('paletteSelect', 0);
   }
 
   update(): void{

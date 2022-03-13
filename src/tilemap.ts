@@ -11,14 +11,15 @@ export enum TileSize {
 };
 
 export enum TileEffect {
-  None,
-  Solid,
+  None = 0,
+  Hurt,
   Teleport,
-  Hurt
+  Transition
 }
 
 export type Tile = {
   texture: number;
+  solid: boolean;
   effect: number;
   dest?: Rect;
 };
@@ -47,15 +48,19 @@ export function initTilemap(dimensions: Vector, tiles: Tile[]): Tilemap {
   const nTiles = dimensions.x * dimensions.y;
     
   let blankMap = false;
-  const blankTile = { texture: 0, effect: 0, dest: undefined } as any;
-  if (!tiles || tiles.length < nTiles){
+  if (!tiles || tiles.length === 0 || tiles.length < nTiles){
     blankMap = true;
   }
-  for (let i = 0; i <= nTiles; i++)
+  for (let i = 0; i < nTiles; i++)
   {
-    tilemap.tiles[i] = (!blankMap) ? tiles[i] : blankTile;
+    if (blankMap){
+      const blankTile = { texture: 0, solid: false, effect: 0, dest: undefined } as any;
+      tilemap.tiles[i] = blankTile;
+    } else {
+      tilemap.tiles[i] = tiles[i];
+    }
   }
-
+  
   return tilemap;
 }
 
