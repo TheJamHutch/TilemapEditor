@@ -6,6 +6,21 @@ canvas{
   cursor: none;
 }
 
+select{
+  // @TODO: Temporary, change scroll bar
+  overflow-y: hidden;
+}
+
+button, input, select{
+  background-color: black;
+  color: white;
+  border: 1px solid grey;
+}
+
+button:hover, input:hover{
+  border: 1px solid yellow;
+}
+
 .viewport{
   position: fixed;
   top: 0px;
@@ -31,6 +46,20 @@ span.title{
   }
 }
 
+.dialog{
+  box-sizing: border-box;
+  position: absolute;
+  top: 50px;
+  left: 900px;
+  width: 250px;
+  height: 300px;
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .content{
   box-sizing: border-box;
   margin-top: 50px;
@@ -51,6 +80,7 @@ span.title{
       width: 60px;
       height: 40px;
     }
+    
   }
 
   .editor-box{
@@ -108,5 +138,6 @@ span.title{
 }
 
 .tab:hover{
+  border: 1px solid yellow;
   transform: translateY(-4px);
 }

@@ -5,56 +5,47 @@ import { Editor } from './src/editor';
 import { Palette } from './src/palette';
 import { loadBitmap } from './src/render';
 
-import overworldTilesheet from './tilesheet/overworld.json';
+import overworldTilesheet from './assets/tilesheets/overworld.json';
 
 // @ts-ignore
 window.$ = window.jquery = jquery;
 
 let editor: Editor;
 let palette: Palette;
+let assets: any;
 
 function initConfig(): any {
   let config = {
-    editor: {
-      resolution: { x: 800, y: 600 },
-      mapDimensions: { x: 30, y: 30 },
-      tileSize: 32
-    },
-    palette: {
-      resolution: { x: 608, y: 300 },
-      sheetDimensions: { x: 6, y: 6 },
-      clipSize: 32,
-      viewSize: 32
-    },
+    mapDimensions: { x: 30, y: 30 },
+    tileSize: 32,
     tilesheetId: 'overworld'
   };
 
   return config;
 }
 
-function initAssets(): any {
-  let assets = {
+function initAssets(): void {
+  assets = {
     textures: {
-      tileSheet: loadBitmap('./img/basetiles.png'),
-      player: loadBitmap('./img/player.png'),
-      slime: loadBitmap('./img/slime.png')
+      basetiles: loadBitmap('./assets/textures/basetiles.png'),
+      overtiles: loadBitmap('./assets/textures/overtiles.png'),
+      player: loadBitmap('./assets/textures/player.png'),
+      slime: loadBitmap('./assets/textures/slime.png')
     },
     tilesheets: {
       overworld: overworldTilesheet
     }
   };
-
-  return assets;
 }
 
 function initDomElements(config: any): any {
   const editorCanvas = $('#editor-canvas')[0] as HTMLCanvasElement;
-  editorCanvas.width = config.editor.resolution.x;
-  editorCanvas.height = config.editor.resolution.y;
+  editorCanvas.width = 800;
+  editorCanvas.height = 600;
 
   const paletteCanvas = $('#palette-canvas')[0] as HTMLCanvasElement;
-  paletteCanvas.width = config.palette.resolution.x;
-  paletteCanvas.height = config.palette.resolution.y;
+  paletteCanvas.width = 608;
+  paletteCanvas.height = 300;
 
   let dom = {
     // Canvas
@@ -64,25 +55,30 @@ function initDomElements(config: any): any {
     newBtn: $('#newBtn')[0] as HTMLButtonElement,
     saveBtn: $('#saveBtn')[0] as HTMLButtonElement,
     loadBtn: $('#loadBtn')[0] as HTMLButtonElement,
-    createTilesheetBtn: $('#createTilesheetBtn')[0] as HTMLButtonElement,
+    newTilesheetBtn: $('#newTilesheetBtn')[0] as HTMLButtonElement,
+    saveTilesheetBtn: $('#saveTilesheetBtn')[0] as HTMLButtonElement,
     loadTilesheetBtn: $('#loadTilesheetBtn')[0] as HTMLButtonElement,
     // Inputs
     mapNameInput: $('#mapNameInput')[0] as HTMLInputElement,
     xDimInput: $('#xDimInput')[0] as HTMLInputElement,
     yDimInput: $('#yDimInput')[0] as HTMLInputElement,
-    downloadInput: $('#downloadInput')[0] as HTMLInputElement, // Invisible input to open browse file dialog
+
+    uploadFileInput: $('#uploadFileInput')[0] as HTMLInputElement,
+    // Checkbox
     solidCheckbox: $('#solidCheckbox')[0] as HTMLInputElement,
     // Select
     tileEffectSelect: $('#tileEffectSelect')[0] as HTMLSelectElement,
     selectTilesheet: $('#tilesheetSelect')[0] as HTMLSelectElement,
+
+    // New tilesheet dialog
+    sheetNameInput: $('#sheetNameInput')[0] as HTMLInputElement,
+    textureNameInput: $('#textureNameInput')[0] as HTMLInputElement,
+    textureBrowseBtn: $('#textureBrowseBtn')[0] as HTMLButtonElement,
+    tileSizeSelect: $('#tileSizeSelect')[0] as HTMLSelectElement,
+    sheetXDimInput: $('#sheetXDimInput')[0] as HTMLInputElement,
+    sheetYDimInput: $('#sheetYDimInput')[0] as HTMLInputElement,
+    createSheetBtn: $('#createSheetBtn')[0] as HTMLButtonElement,
   };
-
-  // Set initial value for map dimension inputs
-  $(dom.xDimInput).prop('value', config.editor.mapDimensions.x);
-  $(dom.yDimInput).prop('value', config.editor.mapDimensions.y);
-
-  // Add the name of the init tilesheet to the multiline list
-  //$(dom.)
 
   return dom;
 }
@@ -129,6 +125,14 @@ function initListeners(dom: any): any {
   };
 
   const onSaveBtnClick = function(e: any){
+    const mapName = dom.mapNameInput.value;
+
+    if (!mapName || mapName === ''){
+      console.warn('Canot save map, name required');
+      alert('You must enter a name for the map before you can save it.');
+      return;
+    }
+
     const savedMap = editor.saveMap(dom.mapNameInput.value);
     const savedMapJson = JSON.stringify(savedMap);
 
@@ -138,42 +142,41 @@ function initListeners(dom: any): any {
     saveAnchor.click();
     // @TODO: Delete link ???
   };
-  const onMapNameInputChange = function(e: any){
-    if (e.target.value.length > 0){
-      $(dom.saveBtn).prop('disabled', false);
-    } else {
-      $(dom.saveBtn).prop('disabled', true);
-    }
-  };
 
   const onLoadBtnClick = function(e: any){
-    $(dom.downloadInput).trigger('click');
+    $(dom.uploadFileInput).trigger('click', 'map');
   };
 
-  const onDownloadInputChange = function(e: any){
-    const selectedFile = e.target.files[0];
+  const onUploadFileInputChange = async function(e: any, t: any){
 
-    let reader = new FileReader();
-    reader.readAsText(selectedFile);
-
-    reader.onload = ((readerEvent) => {
-      let mapJson = readerEvent.target.result as string;
-      let mapObj = JSON.parse(mapJson);
-
-      $(dom.mapNameInput).attr('value', mapObj.name);
-      $(dom.xDimInput).prop('value', mapObj.dimensions.x);
-      $(dom.yDimInput).prop('value', mapObj.dimensions.y);
-      editor.loadMap(mapObj);
-    });
   };
 
-  const onCreateTilesheetBtnClick = function(e: any){
-    console.log('create sheet');
+  const onNewTilesheetBtnClick = function(e: any){
+    console.log('new sheet');
+    
+  };
+  const onSaveTilesheetBtnClick = function(e: any){
+    console.log('save sheet');
     
   };
   const onLoadTilesheetBtnClick = function(e: any){
-    console.log('load sheet');
+    $(dom.uploadFileInput).trigger('click', 'tilesheet'); // Pass an additional parameter specifying the type of expected file
+  };
+  
+  const onTextureBrowseBtnClick = function(e: any){
+    $(dom.uploadFileInput).trigger('click', 'texture'); // Pass an additional parameter specifying the type of expected file
+  };
+  const onCreateSheetBtnClick = function(e: any){
+
+    const sheet = {
+      name: dom.sheetNameInput.value,
+      textureId: dom.textureNameInput.value,
+      solidMap: [],
+      effectMap: []
+    };
     
+    editor.loadTilesheet(sheet);
+    palette.loadTilesheet(sheet);
   };
 
   return {
@@ -186,29 +189,39 @@ function initListeners(dom: any): any {
     loadBtn: {
       click: onLoadBtnClick
     },
-    createTilesheetBtn: {
-      click: onCreateTilesheetBtnClick
+    newTilesheetBtn: {
+      click: onNewTilesheetBtnClick
+    },
+    saveTilesheetBtn: {
+      click: onSaveTilesheetBtnClick
     },
     loadTilesheetBtn: {
       click: onLoadTilesheetBtnClick
     },
-    mapNameInput: {
-      change: onMapNameInputChange
+    uploadFileInput: {
+      change: onUploadFileInputChange
     },
-    downloadInput: {
-      change: onDownloadInputChange
+
+    textureBrowseBtn: {
+      click: onTextureBrowseBtnClick
+    },
+    createSheetBtn: {
+      click: onCreateSheetBtnClick
     }
   }
 }
 
 function bindListeners(listeners: any, dom: any){
   $(dom.newBtn).on('click', listeners.newBtn.click);
-  $(dom.mapNameInput).on('input', listeners.mapNameInput.change);
   $(dom.saveBtn).on('click', listeners.saveBtn.click);
   $(dom.loadBtn).on('click', listeners.loadBtn.click);
-  $(dom.createTilesheetBtn).on('click', listeners.createTilesheetBtn.click);
+  $(dom.newTilesheetBtn).on('click', listeners.newTilesheetBtn.click);
+  $(dom.saveTilesheetBtn).on('click', listeners.saveTilesheetBtn.click);
   $(dom.loadTilesheetBtn).on('click', listeners.loadTilesheetBtn.click);
-  $(dom.downloadInput).on('change', listeners.downloadInput.change);
+  $(dom.uploadFileInput).on('change', listeners.uploadFileInput.change);
+
+  $(dom.textureBrowseBtn).on('click', listeners.textureBrowseBtn.click);
+  $(dom.createSheetBtn).on('click', listeners.createSheetBtn.click);
 }
 
 function update(events: Events) {
@@ -221,18 +234,35 @@ function update(events: Events) {
   });
 }
 
+async function readFileText(file: File): Promise<any> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = (() => {
+      resolve(reader.result);
+    });
+
+    reader.onerror = reject;
+
+    reader.readAsText(file);
+  });
+}
+
 // Init order => config, assets, domElements, objects, domEvents
 $(() => {
   const config = initConfig();
-  const assets = initAssets();
+  // @TODO: Should this be global???
+  initAssets();
   const dom = initDomElements(config);
   const events = new Events();
 
   const editorContext = dom.editorCanvas.getContext('2d');
-  editor = new Editor(events, editorContext, config.editor, assets.textures['tileSheet'], assets.tilesheets[config.tilesheetId]);
+  editorContext.imageSmoothingEnabled = false;
+  editor = new Editor(events, editorContext, { x: 800, y: 600 }, config, assets);
 
   const paletteContext = dom.paletteCanvas.getContext('2d');
-  palette = new Palette(events, paletteContext, config.palette, assets.textures['tileSheet']);
+  paletteContext.imageSmoothingEnabled = false;
+  palette = new Palette(events, paletteContext, { x: 608, y: 300 }, config, assets);
 
   initKeyboardEvents();
   initMouseEvents(dom);
@@ -255,5 +285,5 @@ $(() => {
   });
   
   update(events);
-});
 
+});

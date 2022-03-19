@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { Camera } from "./camera";
-import { Tilemap, initTilemap, renderTilemap, Tile } from "./tilemap";
+import { Tilemap, renderTilemap, Tile } from "./tilemap";
 import { Vector, Rect } from "./primitives";
 import { drawBitmap, Bitmap, drawRect, RenderMode } from "./render";
 import { Events } from "./events";
@@ -17,16 +17,16 @@ export class Editor{
   cursor: Rect;
   tilesheet: any;
 
-  constructor(events: Events, context: CanvasRenderingContext2D, config: any, texture: Bitmap, tilesheet: any){
+  constructor(events: Events, context: CanvasRenderingContext2D, resolution: Vector, config: any, assets: any){
     this.events = events;
     this.context = context;
+    this.resolution = resolution;
     
-    this.tilemap = initTilemap(config.mapDimensions, []);
-    this.camera = new Camera(config.resolution, this.tilemap.resolution, { x: 0, y: 0 });
-    this.texture = texture;
-    this.resolution = config.resolution;
+    this.tilemap = new Tilemap(config.mapDimensions, []);
+    this.camera = new Camera(this.resolution, this.tilemap.resolution, { x: 0, y: 0 });
 
-    this.tilesheet = tilesheet;
+    this.tilesheet = assets.tilesheets[config.tilesheetId];
+    this.texture = assets.textures[this.tilesheet.textureId];
 
     this.cursor = new Rect({ x: 0, y: 0, w: this.tilemap.tileSize, h: this.tilemap.tileSize });
 
@@ -42,7 +42,7 @@ export class Editor{
   }
 
   newMap(dimensions: Vector): void {
-    this.tilemap = initTilemap(dimensions, []);
+    this.tilemap = new Tilemap(dimensions, []);
     this.camera = new Camera(this.resolution, this.tilemap.resolution, { x: 0, y: 0 });
   }
 
@@ -59,8 +59,12 @@ export class Editor{
   }
 
   loadMap(mapObj: any){
-    this.tilemap = initTilemap(mapObj.dimensions, mapObj.tiles);
-    this.camera = new Camera(this.resolution, this.tilemap.resolution, { x: 0, y: 0 });
+    //this.tilemap = initTilemap(mapObj.dimensions, mapObj.tiles);
+    //this.camera = new Camera(this.resolution, this.tilemap.resolution, { x: 0, y: 0 });
+  }
+
+  loadTilesheet(sheet: any){
+    this.tilesheet = sheet;
   }
 
   onKeyDown(keycode: string): void {
@@ -103,7 +107,7 @@ export class Editor{
     if ((this.cursor.x < this.tilemap.resolution.x) && (this.cursor.y < this.tilemap.resolution.y)){
       // Update tile
       const tileIdx = posToIndex(this.viewToWorld(this.cursor), this.tilemap.dimensions);
-      const solid = this.tilesheet.solidMap[this.selectedTile]
+      const solid = (this.tilesheet.solidMap[this.selectedTile] === 1);
       const effect = this.tilesheet.effectMap[this.selectedTile];
       this.tilemap.tiles[tileIdx] = { texture: this.selectedTile, solid, effect };
     }
@@ -128,7 +132,7 @@ export class Editor{
   private render(): void {
     drawRect(this.context, new Rect({ x: 0, y: 0, w: this.resolution.x, h: this.resolution.y }), RenderMode.Fill)
 
-    renderTilemap(this.tilemap, this.context, this.texture, this.camera);
+    renderTilemap(this.tilemap, this.context, this.camera, this.tilesheet, this.texture);
 
     this.context.strokeStyle = 'yellow';
     this.context.lineWidth = 4;

@@ -6,24 +6,24 @@ import { Events } from "./events";
 
 export class Palette{
   context: CanvasRenderingContext2D;
-  sheetDimensions: Vector;
   resolution: Vector;
   texture: Bitmap;
-  clipSize: number;
   viewSize: number;
   events: Events;
+  tilesheet: any;
 
   cursor: Rect;
   marker: Rect;
 
-  constructor(events: Events, context: CanvasRenderingContext2D, config: any, sheetImg: Bitmap){
+  constructor(events: Events, context: CanvasRenderingContext2D, resolution: Vector, config: any, assets: any){
     this.events = events;
     this.context = context;
-    this.texture = sheetImg;
-    this.resolution = config.resolution;
-    this.clipSize = config.clipSize;
-    this.viewSize = config.viewSize;
-    this.sheetDimensions = config.sheetDimensions;
+    this.resolution = resolution;
+    this.viewSize = config.tileSize;
+
+    this.tilesheet = assets.tilesheets[config.tilesheetId];
+    this.texture = assets.textures[this.tilesheet.textureId];
+    
 
     this.cursor = new Rect({ x: 0, y: 0, w: this.viewSize, h: this.viewSize });
     this.marker = new Rect(this.cursor);
@@ -33,6 +33,10 @@ export class Palette{
 
   update(): void{
     this.render();
+  }
+
+  loadTilesheet(sheet: any): void {
+    console.log(sheet);
   }
 
   onMouseMove(mousePos: Vector){
@@ -46,8 +50,8 @@ export class Palette{
     this.marker.y = this.cursor.y;
 
     let cell = {
-      x: Math.floor(this.cursor.x / this.clipSize),
-      y: Math.floor(this.cursor.y / this.clipSize)
+      x: Math.floor(this.cursor.x / this.viewSize),
+      y: Math.floor(this.cursor.y / this.viewSize)
     };
     const cellIdx = (cell.y * Math.floor(this.resolution.x / this.viewSize)) + cell.x;
     this.events.raise('paletteSelect', cellIdx);
@@ -59,24 +63,29 @@ export class Palette{
   }
 
   private render(): void {
-    this.context.fillStyle = 'black';
     const background = new Rect({ x: 0, y: 0, w: this.resolution.x, h: this.resolution.y});
     drawRect(this.context, background, RenderMode.Fill);
 
     const padding = 0;
-    const clip = new Rect({ x: 0, y: 0, w: this.clipSize, h: this.clipSize });
+    const clip = new Rect({ x: 0, y: 0, w: this.tilesheet.clipSize, h: this.tilesheet.clipSize });
     const view = new Rect({ x: padding, y: padding, w: this.viewSize, h: this.viewSize });
 
-    const nCells = this.sheetDimensions.x * this.sheetDimensions.y;
+    const nCells = this.tilesheet.dimensions.x * this.tilesheet.dimensions.y;
+
+    let cx = 0;
+    let cy = 0;
+    
     for (let i = 0; i < nCells; i++){
       drawBitmap(this.context, this.texture, clip, view);
 
       // Update clip rect
-      clip.x += this.clipSize;
-      if (clip.x >= this.texture.resolution.x){
-        clip.x = 0;
-        clip.y += this.clipSize;
+      cx += 1;
+      if (cx >= this.tilesheet.dimensions.x){
+        cx = 0;
+        cy += 1;
       }
+      clip.x = cx * this.tilesheet.clipSize;
+      clip.y = cy * this.tilesheet.clipSize;
 
       // Update view rect
       view.x += this.viewSize + padding;

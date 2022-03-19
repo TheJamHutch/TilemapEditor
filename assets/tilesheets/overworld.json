@@ -1,6 +1,8 @@
 {
   "name": "overworld",
-  "textureName": "overtiles",
+  "textureId": "basetiles",
+  "clipSize": 32,
+  "dimensions": { "x": 6, "y": 6 },
   "solidMap": [
     0, 1, 0, 0, 1, 0,
     0, 1, 1, 0, 0, 1,

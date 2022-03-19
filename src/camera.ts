@@ -12,11 +12,10 @@ export class Camera{
     this.worldBounds = mapRes;
     this.view = resolution;
     this.velocity = { x: 0, y: 0 };
-    this.moveSpeed = 2;
+    this.moveSpeed = 3;
   }
 
   update(){
-    
     // Check world bounds
     if ((this.velocity.x < 0 && this.world.x <= 0) || ( this.velocity.x > 0 && this.world.x + this.view.x > this.worldBounds.x)){
       this.velocity.x = 0;
