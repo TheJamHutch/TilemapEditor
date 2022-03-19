@@ -1,5 +1,3 @@
-import { Camera } from "./camera";
-import { Tilemap, initTilemap, renderTilemap, Tile } from "./tilemap";
 import { Vector, Rect } from "./primitives";
 import { drawBitmap, Bitmap, drawRect, RenderMode } from "./render";
 import { Events } from "./events"; 
@@ -7,36 +5,38 @@ import { Events } from "./events";
 export class Palette{
   context: CanvasRenderingContext2D;
   resolution: Vector;
-  texture: Bitmap;
   viewSize: number;
   events: Events;
-  tilesheet: any;
-
+  assets: any;
   cursor: Rect;
   marker: Rect;
+  texture?: Bitmap;
+  tilesheet?: any;
 
-  constructor(events: Events, context: CanvasRenderingContext2D, resolution: Vector, config: any, assets: any){
+  constructor(events: Events, context: CanvasRenderingContext2D, config: any, assets: any){
     this.events = events;
     this.context = context;
-    this.resolution = resolution;
+    this.resolution = config.resolution;
     this.viewSize = config.tileSize;
-
-    this.tilesheet = assets.tilesheets[config.tilesheetId];
-    this.texture = assets.textures[this.tilesheet.textureId];
-    
+    this.assets = assets;
 
     this.cursor = new Rect({ x: 0, y: 0, w: this.viewSize, h: this.viewSize });
     this.marker = new Rect(this.cursor);
 
-    this.events.raise('paletteSelect', 0);
+    this.events.register('tilesheetLoad', (sheet: any) => {
+      this.loadTilesheet(sheet);
+      
+    console.log(this.tilesheet, this.texture);
+      this.events.raise('paletteSelect', 0);
+    });
   }
 
-  update(): void{
+  update(): void {
+    if (!this.tilesheet || !this.texture){
+      return;
+    }
+    
     this.render();
-  }
-
-  loadTilesheet(sheet: any): void {
-    console.log(sheet);
   }
 
   onMouseMove(mousePos: Vector){
@@ -57,12 +57,8 @@ export class Palette{
     this.events.raise('paletteSelect', cellIdx);
   }
 
-  private setCursorPosition(mousePos: Vector): void {
-    this.cursor.x = mousePos.x - (mousePos.x % this.viewSize);
-    this.cursor.y = mousePos.y - (mousePos.y % this.viewSize);
-  }
-
   private render(): void {
+    
     const background = new Rect({ x: 0, y: 0, w: this.resolution.x, h: this.resolution.y});
     drawRect(this.context, background, RenderMode.Fill);
 
@@ -104,4 +100,15 @@ export class Palette{
     this.context.lineWidth = 4;
     drawRect(this.context, this.marker);
   }
+
+  private setCursorPosition(mousePos: Vector): void {
+    this.cursor.x = mousePos.x - (mousePos.x % this.viewSize);
+    this.cursor.y = mousePos.y - (mousePos.y % this.viewSize);
+  }
+
+  private loadTilesheet(sheet: any): void {
+    this.tilesheet = sheet;
+    this.texture = this.assets.textures[this.tilesheet.textureId];
+  }
+
 }

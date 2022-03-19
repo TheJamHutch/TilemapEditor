@@ -1,0 +1,21 @@
+{
+  "name": "dungeon",
+  "dimensions": {
+    "x": 25,
+    "y": 18  
+  },
+  "playerSpawn": {
+    "x": 1,
+    "y": 1
+  },
+  "enemies": [
+    { 
+      "archetype": "slime", 
+      "movementPattern": 0,
+      "moveWait": 100,
+      "pathNodes": [
+        { "x": 50, "y": 50 }
+      ]
+    }
+  ]
+}

@@ -10,16 +10,22 @@ export class Events{
   raise(id: string, context: any){
     if (this.listeners[id]){
       this.queue.push({ id, context });
+    } else {
+      this.listeners[id] = {}
+      this.listeners[id].callbacks = [];
     }
   }
-  
-  register(id: string, callback: (context: any) => void){
+
+  register(id: string, callback?: (context: any) => void){
+    // If the listeners doesn't already exist then create it first
     if (!this.listeners[id]){
       this.listeners[id] = {}
       this.listeners[id].callbacks = [];
     }
 
-    this.listeners[id].callbacks.push(callback);
+    if (callback){
+      this.listeners[id].callbacks.push(callback);
+    }
   }
 
   poll(){
@@ -30,4 +36,5 @@ export class Events{
       }
     }
   }
+
 }

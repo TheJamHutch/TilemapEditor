@@ -18,7 +18,7 @@
 
             <div class="dimension-input">
               <label>Dimensions:</label>
-              <input id="xDimInput" type="number" min="1" /> x <input id="yDimInput" type="number" min="1" />
+              <input id="xDimInput" type="number" value="1" min="1" /> x <input id="yDimInput" type="number" value="1" min="1" />
             </div>
           </div>
           <div>
@@ -28,54 +28,59 @@
           </div>
         </div>
         
-        <div class="editor-box">
+        <div>
           <canvas id="editor-canvas"></canvas>
         </div>
 
-        <div>
+        <div class="lower-content bordered">
 
-          <div class="container toolbar bordered">
-            <div class="tab bordered">
+          <div class="container bordered">
+            <div id="tab-selector-tilemap" class="tab-selector">
               <span>Tilemap</span>
             </div>
-            <div class="tab bordered">
+            <div id="tab-selector-entities" class="tab-selector">
               <span>Entities</span>
             </div>
           </div>
           
-          <div class="container lower-content bordered">
-            <div class="palette-box">
-              <canvas id="palette-canvas"></canvas>
-            </div>
+          <div class="container">
+            <div id="tab-content-tilemap" class="container" hidden>
+              <div class="palette-box">
+                <canvas id="palette-canvas"></canvas>
+              </div>
+    
+              <div class="container column controls-box">
+                <span class="heading">Tile Properties</span>
+                <div class="container">
+                  <label>Solid:</label>
+                  <input id="solidCheckbox" type="checkbox">
+                </div>
+                <div class="container">
+                  <label>Effect:</label>
+                  <select id="tileEffectSelect">
+                    <option value=0>None</option>
+                    <option value=1>Hurt</option>
+                    <option value=2>Teleport</option>
+                    <option value=3>Transition</option>
+                  </select>
+                </div>
   
-            <div class="container column controls-box">
-              <span class="heading">Tile Properties</span>
-              <div class="container">
-                <label>Solid:</label>
-                <input id="solidCheckbox" type="checkbox">
+                <hr/>
+                <span class="heading">Tilesheet Properties</span>
+  
+                <div class="container">
+                  <label>Tilesheet:</label>
+                  <select id="tilesheetSelect" multiple>
+                  </select>
+                </div>
+                
+                <button id="newTilesheetBtn" type="button">New Tilesheet</button>
+                <button id="saveTilesheetBtn" type="button">Save Tilesheet</button>
+                <button id="loadTilesheetBtn"  type="button">Load Tilesheet</button>
               </div>
-              <div class="container">
-                <label>Effect:</label>
-                <select id="tileEffectSelect">
-                  <option value=0>None</option>
-                  <option value=1>Hurt</option>
-                  <option value=2>Teleport</option>
-                  <option value=3>Transition</option>
-                </select>
-              </div>
-
-              <hr/>
-              <span class="heading">Tilesheet Properties</span>
-
-              <div class="container">
-                <label>Tilesheet:</label>
-                <select id="tilesheetSelect" multiple>
-                </select>
-              </div>
-              
-              <button id="newTilesheetBtn" type="button">New Tilesheet</button>
-              <button id="saveTilesheetBtn" type="button">Save Tilesheet</button>
-              <button id="loadTilesheetBtn"  type="button">Load Tilesheet</button>
+            </div>
+            <div id="tab-content-entities" hidden="true">
+              Entities
             </div>
           </div>
         </div>

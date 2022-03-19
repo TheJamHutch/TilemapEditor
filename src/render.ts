@@ -39,3 +39,13 @@ export function drawBitmap(context: CanvasRenderingContext2D, bitmap: Bitmap, sr
     src.x, src.y, src.w, src.h,
     dst.x, dst.y, dst.w, dst.h);
 }
+
+export class RenderContext{
+  resolution: Vector;
+  context: CanvasRenderingContext2D;
+  
+  constructor(resolution: Vector, context: CanvasRenderingContext2D){
+    this.resolution = resolution;
+    this.context = context;
+  }
+}

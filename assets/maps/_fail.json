@@ -1,0 +1,13 @@
+{
+  "name": "_fail",
+  "dimensions": {
+    "x": 1,
+    "y": 1  
+  },
+  "tiles": [],
+  "entities": {
+    "player": {
+        "worldPos": { "x": 1, "y": 1 }
+    }
+  }
+}

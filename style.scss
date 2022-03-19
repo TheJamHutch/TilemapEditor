@@ -17,7 +17,7 @@ button, input, select{
   border: 1px solid grey;
 }
 
-button:hover, input:hover{
+button:hover, input:hover, select:hover{
   border: 1px solid yellow;
 }
 
@@ -83,12 +83,8 @@ span.title{
     
   }
 
-  .editor-box{
-
-  }
-
-  .toolbar{
-    
+  .lower-content{
+    width: 100%;
   }
 
   .palette-box{
@@ -127,9 +123,10 @@ span.title{
   border: 1px solid grey;
 }
 
-.tab{
+.tab-selector{
   width: 90px;
   text-align: center;
+  border-right: 1px solid grey;
   cursor: pointer;
   padding: 5px;
   span{
@@ -137,7 +134,7 @@ span.title{
   }
 }
 
-.tab:hover{
-  border: 1px solid yellow;
-  transform: translateY(-4px);
+.tab-selector:hover{
+  color: yellow;
+  text-decoration: underline;
 }
