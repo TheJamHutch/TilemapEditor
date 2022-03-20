@@ -1,5 +1,6 @@
 {
   "name": "town",
+  "type": "map",
   "dimensions": {
     "x": 7,
     "y": 7  

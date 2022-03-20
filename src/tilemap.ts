@@ -45,16 +45,20 @@ export class Tilemap{
     const nTiles = dimensions.x * dimensions.y;
       
     let blankMap = false;
-    if (!tiles || tiles.length === 0 || tiles.length < nTiles){
+    const blankTile = { texture: 0, solid: false, effect: 0, dest: undefined } as any;
+    if (!tiles || tiles.length === 0){
       blankMap = true;
     }
     for (let i = 0; i < nTiles; i++)
     {
       if (blankMap){
-        const blankTile = { texture: 0, solid: false, effect: 0, dest: undefined } as any;
         this.tiles[i] = blankTile;
       } else {
-        this.tiles[i] = tiles[i];
+        if (i < tiles.length){
+          this.tiles[i] = tiles[i];
+        } else {
+          this.tiles[i] = blankTile;
+        }
       }
     }
   }

@@ -25,9 +25,6 @@ export class Palette{
 
     this.events.register('tilesheetLoad', (sheet: any) => {
       this.loadTilesheet(sheet);
-      
-    console.log(this.tilesheet, this.texture);
-      this.events.raise('paletteSelect', 0);
     });
   }
 
@@ -109,6 +106,9 @@ export class Palette{
   private loadTilesheet(sheet: any): void {
     this.tilesheet = sheet;
     this.texture = this.assets.textures[this.tilesheet.textureId];
+    this.marker.x = 0;
+    this.marker.y = 0;
+    this.events.raise('paletteSelect', 0);
   }
 
 }

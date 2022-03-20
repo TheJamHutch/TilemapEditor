@@ -12,10 +12,12 @@ export class Editor{
   resolution: Vector;
   selectedTile: number;
   cursor: Rect;
-  tilesheet: any;
   assets: any;
   mapDimensions: Vector;
 
+  pasteMode: boolean;
+
+  tilesheet?: any;
   texture?: Bitmap;
   tilemap?: Tilemap;
   camera?: Camera;
@@ -27,6 +29,7 @@ export class Editor{
     this.assets = assets;
     this.cursor = new Rect({ x: 0, y: 0, w: config.tileSize, h: config.tileSize });
     this.selectedTile = 0;
+    this.pasteMode = false;
     
     this.mapDimensions = config.mapDimensions;
 
@@ -42,12 +45,10 @@ export class Editor{
   }
 
   update(): void {
-    if (!this.camera || !this.tilemap || !this.tilesheet || !this.texture){
-      return;
+    if (this.isInit()){
+      this.camera!.update();
+      this.render();
     }
-    
-    this.camera.update();
-    this.render();
   }
 
   saveMap(mapName: string): any {
@@ -68,66 +69,89 @@ export class Editor{
     this.camera = new Camera(this.resolution, this.tilemap.resolution, { x: 0, y: 0 });
   }
 
+  resizeMap(dimensions: Vector){
+    const n = dimensions.x * dimensions.y;
+    let tiles = [] as any[];
+
+    for (let i = 0; i < n; i++){
+      tiles[i] = this.tilemap!.tiles[i];
+    }
+
+    this.tilemap = new Tilemap(dimensions, tiles);
+    this.camera = new Camera(this.resolution, this.tilemap.resolution, { x: 0, y: 0 });
+  }
+
   onKeyDown(keycode: string): void {
-    if (!this.camera){
+    if (!this.isInit()){
       return;
     }
 
     switch(keycode){
       case 'KeyW':
-        this.camera.velocity.y = -1;
+        this.camera!.velocity.y = -1;
         break;
       case 'KeyS':
-        this.camera.velocity.y = 1;
+        this.camera!.velocity.y = 1;
         break;
       case 'KeyA':
-        this.camera.velocity.x = -1;
+        this.camera!.velocity.x = -1;
         break;
       case 'KeyD':
-        this.camera.velocity.x = 1;
+        this.camera!.velocity.x = 1;
         break;
     }
   }
 
   onKeyUp(keycode: string): void {
-    if (!this.camera){
+    if (!this.isInit()){
       return;
     }
 
     switch(keycode){
       case 'KeyW':
       case 'KeyS':
-        this.camera.velocity.y = 0;
+        this.camera!.velocity.y = 0;
         break;
       case 'KeyA':
       case 'KeyD':
-        this.camera.velocity.x = 0;
+        this.camera!.velocity.x = 0;
         break;
     }
   }
 
   onMouseMove(mousePos: Vector): void {
     this.setCursorPosition(mousePos);
+
+    if (this.pasteMode){
+      if ((this.cursor.x < this.tilemap!.resolution.x) && (this.cursor.y < this.tilemap!.resolution.y)){
+        this.setTile();
+      }
+    }
   }
 
   onMouseDown(mousePos: Vector): void {
-    if (!this.tilemap){
+    if (!this.isInit()){
       return;
     }
 
     this.setCursorPosition(mousePos);
   
-    if ((this.cursor.x < this.tilemap.resolution.x) && (this.cursor.y < this.tilemap.resolution.y)){
-      // Update tile
-      const tileIdx = posToIndex(this.viewToWorld(this.cursor), this.tilemap.dimensions);
-      const solid = (this.tilesheet.solidMap[this.selectedTile] === 1);
-      const effect = this.tilesheet.effectMap[this.selectedTile];
-      this.tilemap.tiles[tileIdx] = { texture: this.selectedTile, solid, effect };
+    if ((this.cursor.x < this.tilemap!.resolution.x) && (this.cursor.y < this.tilemap!.resolution.y)){
+      this.pasteMode = true;
+      this.setTile();
     }
   }
 
   onMouseUp(mousePos: Vector){
-    
+    this.pasteMode = false;
+  }
+
+  private setTile(): void {
+    // Update tile
+    const tileIdx = posToIndex(this.viewToWorld(this.cursor), this.tilemap!.dimensions);
+    const solid = (this.tilesheet.solidMap[this.selectedTile] === 1);
+    const effect = this.tilesheet.effectMap[this.selectedTile];
+    this.tilemap!.tiles[tileIdx] = { texture: this.selectedTile, solid, effect };
   }
 
   private loadTilesheet(sheet: any){
@@ -136,12 +160,12 @@ export class Editor{
   }
 
   private setCursorPosition(mousePos: Vector): void {
-    if (!this.tilemap || !this.camera){
+    if (!this.isInit()){
       return;
     }
 
-    this.cursor.x = (mousePos.x - (mousePos.x % this.tilemap.tileSize)) - (this.camera.world.x % this.tilemap.tileSize);
-    this.cursor.y = (mousePos.y - (mousePos.y % this.tilemap.tileSize)) - (this.camera.world.y % this.tilemap.tileSize);
+    this.cursor.x = (mousePos.x - (mousePos.x % this.tilemap!.tileSize)) - (this.camera!.world.x % this.tilemap!.tileSize);
+    this.cursor.y = (mousePos.y - (mousePos.y % this.tilemap!.tileSize)) - (this.camera!.world.y % this.tilemap!.tileSize);
   }
 
   private viewToWorld(view: Vector): Vector {
@@ -156,13 +180,18 @@ export class Editor{
   }
 
   private render(): void {
-    drawRect(this.context, new Rect({ x: 0, y: 0, w: this.resolution.x, h: this.resolution.y }), RenderMode.Fill)
+    drawRect(this.context, new Rect({ x: 0, y: 0, w: this.resolution.x, h: this.resolution.y }), RenderMode.Fill);
 
-    renderTilemap(this.tilemap as Tilemap, this.context, this.camera as Camera, this.tilesheet, this.texture as Bitmap);
+    renderTilemap(this.tilemap!, this.context, this.camera!, this.tilesheet, this.texture!);
 
     this.context.strokeStyle = 'yellow';
     this.context.lineWidth = 4;
     drawRect(this.context, this.cursor);
+  }
+
+  // Returns true if all of the optional properties of 'this' have been init.
+  private isInit(): boolean {
+    return (this.tilemap && this.tilesheet && this.texture && this.camera);
   }
   
 }

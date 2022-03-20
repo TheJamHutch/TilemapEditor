@@ -1,5 +1,6 @@
 {
   "name": "_fail",
+  "type": "map",
   "dimensions": {
     "x": 1,
     "y": 1  

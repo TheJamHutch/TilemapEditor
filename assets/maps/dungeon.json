@@ -1,5 +1,6 @@
 {
   "name": "dungeon",
+  "type": "map",
   "dimensions": {
     "x": 25,
     "y": 18  

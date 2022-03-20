@@ -1,5 +1,6 @@
 {
     "name": "newworld",
+    "type": "tilesheet",
     "textureId": "overtiles",
     "clipSize": 16,
     "dimensions": { "x": 2, "y": 2 },

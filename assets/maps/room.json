@@ -1,5 +1,6 @@
 {
   "name": "room",
+  "type": "map",
   "dimensions": {
     "x": 3,
     "y": 3  

@@ -1,5 +1,6 @@
 {
   "name": "overworld",
+  "type": "map",
   "dimensions": {
     "x": 300,
     "y": 300  
