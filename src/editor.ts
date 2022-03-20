@@ -14,6 +14,7 @@ export class Editor{
   cursor: Rect;
   assets: any;
   mapDimensions: Vector;
+  zoomLevel: number;
 
   pasteMode: boolean;
 
@@ -21,6 +22,11 @@ export class Editor{
   texture?: Bitmap;
   tilemap?: Tilemap;
   camera?: Camera;
+
+  ctrlHeld: boolean;
+
+  undoStack: any[];
+  redoStack: any[];
 
   constructor(events: Events, context: CanvasRenderingContext2D, config: any, assets: any){
     this.events = events;
@@ -30,6 +36,12 @@ export class Editor{
     this.cursor = new Rect({ x: 0, y: 0, w: config.tileSize, h: config.tileSize });
     this.selectedTile = 0;
     this.pasteMode = false;
+    this.zoomLevel = 0;
+
+    this.ctrlHeld = false;
+
+    this.undoStack = [];
+    this.redoStack = [];
     
     this.mapDimensions = config.mapDimensions;
 
@@ -99,6 +111,25 @@ export class Editor{
       case 'KeyD':
         this.camera!.velocity.x = 1;
         break;
+      case 'Equal':
+        this.zoomIn();
+        break;
+      case 'Minus':
+        this.zoomOut();
+        break;
+      case 'ControlLeft':
+        this.ctrlHeld = true;
+        break;
+      case 'KeyZ':
+        if (this.ctrlHeld){
+          this.undo();
+        }
+        break;
+      case 'KeyY':
+        if (this.ctrlHeld){
+          this.redo();
+        }
+        break;
     }
   }
 
@@ -116,14 +147,21 @@ export class Editor{
       case 'KeyD':
         this.camera!.velocity.x = 0;
         break;
+      case 'ControlLeft':
+        this.ctrlHeld = false;
+        break;
     }
   }
 
   onMouseMove(mousePos: Vector): void {
+    if (!this.isInit()){
+      return;
+    }
+
     this.setCursorPosition(mousePos);
 
     if (this.pasteMode){
-      if ((this.cursor.x < this.tilemap!.resolution.x) && (this.cursor.y < this.tilemap!.resolution.y)){
+      if (this.cursorInBounds()){
         this.setTile();
       }
     }
@@ -136,22 +174,92 @@ export class Editor{
 
     this.setCursorPosition(mousePos);
   
-    if ((this.cursor.x < this.tilemap!.resolution.x) && (this.cursor.y < this.tilemap!.resolution.y)){
+    if (this.cursorInBounds()){
       this.pasteMode = true;
       this.setTile();
     }
   }
 
   onMouseUp(mousePos: Vector){
+    if (!this.isInit()){
+      return;
+    }
+
     this.pasteMode = false;
   }
 
+  private undo(): void {
+    let item = this.undoStack.pop();
+    if (item){
+      this.tilemap!.setTile(item.inverse.tile, item.inverse.pos);
+      this.redoStack.push(item);
+    }
+  }
+
+  private redo(): void {
+    let item = this.redoStack.pop();
+    if (item){
+      this.tilemap!.setTile(item.actual.tile, item.actual.pos);
+      this.undoStack.push(item);
+    }
+  }
+
   private setTile(): void {
-    // Update tile
-    const tileIdx = posToIndex(this.viewToWorld(this.cursor), this.tilemap!.dimensions);
+    const tilePos = this.getTilePos(this.cursor);
+    const originalTile = this.tilemap!.getTile(tilePos);
+
     const solid = (this.tilesheet.solidMap[this.selectedTile] === 1);
     const effect = this.tilesheet.effectMap[this.selectedTile];
-    this.tilemap!.tiles[tileIdx] = { texture: this.selectedTile, solid, effect };
+    this.tilemap!.setTile({ texture: this.selectedTile, solid, effect }, tilePos);
+
+    const updatedTile = this.tilemap!.getTile(tilePos);
+
+    const item = {
+      actual: {
+        pos: tilePos,
+        tile: updatedTile
+      },
+      inverse: {
+        pos: tilePos,
+        tile: originalTile
+      }
+    };
+    this.undoStack.push(item);
+  }
+
+  private getTilePos(viewPos: Vector): Vector {
+    return {
+      x: Math.floor(viewPos.x / this.tilemap!.tileViewSize) + Math.ceil(this.camera!.world.x / this.tilemap!.tileViewSize),
+      y: Math.floor(viewPos.y / this.tilemap!.tileViewSize) + Math.ceil(this.camera!.world.y / this.tilemap!.tileViewSize)
+    };
+  }
+
+  private cursorInBounds(): boolean{
+    return (this.cursor.x < this.tilemap!.resolution.x) && (this.cursor.y < this.tilemap!.resolution.y);
+  }
+
+  private zoomIn(){
+    const maxZoom = 20;
+    if (this.zoomLevel < maxZoom){
+      this.zoomLevel += 2;
+      this.tilemap!.changeTileViewSize(this.tilemap!.tileSize + this.zoomLevel);
+      this.cursor.w = this.tilemap!.tileViewSize;
+      this.cursor.h = this.tilemap!.tileViewSize;
+
+      this.camera!.worldBounds = this.tilemap!.resolution;
+    }
+  }
+
+  private zoomOut(){
+    const minZoom = -20;
+    if (this.zoomLevel > minZoom){
+      this.zoomLevel -= 2;
+      this.tilemap!.changeTileViewSize(this.tilemap!.tileSize + this.zoomLevel);
+      this.cursor.w = this.tilemap!.tileViewSize;
+      this.cursor.h = this.tilemap!.tileViewSize;
+
+      this.camera!.worldBounds = this.tilemap!.resolution;
+    }
   }
 
   private loadTilesheet(sheet: any){
@@ -164,8 +272,8 @@ export class Editor{
       return;
     }
 
-    this.cursor.x = (mousePos.x - (mousePos.x % this.tilemap!.tileSize)) - (this.camera!.world.x % this.tilemap!.tileSize);
-    this.cursor.y = (mousePos.y - (mousePos.y % this.tilemap!.tileSize)) - (this.camera!.world.y % this.tilemap!.tileSize);
+    this.cursor.x = (mousePos.x - (mousePos.x % this.tilemap!.tileViewSize)) - (this.camera!.world.x % this.tilemap!.tileViewSize);
+    this.cursor.y = (mousePos.y - (mousePos.y % this.tilemap!.tileViewSize)) - (this.camera!.world.y % this.tilemap!.tileViewSize);
   }
 
   private viewToWorld(view: Vector): Vector {
@@ -174,8 +282,8 @@ export class Editor{
     }
 
     return {
-      x: Math.floor(view.x / this.tilemap.tileSize) + Math.ceil(this.camera.world.x / this.tilemap.tileSize),
-      y: Math.floor(view.y / this.tilemap.tileSize) + Math.ceil(this.camera.world.y / this.tilemap.tileSize)
+      x: Math.floor(view.x / this.tilemap.tileViewSize) + Math.ceil(this.camera.world.x / this.tilemap.tileViewSize),
+      y: Math.floor(view.y / this.tilemap.tileViewSize) + Math.ceil(this.camera.world.y / this.tilemap.tileViewSize)
     };
   }
 

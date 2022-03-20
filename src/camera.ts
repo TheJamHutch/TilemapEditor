@@ -12,7 +12,7 @@ export class Camera{
     this.worldBounds = mapRes;
     this.view = resolution;
     this.velocity = { x: 0, y: 0 };
-    this.moveSpeed = 3;
+    this.moveSpeed = 10;
   }
 
   update(){

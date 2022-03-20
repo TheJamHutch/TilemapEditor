@@ -4,12 +4,6 @@ import { Camera } from './camera';
 import { Bitmap, loadBitmap, drawBitmap } from './render';
 import { setClip } from './util';
 
-export enum TileSize {
-  Small = 8,
-  Medium = 16,
-  Large = 32
-};
-
 export enum TileEffect {
   None = 0,
   Hurt,
@@ -25,22 +19,26 @@ export type Tile = {
 };
 
 export class Tilemap{
-  tileSize: TileSize;
+  // The original tile size before zoom
+  tileSize: number;
+  // Size of tile with zoom applied
+  tileViewSize: number;
   dimensions: Vector;
   resolution: Vector;
   tiles: Tile[];
 
   constructor(dimensions: Vector, tiles: Tile[]){
-    this.tileSize = TileSize.Large;
+    this.tileSize = 32; // @TODO: Hardcoded
+    this.tileViewSize = this.tileSize;
     this.dimensions = dimensions;
     this.resolution = { 
-      x: dimensions.x * this.tileSize,
-      y: dimensions.y * this.tileSize
+      x: this.dimensions.x * this.tileViewSize,
+      y: this.dimensions.y * this.tileViewSize
     };
     this.tiles = [];
   
   
-    // Insert tiles from param
+    // Insert tiles from param=============
   
     const nTiles = dimensions.x * dimensions.y;
       
@@ -62,18 +60,36 @@ export class Tilemap{
       }
     }
   }
+
+  setTile(tile: Tile, pos: Vector){
+    const idx = (pos.y * this.dimensions.x) + pos.x;
+    this.tiles[idx] = tile;
+  }
+
+  getTile(pos: Vector): Tile {
+    const idx = (pos.y * this.dimensions.x) + pos.x;
+    return this.tiles[idx];
+  }
+
+  changeTileViewSize(tileSize: number): void {
+    this.tileViewSize = tileSize;
+    this.resolution = { 
+      x: this.dimensions.x * this.tileViewSize,
+      y: this.dimensions.y * this.tileViewSize
+    };
+  }
 }
 
 export function renderTilemap(tilemap: Tilemap, context: CanvasRenderingContext2D, camera: Camera, sheet: any, texture: Bitmap): void {
   //
   const inView = {
-    x: camera.view.x / tilemap.tileSize,
-    y: camera.view.y / tilemap.tileSize
+    x: camera.view.x / tilemap.tileViewSize,
+    y: camera.view.y / tilemap.tileViewSize
   };
   // 
   const start = {
-    x: Math.floor(camera.world.x / tilemap.tileSize),
-    y: Math.floor(camera.world.y / tilemap.tileSize)
+    x: Math.floor(camera.world.x / tilemap.tileViewSize),
+    y: Math.floor(camera.world.y / tilemap.tileViewSize)
   };
   const end = {
     x: (tilemap.dimensions.x > inView.x) ? start.x + inView.x + 1 : tilemap.dimensions.x, 
@@ -91,7 +107,7 @@ export function renderTilemap(tilemap: Tilemap, context: CanvasRenderingContext2
   };*/
 
   let clip = new Rect({ x: 0, y: 0, w: sheet.clipSize, h: sheet.clipSize });
-  let dest = new Rect({ x: 0, y: 0, w: tilemap.tileSize, h: tilemap.tileSize });
+  let dest = new Rect({ x: 0, y: 0, w: tilemap.tileViewSize, h: tilemap.tileViewSize });
   for (let y = start.y; y < end.y; y++)
   {
     for (let x = start.x; x < end.x; x++)
@@ -100,8 +116,8 @@ export function renderTilemap(tilemap: Tilemap, context: CanvasRenderingContext2
       const foundTile: boolean = (tilemap.tiles[tileIdx] !== undefined);
       if (foundTile){
         clip = setClip(tilemap.tiles[tileIdx].texture, sheet.clipSize, sheet.dimensions);
-        dest.x = ((x * tilemap.tileSize) - camera.world.x);
-        dest.y = ((y * tilemap.tileSize) - camera.world.y);
+        dest.x = ((x * tilemap.tileViewSize) - camera.world.x);
+        dest.y = ((y * tilemap.tileViewSize) - camera.world.y);
 
         drawBitmap(context, texture, clip, dest);
       }

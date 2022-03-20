@@ -1,0 +1,13 @@
+{
+    "name": "basetiles",
+    "type": "tilesheet",
+    "textureId": "basetiles",
+    "clipSize": 16,
+    "dimensions": { "x": 8, "y": 8 },
+    "solidMap": [
+      0, 0
+    ],
+    "effectMap": [
+      0, 0
+    ]
+  }
