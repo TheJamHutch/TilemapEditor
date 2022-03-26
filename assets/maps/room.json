@@ -1,17 +1,25 @@
 {
-  "name": "room",
+  "id": "room",
   "type": "map",
-  "dimensions": {
-    "x": 3,
-    "y": 3  
+  "tilemap": {
+    "dimensions": {
+      "x": 3,
+      "y": 3  
+    },
+    "layers": [
+      {
+        "tilesheetId": "basetiles",
+        "tiles": [
+          1, 0, 0,
+          0, 1, 0,
+          0, 0, 0
+        ]
+      }
+    ]
   },
-  "tiles": [
-    { "texture": 0, "effect": 0 }, { "texture": 0, "effect": 0 }, { "texture": 1, "effect": 1 },
-    { "texture": 0, "effect": 0 }, { "texture": 1, "effect": 1 }, { "texture": 1, "effect": 1 },
-    { "texture": 0, "effect": 0 }, { "texture": 0, "effect": 0 }, { "texture": 0, "effect": 0 }
-  ],
-  "playerSpawn": {
-    "x": 1,
-    "y": 1
+  "entities": {
+    "player": {
+      "spawnPos": { "x": 0, "y": 0 }
+    }
   }
 }

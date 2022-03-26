@@ -1,26 +1,32 @@
 import { Vector } from './primitives';
+import { Tilemap, WorldMap } from './tilemap';
 
 export class Camera{
   world: Vector;
-  worldBounds: Vector;
   view: Vector;
   velocity: Vector
   moveSpeed: number;
+  maxZoom: number
+  zoomLevel: number;
+  worldMap: WorldMap;
 
-  constructor(resolution: Vector, mapRes: Vector, initPos: Vector){
+  constructor(resolution: Vector, worldMap: WorldMap, initPos: Vector){
     this.world = initPos;
-    this.worldBounds = mapRes;
+    this.worldMap = worldMap;
     this.view = resolution;
     this.velocity = { x: 0, y: 0 };
     this.moveSpeed = 10;
+
+    this.maxZoom = 20;
+    this.zoomLevel = 0;
   }
 
   update(){
     // Check world bounds
-    if ((this.velocity.x < 0 && this.world.x <= 0) || ( this.velocity.x > 0 && this.world.x + this.view.x > this.worldBounds.x)){
+    if ((this.velocity.x < 0 && this.world.x <= 0) || ( this.velocity.x > 0 && this.world.x + this.view.x > this.worldMap.resolution.x)){
       this.velocity.x = 0;
     }
-    if ((this.velocity.y < 0 && this.world.y <= 0) || ( this.velocity.y > 0 && this.world.y + this.view.y > this.worldBounds.y)){
+    if ((this.velocity.y < 0 && this.world.y <= 0) || ( this.velocity.y > 0 && this.world.y + this.view.y > this.worldMap.resolution.y)){
       this.velocity.y = 0;
     }
 
@@ -28,10 +34,48 @@ export class Camera{
     this.world.y += this.moveSpeed * this.velocity.y;
   }
 
-  worldToView(world: Vector){
+  worldToView(world: Vector): Vector {
     return {
       x: world.x - this.world.x,
       y: world.y - this.world.y
     };
   }
+
+  viewToWorld(view: Vector): Vector {
+    return {
+      x: view.x + this.world.x,
+      y: view.y + this.world.y
+    }
+  }
+
+  zoomIn(): void {
+    if (this.zoomLevel < this.maxZoom){
+      this.zoomLevel += 1;
+    }
+  }
+
+  zoomOut(): void {
+
+  }
+
+  /*
+  private zoomIn(){
+    const maxZoom = 20;
+    if (this.zoomLevel < maxZoom){
+      this.zoomLevel += 2;
+      this.tilemap!.changeTileViewSize(this.tilemap!.tileSize + this.zoomLevel);
+      this.cursor.w = this.tilemap!.tileViewSize;
+      this.cursor.h = this.tilemap!.tileViewSize;
+    }
+  }
+
+  private zoomOut(){
+    const minZoom = -20;
+    if (this.zoomLevel > minZoom){
+      this.zoomLevel -= 2;
+      this.tilemap!.changeTileViewSize(this.tilemap!.tileSize + this.zoomLevel);
+      this.cursor.w = this.tilemap!.tileViewSize;
+      this.cursor.h = this.tilemap!.tileViewSize;
+    }
+  }*/
 }

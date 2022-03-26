@@ -7,8 +7,6 @@ canvas{
 }
 
 select{
-  // @TODO: Temporary, change scroll bar
-  overflow-y: hidden;
 }
 
 button, input, select{
@@ -44,20 +42,10 @@ span.title{
   &.column{
     flex-direction: column;
   }
-}
 
-.dialog{
-  box-sizing: border-box;
-  position: absolute;
-  top: 50px;
-  left: 900px;
-  width: 250px;
-  height: 300px;
-  color: white;
-
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  &.space-between{
+    justify-content: space-between;
+  }
 }
 
 .content{
@@ -65,51 +53,45 @@ span.title{
   margin-top: 50px;
   margin-left: 50px;
   width: 815px;
+  height: 1048px;
   padding: 5px;
   
   color: white;
+}
 
-  .topbar{
-    padding: 5px;
-    margin-bottom: 5px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+.topbar{
+  padding: 5px;
+  margin-bottom: 5px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 
-    button{
-      width: 60px;
-      height: 40px;
-    }
-    
+  button{
+    width: 60px;
+    height: 40px;
   }
+  
+}
 
-  .lower-content{
-    width: 100%;
-  }
-
-  .palette-box{
+.tab-content{
+  display: flex;
+  flex-direction: row;
+  .left-content {
     flex: 4;
   }
-
-  .controls-box{
-    border-left: 1px solid grey;
-    flex: 1;
+  .right-content{
     padding: 5px;
-    margin-left: 5px;
-    gap: 10px;
-  
-    hr{
-      width: 100%;
-    }
-
-    span.heading{
-      font-size: 16px;
-      text-decoration: underline;
-    }
-
-    select{
-      width: 100px;
-    }
+    flex: 1;
+    border-left: 1px solid grey;
+  }
+  select{
+    width: 100%;
+  }
+  input{
+    width: 100px;
+  }
+  hr{
+    margin-top: 10px;
   }
 }
 
@@ -137,4 +119,9 @@ span.title{
 .tab-selector:hover{
   color: yellow;
   text-decoration: underline;
+}
+
+#newSheetSection{
+  width: 300px;
+  height: 250px;
 }

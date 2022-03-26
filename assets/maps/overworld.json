@@ -1,5 +1,5 @@
 {
-  "name": "overworld",
+  "id": "overworld",
   "type": "map",
   "dimensions": {
     "x": 300,

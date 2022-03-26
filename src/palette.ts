@@ -1,31 +1,34 @@
 import { Vector, Rect } from "./primitives";
 import { drawBitmap, Bitmap, drawRect, RenderMode } from "./render";
-import { Events } from "./events"; 
+import { Global } from "./global";
+import { Assets } from "./assets";
 
 export class Palette{
   context: CanvasRenderingContext2D;
   resolution: Vector;
   viewSize: number;
-  events: Events;
   assets: any;
   cursor: Rect;
   marker: Rect;
-  texture?: Bitmap;
+  texture?: Assets.Texture;
   tilesheet?: any;
 
-  constructor(events: Events, context: CanvasRenderingContext2D, config: any, assets: any){
-    this.events = events;
+  constructor(context: CanvasRenderingContext2D, config: any){
     this.context = context;
-    this.resolution = config.resolution;
+    this.resolution = config.resolution
     this.viewSize = config.tileSize;
-    this.assets = assets;
 
     this.cursor = new Rect({ x: 0, y: 0, w: this.viewSize, h: this.viewSize });
     this.marker = new Rect(this.cursor);
+  }
 
-    this.events.register('tilesheetLoad', (sheet: any) => {
-      this.loadTilesheet(sheet);
-    });
+  useTilesheet(tilesheetId: string){
+    this.tilesheet = Assets.store.tilesheets[tilesheetId];
+    
+    this.texture = Assets.store.textures[this.tilesheet.textureId];
+    this.marker.x = 0;
+    this.marker.y = 0;
+    Global.events.raise('paletteSelect', 0);
   }
 
   update(): void {
@@ -51,7 +54,7 @@ export class Palette{
       y: Math.floor(this.cursor.y / this.viewSize)
     };
     const cellIdx = (cell.y * Math.floor(this.resolution.x / this.viewSize)) + cell.x;
-    this.events.raise('paletteSelect', cellIdx);
+    Global.events.raise('paletteSelect', cellIdx);
   }
 
   private render(): void {
@@ -69,7 +72,7 @@ export class Palette{
     let cy = 0;
     
     for (let i = 0; i < nCells; i++){
-      drawBitmap(this.context, this.texture, clip, view);
+      drawBitmap(this.context, this.texture!.bitmap, clip, view);
 
       // Update clip rect
       cx += 1;
@@ -101,14 +104,6 @@ export class Palette{
   private setCursorPosition(mousePos: Vector): void {
     this.cursor.x = mousePos.x - (mousePos.x % this.viewSize);
     this.cursor.y = mousePos.y - (mousePos.y % this.viewSize);
-  }
-
-  private loadTilesheet(sheet: any): void {
-    this.tilesheet = sheet;
-    this.texture = this.assets.textures[this.tilesheet.textureId];
-    this.marker.x = 0;
-    this.marker.y = 0;
-    this.events.raise('paletteSelect', 0);
   }
 
 }

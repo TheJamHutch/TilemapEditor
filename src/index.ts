@@ -1,28 +1,29 @@
-import './style.scss';
+import '../style.scss';
 import jquery from 'jquery';
-import { Events } from './src/events';
-import { Editor } from './src/editor';
-import { Palette } from './src/palette';
-import { loadBitmap } from './src/render';
+import { Editor } from './editor';
+import { Palette } from './palette';
+import { loadBitmap } from './render';
+import { Global } from './global';
+import { Tilemap } from './tilemap';
+import { Assets } from './assets';
+import { App } from './app';
 
 // @ts-ignore
 window.$ = window.jquery = jquery;
 
 let dom = {} as any;
-let assets: any = {
-  textures: {
-    basetiles: loadBitmap('./assets/textures/basetiles.png'),
-    overtiles: loadBitmap('./assets/textures/overtiles.png')
-  },
-  tilesheets: {},
-  maps: {},
-  spritesheets: {},
-};
-let events: Events;
 let tilesheetLoaded = false;
+let tilesheetId = '';
 let mapLoaded = false;
 
-const globalConfig = {
+let editor: Editor;
+let palette: Palette
+
+let layerCount = 0;
+
+const config = {
+  autosaveEnabled: false,
+  storageEnabled: false,
   editor: {
     resolution: { x: 800, y: 600 },
     mapDimensions: { x: 30, y: 30 },
@@ -55,7 +56,8 @@ function initDom(){
     solidCheckbox: $('#solidCheckbox')[0] as HTMLInputElement,
     // Select
     tileEffectSelect: $('#tileEffectSelect')[0] as HTMLSelectElement,
-    selectTilesheet: $('#tilesheetSelect')[0] as HTMLSelectElement,
+    layerSelect: $('#layerSelect')[0] as HTMLSelectElement,
+    tilesheetSelect: $('#tilesheetSelect')[0] as HTMLSelectElement,
 
     // New tilesheet dialog
     sheetNameInput: $('#sheetNameInput')[0] as HTMLInputElement,
@@ -70,61 +72,84 @@ function initDom(){
     tabSelectorEntities: $('#tab-selector-entities')[0] as HTMLDivElement,
     tabContentTilemap: $('#tab-content-tilemap')[0] as HTMLDivElement,
     tabContentEntities: $('#tab-content-entities')[0] as HTMLDivElement,
+
+    newSheetSection: $('#newSheetSection')[0] as HTMLDivElement,
+
+    addLayerBtn: $('#addLayerBtn')[0] as HTMLButtonElement,
+    removeLayerBtn: $('#removeLayerBtn')[0] as HTMLButtonElement,
   };
+  
+  // Init tabs
+  $(dom.tabContentEntities).hide();
+  $(dom.tabContentTilemap).show();
+  $(dom.tabSelectorTilemap).css('color', 'yellow');
+
+  $(dom.newSheetSection).hide();
 }
 
 // Identifies the last know user of the upload file input element to determine whether the correct type of file was selected.
 let lastFileUser: string;
 
-function update(editor: Editor, palette: Palette) {
-  events.poll();
+function update() {
+  Global.events.poll();
   editor.update();
   palette.update();
+  App.update();
 
   requestAnimationFrame(() => {
-    update(editor, palette);
+    update();
   });
 }
 
-async function readFileText(file: File): Promise<any> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
 
-    reader.onload = (() => {
-      resolve(reader.result);
-    });
 
-    reader.onerror = reject;
+function addTilemapLayer(){
 
-    reader.readAsText(file);
-  });
 }
 
 // Load asset from a File into assets map
 async function loadAssetFromFile(file: File){
-  const fileText = await readFileText(file);
+  const fileText = await Assets.readFileText(file);
 
   if (file.type === 'application/json'){
     const asset = JSON.parse(fileText);
     if (asset.type === 'map' && lastFileUser === 'loadMap'){
-      assets.maps[asset.name] = asset;
-      events.raise('mapLoad', assets.maps[asset.name]);
+      Assets.loadGameMap(asset);
+      Global.events.raise('mapLoad', Assets.store.maps[asset.id]);
       mapLoaded = true;
-      localStorage.setItem('map', JSON.stringify(asset));
-      $(dom.mapNameInput).prop('value', asset.name);
-      $(dom.xDimInput).prop('value', asset.dimensions.x);
-      $(dom.yDimInput).prop('value', asset.dimensions.y);
+        
+      if (config.storageEnabled){
+        localStorage.setItem('map', JSON.stringify(asset));
+      }
+    
+      $(dom.mapNameInput).prop('value', asset.id);
+      $(dom.xDimInput).prop('value', asset.tilemap.dimensions.x);
+      $(dom.yDimInput).prop('value', asset.tilemap.dimensions.y);
     } else if (asset.type === 'tilesheet' && lastFileUser === 'loadTilesheet'){
-      assets.tilesheets[asset.name] = asset;
-      tilesheetLoaded = true;
-      localStorage.setItem('tilesheet', JSON.stringify(asset));
-      events.raise('tilesheetLoad', assets.tilesheets[asset.name]);
+      Assets.store.tilesheets[asset.id] = asset;
+
+      Assets.loadTilesheet(asset);
+  
+      if (config.storageEnabled){
+        localStorage.setItem('tilesheet', JSON.stringify(asset));
+      }
+    
+      const firstOption = (dom.tilesheetSelect.options.length === 0);
+      
+      const selected = (firstOption) ? 'selected' : '';
+      $(dom.tilesheetSelect).prepend(`<option value="${asset.id}" ${selected}>${asset.id}</option>`);
+      if (firstOption){
+        changeTilesheet(asset.id);
+      }
     } else {
       console.warn('Wrong file selected');
     }
   } else if (file.type === 'image/png'){
     if (lastFileUser === 'loadTexture'){
-
+      // Remove file extension to get texture ID
+      const textureId = file.name.substring(0, file.name.lastIndexOf('.'));
+      $(dom.textureNameInput).attr('value', textureId);
+      updateSheetDimensions();
     } else {
       console.warn('Wrong file selected');
     }
@@ -141,45 +166,80 @@ function startMapAutosave(editor: Editor){
   }, autosaveInterval);
 }
 
+function updateSheetDimensions(){
+  const textureId = dom.textureNameInput.value;
+  const texture = Assets.store.textures[textureId];
+  const clipSize = parseInt(dom.tileSizeSelect.value);
+  
+  const dims = {
+    x: texture.resolution.x / clipSize,
+    y: texture.resolution.y / clipSize
+  };
+  
+  $(dom.sheetXDimInput).attr('value', dims.x);
+  $(dom.sheetYDimInput).attr('value', dims.y);
+}
+
+function changeTilesheet(id: string){
+  tilesheetLoaded = true;
+  tilesheetId = id;
+  palette.useTilesheet(tilesheetId);
+  if (editor.worldMap?.tilemap){
+    const layerIdx = 0;
+    editor.worldMap!.tilemap.layers[layerIdx].tilesheetId = tilesheetId;
+  }
+}
+
 $(() => {
 
   initDom();
 
-  events = new Events();
+  // @TODO: Find another way to load textures
+  Assets.loadTexture('basetiles', './assets/textures/basetiles.png');
+  Assets.loadTexture('overtiles', './assets/textures/overtiles.png');
   
   const editorCanvas = $('#editor-canvas')[0] as HTMLCanvasElement;
-  editorCanvas.width = globalConfig.editor.resolution.x;
-  editorCanvas.height = globalConfig.editor.resolution.y;
-  const editorContext = editorCanvas.getContext('2d');
+  editorCanvas.width = config.editor.resolution.x;
+  editorCanvas.height = config.editor.resolution.y;
+  const editorContext = editorCanvas.getContext('2d') as CanvasRenderingContext2D;
+
   editorContext.imageSmoothingEnabled = false;
-  const editor = new Editor(events, editorContext, globalConfig.editor, assets);
+  editor = new Editor(editorContext, config.editor);
 
   // Init palette
   const paletteCanvas = $('#palette-canvas')[0] as HTMLCanvasElement;
-  paletteCanvas.width = globalConfig.palette.resolution.x;
-  paletteCanvas.height = globalConfig.palette.resolution.y;
-  const paletteContext = paletteCanvas.getContext('2d');
+  paletteCanvas.width = config.palette.resolution.x;
+  paletteCanvas.height = config.palette.resolution.y;
+  const paletteContext = paletteCanvas.getContext('2d') as CanvasRenderingContext2D;
   paletteContext.imageSmoothingEnabled = false;
-  const palette = new Palette(events, paletteContext, globalConfig.palette, assets);
+  palette = new Palette(paletteContext, config.palette);
 
-  const initSheetJson = localStorage.getItem('tilesheet');
-  if (initSheetJson){
-    const initSheet = JSON.parse(initSheetJson);
-    // @TODO: Call method on palette instead of raising event?
-    events.raise('tilesheetLoad', initSheet);
-    tilesheetLoaded = true;
-  }
 
-  const initMapJson = localStorage.getItem('map');
-  if (initMapJson){
-    const initMap = JSON.parse(initMapJson);
-    events.raise('mapLoad', initMap);
-    mapLoaded = true;
-    $(dom.mapNameInput).prop('value', initMap.name);
-    $(dom.xDimInput).prop('value', initMap.dimensions.x);
-    $(dom.yDimInput).prop('value', initMap.dimensions.y);
+  App.init(editorContext, paletteContext);
 
-    startMapAutosave(editor);
+  if (config.storageEnabled){
+    const initSheetJson = localStorage.getItem('tilesheet');
+    if (initSheetJson){
+      const initSheet = JSON.parse(initSheetJson);
+      tilesheetId = initSheet.id;
+      // @TODO: Call method on palette instead of raising event?
+      Global.events.raise('tilesheetLoad', initSheet);
+      tilesheetLoaded = true;
+    }
+
+    const initMapJson = localStorage.getItem('map');
+    if (initMapJson){
+      const initMap = JSON.parse(initMapJson);
+      Global.events.raise('mapLoad', initMap);
+      mapLoaded = true;
+      $(dom.mapNameInput).prop('value', initMap.id);
+      $(dom.xDimInput).prop('value', initMap.tilemap.dimensions.x);
+      $(dom.yDimInput).prop('value', initMap.tilemap.dimensions.y);
+
+      if (config.autosaveEnabled){
+        startMapAutosave(editor);
+      }
+    }
   }
 
   // Init keyboard events
@@ -217,14 +277,31 @@ $(() => {
 
       const mapObj = {
         name: '',
-        dimensions: { x, y },
-        tiles: []
+        type: 'map',
+        tilemap: {
+          dimensions: { x, y },
+          layers: [
+            {
+              name: 'layer0',
+              tilesheetId,
+              tiles: []
+            }
+          ]
+        }
       };
 
-      events.raise('mapLoad', mapObj);
+      Global.events.raise('mapLoad', mapObj);
       mapLoaded = true;
       $(dom.mapNameInput).prop('value', '');
-      localStorage.setItem('map', JSON.stringify(mapObj));
+
+      const layerName = 'layer' + layerCount;
+      $(dom.layerSelect).prepend(`<option value="${layerCount}">${layerName}</option>`);
+      layerCount = 1;
+      console.log(tilesheetId);
+      
+      if (config.storageEnabled){
+        localStorage.setItem('map', JSON.stringify(mapObj));
+      }
     } else {
       console.warn('You must load a tilesheet before you can create a new map');
       alert('You must load a tilesheet before you can create a new map');
@@ -246,7 +323,7 @@ $(() => {
       const savedMapJson = JSON.stringify(savedMap);
       const saveAnchor = document.createElement('a');
       saveAnchor.href = `data:application/json;charset=utf-8,${savedMapJson}`;
-      saveAnchor.download = `${savedMap.name}.json`;
+      saveAnchor.download = `${savedMap.id}.json`;
       saveAnchor.click();
       // @TODO: Delete link ???
     }
@@ -260,6 +337,15 @@ $(() => {
       console.warn('You must load a tilesheet before you can load a map');
       alert('You must load a tilesheet before you can load a map');
     }
+  };
+
+  const onLayerSelectChange = function(e: any){
+    const layer = editor.worldMap!.tilemap.layers[e.target.value];
+    console.log(layer);
+    console.log(editor.worldMap!.tilemap.layers);
+  
+
+    $(`#tilesheetSelect option[value=${layer.tilesheetId}]`).prop('selected', true);
   };
 
   const onResizeBtnClick = function(e: any){
@@ -276,8 +362,8 @@ $(() => {
   };
 
   const onNewTilesheetBtnClick = function(e: any){
-    console.log('new sheet');
-    
+    $(paletteCanvas).hide();
+    $(dom.newSheetSection).show();
   };
   const onSaveTilesheetBtnClick = function(e: any){
     console.log('save sheet');
@@ -287,6 +373,10 @@ $(() => {
     lastFileUser = 'loadTilesheet';
     $(dom.uploadFileInput).trigger('click');
   };
+  const onTilesheetSelectChange = function(e: any){
+    tilesheetId = e.target.value;
+    changeTilesheet(tilesheetId);
+  }
   
   const onTextureBrowseBtnClick = function(e: any){
     lastFileUser = 'loadTexture';
@@ -294,24 +384,64 @@ $(() => {
   };
   const onCreateSheetBtnClick = function(e: any){
 
+    // @ TODO: Get textures another way
+    const textureId = dom.textureNameInput.value;
+    const texture = Assets.store.textures[textureId];
+    const clipSize = parseInt(dom.tileSizeSelect.value);
+    const dims = {
+      x: texture.resolution.x / clipSize,
+      y: texture.resolution.y / clipSize
+    };
+
+    
+
     const sheet = {
-      name: dom.sheetNameInput.value,
-      textureId: dom.textureNameInput.value,
+      id: dom.sheetNameInput.value,
+      type: 'tilesheet',
+      textureId,
+      clipSize: dom.tileSizeSelect.value,
+      dimensions: { x: dims.x, y: dims.y },
       solidMap: [],
       effectMap: []
     };
     
-    //editor.loadTilesheet(sheet);
-    //palette.loadTilesheet(sheet);
+    Assets.loadTilesheet(sheet);
+
+    $(dom.newSheetSection).hide();
+    $(paletteCanvas).show();
   };
 
   const onTabSelectorTilemapClick = function(e: any){
     $(dom.tabContentEntities).hide();
     $(dom.tabContentTilemap).show();
+    
+    $(dom.tabSelectorEntities).css('color', 'white');
+    $(dom.tabSelectorTilemap).css('color', 'yellow');
   }
   const onTabSelectorEntitiesClick = function(e: any){
     $(dom.tabContentTilemap).hide();
     $(dom.tabContentEntities).show();
+
+    $(dom.tabSelectorEntities).css('color', 'yellow');
+    $(dom.tabSelectorTilemap).css('color', 'white');
+  }
+
+  const onTileSizeSelectChange = function(e: any){
+    updateSheetDimensions();
+  }
+
+  const onAddLayerBtnClick = function(e: any){
+    const layer = {
+      tilesheetId,
+      tiles: []
+    };
+    editor.worldMap!.tilemap.addLayer(layer);
+    const layerName = 'layer' + layerCount;
+    $(dom.layerSelect).prepend(`<option value="${layerCount}">${layerName}</option>`);
+    layerCount++;
+  };
+  const onRemoveLayerBtnClick = function(e: any){
+    console.log('RM');
   }
 
   // Bind listeners
@@ -327,7 +457,21 @@ $(() => {
   $(dom.createSheetBtn).on('click', onCreateSheetBtnClick);
   $(dom.tabSelectorTilemap).on('click', onTabSelectorTilemapClick);
   $(dom.tabSelectorEntities).on('click', onTabSelectorEntitiesClick);
+  $(dom.tileSizeSelect).on('change', onTileSizeSelectChange);
+  $(dom.tilesheetSelect).on('change', onTilesheetSelectChange);
+  $(dom.layerSelect).on('change', onLayerSelectChange);
+  $(dom.addLayerBtn).on('click', onAddLayerBtnClick);
+  $(dom.removeLayerBtn).on('click', onRemoveLayerBtnClick);
 
+  Global.events.register('paletteSelect', (e) => {
+    const tilesheet = Assets.store.tilesheets[tilesheetId];
+    const tileIdx = e;
+    const isSolid = (tilesheet.solidMap[tileIdx] == 1) ? true : false;
+    const effect = tilesheet.effectMap[tileIdx];
+    
+    $(dom.solidCheckbox).prop('checked', isSolid);
+    $(dom.tileEffectSelect).prop('value', effect);
+  });
 
-  update(editor, palette);
+  update();
 });

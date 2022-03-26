@@ -1,5 +1,9 @@
 import { Vector, Rect } from './primitives';
 
+export namespace Rendering{
+  
+}
+
 export enum RenderMode{
   Stroke, Fill
 };
