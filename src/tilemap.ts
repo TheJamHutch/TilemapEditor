@@ -30,7 +30,10 @@ export namespace Tilemaps{
       this.tileSize = 32; // @ TODO: HARDCODED
       this.dimensions = map.dimensions;
       this.layers = [];
-      this.layers.push(new TilemapLayer(map.layers[0], this.dimensions));
+
+      for (let layer of map.layers){
+        this.layers.push(new TilemapLayer(layer, this.dimensions));
+      }
   
       this.resolution = { 
         x: this.dimensions.x * this.tileSize,
@@ -38,13 +41,9 @@ export namespace Tilemaps{
       };
     }
   
-    setTile(pos: Vector, tileType: number){
+    setTile(layerIdx: number, pos: Vector, tileType: number){
       const idx = (pos.y * this.dimensions.x) + pos.x;
-      this.layers[0].tiles[idx] = tileType;
-    }
-  
-    addLayer(layer: { tilesheetId: string, tiles: number[] }){
-      this.layers.push(new TilemapLayer(layer, this.dimensions));
+      this.layers[layerIdx].tiles[idx] = tileType;
     }
   }
   
@@ -60,7 +59,7 @@ export namespace Tilemaps{
       for (let i = 0; i < nTiles; i++)
       {
         if (!layer.tiles || layer.tiles.length === 0){
-          this.tiles[i] = 0;
+          this.tiles[i] = -1;
           continue;
         }
           
@@ -77,8 +76,8 @@ export namespace Tilemaps{
       y: Math.floor(worldPos.y / tilemap.tileSize)
     };
   }
-  
-  export function renderTilemap(tilemap: Tilemap, context: CanvasRenderingContext2D, camera: Camera): void {
+                                                                                                    // @TODO: Make topLayeridx part of tilemap ??
+  export function renderTilemap(tilemap: Tilemap, context: CanvasRenderingContext2D, camera: Camera, topLayerIdx: number): void {
     //
     const inView = {
       x: camera.view.x / tilemap.tileSize,
@@ -107,18 +106,21 @@ export namespace Tilemaps{
       for (let x = start.x; x < end.x; x++)
       {
         const tileIdx = (y * tilemap.dimensions.x) + x;
-        for (let layer of tilemap.layers){
+        for (let i = 0; i <= topLayerIdx; i++){
+          const layer = tilemap.layers[i];
           const foundTile: boolean = (layer.tiles[tileIdx] !== undefined);
           if (foundTile){
-            const sheet = Assets.store.tilesheets[layer.tilesheetId];
-            const texture = Assets.store.textures[sheet.textureId];
-  
-            const clip = setClip(layer.tiles[tileIdx], sheet.clipSize, sheet.dimensions);
-            const view = new Rect({ x: 0, y: 0, w: tilemap.tileSize, h: tilemap.tileSize });
-            view.x = ((x * tilemap.tileSize) - camera.world.x);
-            view.y = ((y * tilemap.tileSize) - camera.world.y);
-
-            drawBitmap(context, texture.bitmap, clip, view);
+            if (layer.tiles[tileIdx] > -1){
+              const sheet = Assets.store.tilesheets[layer.tilesheetId];
+              const texture = Assets.store.textures[sheet.textureId];
+              
+              const clip = setClip(layer.tiles[tileIdx], sheet.clipSize, sheet.dimensions);
+              const view = new Rect({ x: 0, y: 0, w: tilemap.tileSize, h: tilemap.tileSize });
+              view.x = ((x * tilemap.tileSize) - camera.world.x);
+              view.y = ((y * tilemap.tileSize) - camera.world.y);
+              
+              drawBitmap(context, texture.bitmap, clip, view);
+            }
           }
         }
       }

@@ -19,6 +19,8 @@ export class Editor{
   undoStack: any[];
   redoStack: any[];
   mapId: string;
+  listeners: any;
+  topLayerIdx: number;
 
   constructor(context: CanvasRenderingContext2D, config: any){
     this.context = context;
@@ -30,8 +32,51 @@ export class Editor{
     this.mapId = '';
     this.ctrlHeld = false;
 
+    this.topLayerIdx = -1;
+
     this.undoStack = [];
     this.redoStack = [];
+
+    this.listeners = {
+      onNewMap:
+        (dimensions: Vector) => {
+          this.newMap(dimensions);
+          this.topLayerIdx = 0;
+        },
+      onSaveMap:
+        (mapName: string) => {
+          this.saveMap(mapName);
+        },
+      onLoadMap:
+        (mapId: string) => {
+          this.loadMap(mapId);
+          this.topLayerIdx = this.tilemap!.layers.length - 1;
+        },
+      onAddLayer:
+        () => {
+          const firstSheet = Object.values(Assets.store.tilesheets)[0] as Assets.Tilesheet;
+          const layer = {
+            tilesheetId: firstSheet.id,
+            tiles: []
+          };
+          this.tilemap!.layers.push(new Tilemaps.TilemapLayer(layer, this.tilemap!.dimensions));
+        },
+      onRemoveLayer:
+        (layerIdx: number) => {
+          this.tilemap!.layers.splice(layerIdx, 1);
+          this.topLayerIdx--;
+        },
+      onLayerChange:
+        (layerIdx: number) => {
+          this.topLayerIdx = layerIdx;
+        },
+      onTilesheetChange:
+        (sheetId: string) => {
+          if (this.tilemap){
+            this.tilemap.layers[this.topLayerIdx].tilesheetId = sheetId;
+          }
+        }
+    }
   }
 
   update(): void {
@@ -50,13 +95,18 @@ export class Editor{
         dimensions,
         layers: [
           {
-            name: 'layer0',
             tilesheetId: firstSheet.id,
-            tiles: []
+            tiles: [] as any[]
           }
         ]
       }
     };
+
+    // Insert tiles
+    const nTiles = dimensions.x * dimensions.y;
+    for (let i = 0; i < nTiles; i++){
+      mapObj.tilemap.layers[0].tiles.push(0);
+    }
 
     const map = new Assets.GameMap(mapObj);
     this.mapId = map.id;
@@ -64,8 +114,8 @@ export class Editor{
     this.camera = new Camera(this.resolution, this.tilemap, { x: 0, y: 0 });
   }
 
-  loadMap(id: string): void {
-    const map = Assets.store.maps[id];
+  loadMap(mapId: string): void {
+    const map = Assets.store.maps[mapId];
     this.mapId = map.id;
     this.tilemap = new Tilemaps.Tilemap(map.tilemap);
     this.camera = new Camera(this.resolution, this.tilemap, { x: 0, y: 0 });
@@ -222,7 +272,7 @@ export class Editor{
   private updateTileAtCursorPos(){
     const worldPos = this.camera!.viewToWorld(this.cursor) as Vector;
     const tilePos = Tilemaps.worldToTile(this.tilemap!, worldPos);
-    this.tilemap!.setTile(tilePos, this.selectedTileType);
+    this.tilemap!.setTile(this.topLayerIdx, tilePos, this.selectedTileType);
   }
 
   private cursorInBounds(): boolean{
@@ -241,7 +291,7 @@ export class Editor{
   private render(): void {
     drawRect(this.context, new Rect({ x: 0, y: 0, w: this.resolution.x, h: this.resolution.y }), RenderMode.Fill);
 
-    Tilemaps.renderTilemap(this.tilemap!, this.context, this.camera!);
+    Tilemaps.renderTilemap(this.tilemap!, this.context, this.camera!, this.topLayerIdx);
 
     this.context.strokeStyle = 'yellow';
     this.context.lineWidth = 4;
