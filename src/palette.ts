@@ -1,38 +1,35 @@
 import { Vector, Rect } from "./primitives";
 import { drawBitmap, Bitmap, drawRect, RenderMode } from "./render";
-import { Global } from "./global";
 import { Assets } from "./assets";
 
 export class Palette{
   context: CanvasRenderingContext2D;
   resolution: Vector;
   viewSize: number;
-  assets: any;
   cursor: Rect;
   marker: Rect;
-  texture?: Assets.Texture;
   tilesheet?: any;
+  selectedTileType: number;
 
   constructor(context: CanvasRenderingContext2D, config: any){
     this.context = context;
     this.resolution = config.resolution
     this.viewSize = config.tileSize;
+    this.selectedTileType = 0;
 
     this.cursor = new Rect({ x: 0, y: 0, w: this.viewSize, h: this.viewSize });
     this.marker = new Rect(this.cursor);
   }
 
-  useTilesheet(tilesheetId: string){
+  loadTilesheet(tilesheetId: string){
     this.tilesheet = Assets.store.tilesheets[tilesheetId];
-    
-    this.texture = Assets.store.textures[this.tilesheet.textureId];
     this.marker.x = 0;
     this.marker.y = 0;
-    Global.events.raise('paletteSelect', 0);
+    this.selectedTileType = 0;
   }
 
   update(): void {
-    if (!this.tilesheet || !this.texture){
+    if (!this.tilesheet){
       return;
     }
     
@@ -54,7 +51,7 @@ export class Palette{
       y: Math.floor(this.cursor.y / this.viewSize)
     };
     const cellIdx = (cell.y * Math.floor(this.resolution.x / this.viewSize)) + cell.x;
-    Global.events.raise('paletteSelect', cellIdx);
+    this.selectedTileType = cellIdx;
   }
 
   private render(): void {
@@ -72,7 +69,8 @@ export class Palette{
     let cy = 0;
     
     for (let i = 0; i < nCells; i++){
-      drawBitmap(this.context, this.texture!.bitmap, clip, view);
+      const texture = Assets.store.textures[this.tilesheet.textureId];
+      drawBitmap(this.context, texture.bitmap, clip, view);
 
       // Update clip rect
       cx += 1;

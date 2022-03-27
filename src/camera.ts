@@ -1,5 +1,5 @@
 import { Vector } from './primitives';
-import { Tilemap, WorldMap } from './tilemap';
+import { Tilemaps } from './tilemap';
 
 export class Camera{
   world: Vector;
@@ -8,11 +8,11 @@ export class Camera{
   moveSpeed: number;
   maxZoom: number
   zoomLevel: number;
-  worldMap: WorldMap;
+  tilemap: Tilemaps.Tilemap;
 
-  constructor(resolution: Vector, worldMap: WorldMap, initPos: Vector){
+  constructor(resolution: Vector, tilemap: Tilemaps.Tilemap, initPos: Vector){
     this.world = initPos;
-    this.worldMap = worldMap;
+    this.tilemap = tilemap;
     this.view = resolution;
     this.velocity = { x: 0, y: 0 };
     this.moveSpeed = 10;
@@ -23,10 +23,10 @@ export class Camera{
 
   update(){
     // Check world bounds
-    if ((this.velocity.x < 0 && this.world.x <= 0) || ( this.velocity.x > 0 && this.world.x + this.view.x > this.worldMap.resolution.x)){
+    if ((this.velocity.x < 0 && this.world.x <= 0) || ( this.velocity.x > 0 && this.world.x + this.view.x > this.tilemap.resolution.x)){
       this.velocity.x = 0;
     }
-    if ((this.velocity.y < 0 && this.world.y <= 0) || ( this.velocity.y > 0 && this.world.y + this.view.y > this.worldMap.resolution.y)){
+    if ((this.velocity.y < 0 && this.world.y <= 0) || ( this.velocity.y > 0 && this.world.y + this.view.y > this.tilemap.resolution.y)){
       this.velocity.y = 0;
     }
 
