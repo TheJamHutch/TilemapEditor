@@ -1,31 +1,14 @@
 import '../style.scss';
 import jquery from 'jquery';
-import { Editor } from './editor';
-import { Palette } from './palette';
 import { Assets } from './assets';
 import { View } from './view';
+import { App } from './app';
 
 // @ts-ignore
 window.$ = window.jquery = jquery;
 
-let editor: Editor;
-let palette: Palette;
 // Identifies the last know user of the upload file input element to determine whether the correct type of file was selected.
 let lastFileUser: string;
-
-const config = {
-  autosaveEnabled: false,
-  storageEnabled: false,
-  editor: {
-    resolution: { x: 800, y: 600 },
-    mapDimensions: { x: 30, y: 30 },
-    tileSize: 32
-  },
-  palette: {
-    resolution: { x: 608, y: 300 },
-    tileSize: 32
-  }
-};
 
 export function exportJson(id: string, obj: any): void {
   const json = JSON.stringify(obj);
@@ -39,49 +22,48 @@ function initEvents(){
   // Init keyboard events
   $(document).on('keydown', 
     (e: any) => {
-      editor.onKeyDown(e.code);
+      App.listeners.onKeyDown(e.code);
     });
   $(document).on('keyup', 
     (e: any) => {
-      editor.onKeyUp(e.code);
+      App.listeners.onKeyUp(e.code);
     });
 
   // Editor mouse events
   $(View.elements.editorCanvas).on('mousemove', 
     (e: any) => {
-      editor.onMouseMove({ x: e.offsetX, y: e.offsetY });
+      App.listeners.onEditorMouseMove({ x: e.offsetX, y: e.offsetY });
     });
   $(View.elements.editorCanvas).on('mousedown',
     (e: any) => {
-      editor.onMouseDown({ x: e.offsetX, y: e.offsetY });
+      App.listeners.onEditorMouseDown({ x: e.offsetX, y: e.offsetY });
     });
   $(View.elements.editorCanvas).on('mouseup', 
     (e: any) => {
-      editor.onMouseUp({ x: e.offsetX, y: e.offsetY });
+      App.listeners.onEditorMouseUp({ x: e.offsetX, y: e.offsetY });
     });
 
   // Palette mouse events
   $(View.elements.paletteCanvas).on('mousemove', 
     (e: any) => {
-      palette.onMouseMove({ x: e.offsetX, y: e.offsetY });
+      App.listeners.onPaletteMouseMove({ x: e.offsetX, y: e.offsetY });
     });
   $(View.elements.paletteCanvas).on('mousedown',
     (e: any) => {
-      palette.onMouseDown({ x: e.offsetX, y: e.offsetY });
-      editor.selectedTileType = palette.selectedTileType;
+      App.listeners.onPaletteMouseDown({ x: e.offsetX, y: e.offsetY });
       View.listeners.onPaletteSelect();
     });
 
   // Bind view element events
   $(View.elements.newBtn).on('click', 
     (e: any) => {
-      editor.listeners.onNewMap(View.mapDimensions());
+      App.listeners.onNewMap();
       View.listeners.onNewMap();
     });
   $(View.elements.saveBtn).on('click',
     (e: any) => {
       const mapName = View.mapName();
-      const savedMap = editor.saveMap(mapName);
+      const savedMap = App.editor.saveMap(mapName);
       exportJson(mapName, savedMap);
     });
   $(View.elements.loadBtn).on('click', 
@@ -169,35 +151,29 @@ function initEvents(){
   $(View.elements.tilesheetSelect).on('change',
     (e: any, extra: any) => {
       const tilesheetId = (e.target.value) ? e.target.value : extra;
-      palette.loadTilesheet(tilesheetId);
-      editor.listeners.onTilesheetChange(tilesheetId);
+      App.listeners.onTilesheetChange(tilesheetId);
       View.listeners.onTilesheetChange(tilesheetId);
     });
   $(View.elements.layerSelect).on('change',
     (e: any) => {
-      const layerIdx = e.target.value;
-      editor.listeners.onLayerChange(layerIdx);
-
-      const tilesheetId = editor.tilemap!.layers[layerIdx].tilesheetId;
-      palette.loadTilesheet(tilesheetId);
-      View.listeners.onLayerChange(tilesheetId);
+      App.listeners.onLayerChange();
+      View.listeners.onLayerChange();
     });
   $(View.elements.addLayerBtn).on('click',
     (e: any) => {
-      editor.listeners.onAddLayer();
+      App.listeners.onAddLayer();
       View.listeners.onAddLayer();
     });
   $(View.elements.removeLayerBtn).on('click', 
     (e: any) => {
       const selectedLayers = $(View.elements.layerSelect).val() as string[];
       const layerIdx = parseInt(selectedLayers[0]);
-      editor.listeners.onRemoveLayer(layerIdx);
+      App.listeners.onRemoveLayer(layerIdx);
     });
 }
 
 function update() {
-  editor.update();
-  palette.update();
+  App.update();
 
   requestAnimationFrame(() => {
     update();
@@ -211,22 +187,13 @@ async function loadAssetFromFile(file: File){
   if (file.type === 'application/json'){
     const asset = JSON.parse(fileText);
     if (asset.type === 'map' && lastFileUser === 'loadMap'){
-      Assets.loadGameMap(asset);
-      editor.listeners.onLoadMap(asset.id);
+      App.listeners.onLoadMap(asset);
       View.listeners.onLoadMap();
-
-      if (config.storageEnabled){
-        localStorage.setItem('map', JSON.stringify(asset));
-      }
 
     } else if (asset.type === 'tilesheet' && lastFileUser === 'loadTilesheet'){
       const tilesheetId = asset.id;
-      Assets.loadTilesheet(asset);
-      View.listeners.onLoadTilesheet(tilesheetId);
-  
-      if (config.storageEnabled){
-        localStorage.setItem('tilesheet', JSON.stringify(asset));
-      }
+      App.listeners.onLoadTilesheet(asset);
+      View.listeners.onLoadTilesheet();
 
       let sheets = Object.values(Assets.store.tilesheets) as Assets.Tilesheet[];
       let firstSheet = (sheets.length === 1);
@@ -251,21 +218,15 @@ async function loadAssetFromFile(file: File){
 
 $(() => {
 
-  View.initElements(config);
+  View.initElements(App.config);
 
   const editorContext = View.elements.editorCanvas.getContext('2d') as CanvasRenderingContext2D;
   editorContext.imageSmoothingEnabled = false;
-  editor = new Editor(editorContext, config.editor);
-
   const paletteContext = View.elements.paletteCanvas.getContext('2d') as CanvasRenderingContext2D;
   paletteContext.imageSmoothingEnabled = false;
-  palette = new Palette(paletteContext, config.palette);
+  App.init(editorContext, paletteContext);
 
-  // @TODO: Find another way to load textures
-  Assets.loadTexture('basetiles', './assets/textures/basetiles.png');
-  Assets.loadTexture('overtiles', './assets/textures/overtiles.png');
-
-  View.initListeners(editor, palette);
+  View.initListeners(App.editor, App.palette);
 
   initEvents();
 

@@ -116,7 +116,8 @@ export namespace View{
           $(elements.tileEffectSelect).prop('value', effect);
         },
       onLayerChange:
-        (tilesheetId: string) => {
+        () => {
+          const tilesheetId = selectedTilesheetId();
           updateTilesheetSelection(tilesheetId);
         },
       onTabSelect:
@@ -180,7 +181,6 @@ export namespace View{
     $(elements.sheetYDimInput).prop('value', sheetDimensions.y);
   }
 
-  // Helpre methods for getting values from an element/ elements
   export function mapName(): string {
     return elements.mapNameInput.value;
   }
@@ -190,6 +190,36 @@ export namespace View{
       x: parseInt(elements.xDimInput.value),
       y: parseInt(elements.yDimInput.value)
     }
+  }
+
+  export function selectedLayerIndex(): number {
+    let layerIdx = -1;
+    
+    $(elements.layerSelect)
+      .find('option')
+      .each(
+        (index, element) => {
+          if (element.selected){
+            layerIdx = element.value;
+          }
+        });
+      
+    return layerIdx;
+  }
+
+  export function selectedTilesheetId(): string {
+    let id = '';
+
+    $(elements.tilesheetSelect)
+      .find('option')
+      .each(
+        (index, element) => {
+          if (element.selected){
+            id = element.value;
+          }
+        });
+
+    return id;
   }
 
 }
