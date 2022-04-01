@@ -4,7 +4,6 @@ import { Vector, Rect } from "./primitives";
 import { drawBitmap, Bitmap, drawRect, RenderMode } from "./render";
 import { posToIndex } from './util';
 import { Assets } from './assets';
-import { View } from './view';
 
 export namespace App{
 
@@ -88,8 +87,7 @@ export namespace App{
 
 
       onNewMap:
-        () => {
-          const mapDimensions = View.mapDimensions();
+        (mapDimensions: Vector) => {
           editor.newMap(mapDimensions);
         },
       onSaveMap:
@@ -97,13 +95,12 @@ export namespace App{
           editor.saveMap
         },
       onLoadMap:
-        (mapAsset: any) => {  
-          Assets.loadGameMap(mapAsset);
-          editor.loadMap(mapAsset.id);
+        (mapId: string) => {  
+          editor.loadMap(mapId);
         },
       onLoadTilesheet:
-        (sheetAsset: any) => {
-          Assets.loadTilesheet(sheetAsset);
+        () => {
+          
         },
       onAddLayer:
         () => {
@@ -119,18 +116,16 @@ export namespace App{
         
         },
       onLayerChange:
-        () => {
-          const layerIdx = View.selectedLayerIndex();
+        (layerIdx: number) => {
           editor.topLayerIdx = layerIdx;
           const tilesheetId = editor.tilemap!.layers[layerIdx].tilesheetId;
           palette.loadTilesheet(tilesheetId);
         },
       onTilesheetChange:
-        () => {
-          const sheetId = View.selectedTilesheetId();
-          palette.loadTilesheet(sheetId);
+        (tilesheetId: string) => {
+          palette.loadTilesheet(tilesheetId);
           if (editor.tilemap){
-            editor.tilemap.layers[editor.topLayerIdx].tilesheetId = sheetId;
+            editor.tilemap.layers[editor.topLayerIdx].tilesheetId = tilesheetId;
           }
         }
     };

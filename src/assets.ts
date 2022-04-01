@@ -67,7 +67,6 @@ export namespace Assets{
   }
 
   export function loadTilesheet(sheetJson: any){
-    // Check sheetJson properties
     const sheet = new Tilesheet(sheetJson);
 
     store.tilesheets[sheet.id] = sheet;
@@ -85,18 +84,69 @@ export namespace Assets{
 
     store.textures[texture.id] = texture;
   }
-  
-  export async function readFileText(file: File): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-  
-      reader.onload = (() => {
-        resolve(reader.result);
-      });
-  
-      reader.onerror = reject;
-  
-      reader.readAsText(file);
-    });
+
+  export async function loadAssetFromFile(assetType: AssetType): Promise<string> {
+    let contentType = '';
+    
+    switch(assetType){
+      case AssetType.Tilesheet:
+      case AssetType.Map:
+        contentType = 'json';
+        break;
+      case AssetType.Texture:
+        contentType = 'png';
+        break;
+      default:
+        contentType = 'json';
+        break;
+    }
+
+    const rawAsset = await readFile(contentType);
+
+    let assetJson;
+    if (contentType === 'json'){
+      assetJson = JSON.parse(rawAsset.content);
+    }
+    
+    switch(assetType){
+      case AssetType.Tilesheet:
+        loadTilesheet(assetJson);
+        break;
+      case AssetType.Map:
+        loadGameMap(assetJson);
+        break;
+      case AssetType.Texture:
+        break;
+      default:
+        contentType = 'json';
+        break;
+    }
+
+    return assetJson.id;
+  }
+
+  async function readFile(contentType: string){
+    const pickerOpts = {
+      types: [
+        {
+          accept: {
+            'application/*': [`.${contentType}`]
+          }
+        },
+      ],
+      excludeAcceptAllOption: true,
+      multiple: false
+    };
+
+    // @ts-ignore
+    const [fileHandle] = await showOpenFilePicker(pickerOpts);
+
+    const file = await fileHandle.getFile();
+    const content = await file.text();
+
+    return {
+      name: file.name,
+      content
+    };
   }
 }
