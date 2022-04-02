@@ -3,7 +3,7 @@ body{
 }
 
 canvas{
-  cursor: none;
+  cursor: crosshair;
 }
 
 select{
@@ -74,7 +74,7 @@ span.title{
   margin-top: 50px;
   margin-left: 50px;
   width: 815px;
-  height: 1048px;
+  height: 1065px;
   padding: 5px;
   
   color: white;
@@ -94,8 +94,44 @@ span.title{
   
 }
 
+.lower-content{
+  height: 387px;
+  overflow: hidden;
+}
+
 .tab-content{
   height: 100%;
+}
+
+.list-container{
+  display: flex;
+  flex-direction: column;
+
+  .button-block{
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    gap: 5px;
+    margin: 5px;
+  }
+}
+
+#tab-content-textures{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 10px;
+
+  .image-container{
+    width: 350px;
+    height: 200px;
+    overflow: scroll;
+  }
+
+  select{
+    width: 350px;
+    height: 200px;
+  }
 }
 
 #tab-content-tilemap{
@@ -156,6 +192,12 @@ span.title{
 
 .bordered{
   border: 1px solid grey;
+}
+
+.tab-bar{
+  display: flex;
+  flex-direction: row;
+  border-bottom: 1px solid grey;
 }
 
 .tab-selector{

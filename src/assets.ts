@@ -67,8 +67,11 @@ export namespace Assets{
   }
 
   export function loadTilesheet(sheetJson: any){
-    const sheet = new Tilesheet(sheetJson);
+    // Check sheetJson properties
+    let rawSheet = {} as any;
 
+
+    const sheet = new Tilesheet(sheetJson);
     store.tilesheets[sheet.id] = sheet;
   }
 
@@ -78,14 +81,14 @@ export namespace Assets{
     store.maps[map.id] = map;
   }
 
-  export function loadTexture(id: string, srcData: any){
-    const bitmap = loadBitmap(srcData);
+  export function loadTexture(id: string, path: string){
+    const bitmap = loadBitmap(path);
     const texture = new Texture(id, bitmap);
 
     store.textures[texture.id] = texture;
   }
 
-  export async function loadAssetFromFile(assetType: AssetType): Promise<string> {
+  export async function loadAssetFromFile(assetType: AssetType): Promise<string | null> {
     let contentType = '';
     
     switch(assetType){
@@ -103,8 +106,15 @@ export namespace Assets{
 
     const rawAsset = await readFile(contentType);
 
+    // Get file extension and check that it matches contentType
+    const extIdx = rawAsset.name.lastIndexOf('.');
+    const fileExt = rawAsset.name.substring(extIdx + 1);
+    if (fileExt !== contentType){
+      return null;
+    }
+    
     let assetJson;
-    let assetId = '';
+    let assetId;
     if (contentType === 'json'){
       assetJson = JSON.parse(rawAsset.content);
       assetId = assetJson.id;
@@ -118,9 +128,9 @@ export namespace Assets{
         loadGameMap(assetJson);
         break;
       case AssetType.Texture:
-        const extIdx = rawAsset.name.lastIndexOf('.');
         assetId = rawAsset.name.substring(0, extIdx);
-        loadTexture(assetId, rawAsset);
+        const path = `assets/textures/${rawAsset.name}`;
+        loadTexture(assetId, path);
         break;
       default:
         contentType = 'json';

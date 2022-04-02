@@ -115,14 +115,14 @@ export namespace View{
           $(dom.textureNameInput).prop('value', textureId);
           updateSheetDimensions(textureId);
         },
-      onTilemapTextureNew:
+      onTextureNew:
         (textureId: string) => {
-          $(dom.tilemapTextureSelect).append(`<option value="${textureId}">${textureId}</option>`)
+          $(dom.textureSelect).append(`<option value="${textureId}">${textureId}</option>`)
         },
-      onTilemapTextureRemove:
+      onTextureRemove:
         (textureId: string) => {
           // @TODO: Don't use hardcoded element ID here
-          $(`#tilemapTextureSelect option[value="${textureId}"]`).remove();
+          $(`#textureSelect option[value="${textureId}"]`).remove();
         }
     }
     
@@ -164,7 +164,7 @@ export namespace View{
     $(dom.layerSelect)
       .find('option')
       .each(
-        (index, element) => {
+        (_, element) => {
           if (element.selected){
             layerIdx = parseInt(element.value);
           }
@@ -179,11 +179,27 @@ export namespace View{
     $(dom.tilesheetSelect)
       .find('option')
       .each(
-        (index, element) => {
+        (_, element) => {
           if (element.selected){
             id = element.value;
           }
         });
+
+    return id;
+  }
+
+  export function selectedTexture(): string {
+    let id = '';
+
+    $(dom.textureSelect)
+      .find('option')
+      .each(
+        (_, element) => {
+          if (element.selected){
+            id = element.value;
+          }
+        }
+      )
 
     return id;
   }

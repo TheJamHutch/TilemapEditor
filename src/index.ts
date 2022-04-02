@@ -56,12 +56,10 @@ function initDom(){
     removeLayerBtn: $('#removeLayerBtn')[0] as HTMLButtonElement,
 
     // Texture tab content
-    tilemapTextureSelect: $('#tilemapTextureSelect')[0] as HTMLSelectElement,
-    tilemapTextureNewBtn: $('#tilemapTextureNewBtn')[0] as HTMLButtonElement,
-    tilemapTextureRemoveBtn: $('#tilemapTextureRemoveBtn')[0] as HTMLButtonElement,
-    entitiesTextureSelect: $('#entitiesTextureSelect')[0] as HTMLSelectElement,
-    entitiesTextureNewBtn: $('#entitiesTextureNewBtn')[0] as HTMLButtonElement,
-    entitiesTextureRemoveBtn: $('#entitiesTextureRemoveBtn')[0] as HTMLButtonElement,
+    textureSelect: $('#textureSelect')[0] as HTMLSelectElement,
+    textureNewBtn: $('#textureNewBtn')[0] as HTMLButtonElement,
+    textureRemoveBtn: $('#textureRemoveBtn')[0] as HTMLButtonElement,
+    textureImageDiv: $('#textureImageDiv')[0] as HTMLDivElement,
   };
 
   // Set resolution of each canvas
@@ -74,10 +72,10 @@ function initDom(){
   dom.yDimInput.value = App.config.editor.mapDimensions.y.toString();
   
   // Init tabs
-  $(dom.tabContentTextures).hide();
+  $(dom.tabContentTextures).show();
   $(dom.tabContentEntities).hide();
-  $(dom.tabContentTilemap).show();
-  $(dom.tabSelectorTilemap).css('color', 'yellow');
+  $(dom.tabContentTilemap).hide();
+  $(dom.tabSelectorTextures).css('color', 'yellow');
 
   $(dom.newSheetSection).hide();
 
@@ -156,6 +154,14 @@ function bindEvents(dom: any){
   $(dom.loadTilesheetBtn).on('click',
     async (e: any) => {
       const tilesheetId = await Assets.loadAssetFromFile(Assets.AssetType.Tilesheet);
+
+      const tilesheet = Assets.store.tilesheets[tilesheetId];
+      // Check that there is a texture loaded for the tilesheet
+      if (!Assets.store.textures[tilesheet.textureId]){
+        console.warn(`Failed to load tilesheet: tilesheet references an unloaded texture`);
+        return;
+      }
+
       App.listeners.onLoadTilesheet(tilesheetId);
       View.listeners.onLoadTilesheet();
 
@@ -249,15 +255,30 @@ function bindEvents(dom: any){
       $(dom.newSheetSection).hide();
     });
 
-  $(dom.tilemapTextureNewBtn).on('click',
+  $(dom.textureSelect).on('change',
+    (e: any) => {
+      const textureId = View.selectedTexture();
+      $(dom.textureImageDiv).empty();
+      $(dom.textureImageDiv).append(`<img src="assets/textures/${textureId}.png" width="100%" height="100%" />`);
+    })
+  $(dom.textureNewBtn).on('click',
     async (e: any) => {
       const textureId = await Assets.loadAssetFromFile(Assets.AssetType.Texture);
-      View.listeners.onTilemapTextureNew(textureId);
+
+      if (!textureId){
+        console.warn('Failed to load texture, wrong file type?');
+        return;
+      }
+
+      View.listeners.onTextureNew(textureId);
     });
-  $(dom.tilemapTextureRemoveBtn).on('click',
+  $(dom.textureRemoveBtn).on('click',
     (e: any) => {
-      View.listeners.onTilemapTextureRemove();
+      const textureId = View.selectedTexture();
+      delete Assets.store.textures[textureId];
+      View.listeners.onTextureRemove(textureId);
     });
+  
 }
 
 function update() {

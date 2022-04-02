@@ -14,13 +14,13 @@
         <div class="topbar bordered">
           <div class="container">
             <div>
-            <label>Name:</label>
-            <input id="mapNameInput" type="text" />
-
-            <div class="dimension-input">
-              <label>Dimensions:</label>
-              <input id="xDimInput" type="number" value="0" min="1" /> x <input id="yDimInput" type="number" value="0" min="1" />
-            </div>
+              <label>Name:</label>
+              <input id="mapNameInput" type="text" />
+  
+              <div class="dimension-input">
+                <label>Dimensions:</label>
+                <input id="xDimInput" type="number" value="0" min="1" /> x <input id="yDimInput" type="number" value="0" min="1" />
+              </div>
 
             
             </div>
@@ -37,9 +37,9 @@
           <canvas id="editor-canvas"></canvas>
         </div>
 
-        <div class="bordered">
+        <div class="lower-content bordered">
 
-          <div class="container" style="border-bottom: 1px solid grey;">
+          <div class="tab-bar">
             <div id="tab-selector-textures" class="tab-selector">
               <span>Textures</span>
             </div>
@@ -52,119 +52,105 @@
           </div>
 
 
-            <div id="tab-content-textures" class="tab-content">
-              <div>
-                <label>Tilemap</label>
-                <select id="tilemapTextureSelect" multiple>
-
-                </select>
-                <button id="tilemapTextureNewBtn" type="button">Add</button>
-                <button id="tilemapTextureRemoveBtn" type="button">Remove</button>
-              </div>
-              <div>
-                <label>Entities</label>
-                <select id="entitiesTextureSelect" multiple>
-
-                </select>
-                <button id="entitiesTextureNewBtn" type="button">Add</button>
-                <button id="entitiesTextureRemoveBtn" type="button">Remove</button>
+          <div id="tab-content-textures" class="tab-content">
+            <div class="list-container">
+              <label>List</label>
+              <select id="textureSelect" multiple>
+              </select>
+              <div class="button-block">
+                <button id="textureNewBtn" type="button">Add</button>
+                <button id="textureRemoveBtn" type="button">Remove</button>
               </div>
             </div>
+            <div>
+              <label>Image</label>
+              <div id="textureImageDiv" class="image-container bordered">
+              </div>
+            </div>
+          </div>
 
 
 
 
 
 
-            <div id="tab-content-tilemap" class="tab-content">
-              <div class="left-content">
-                <canvas id="palette-canvas"></canvas>
-
-                <div id="newSheetSection">
+          <div id="tab-content-tilemap" class="tab-content">
+            <div class="left-content">
+              <canvas id="palette-canvas"></canvas>
+              <div id="newSheetSection">
                 <div class="bordered">
                   <form id="newSheetForm">
-                  <div class="container space-between">
-                    <span>New Tilesheet</span>
-                    <button id="newSheetCancelBtn" type="button">X</button>
-                  </div>
-                  <hr />
-                  <div>
-                    <label>Sheet Name:</label>
-                    <input id="sheetNameInput" type="text" />
-                  </div>
-                  
-                  <div>
-                    <label>Tile Size:</label>
-                    <br />
-                    <select id="tileSizeSelect">
-                      <option value=8>Small (8px)</option>
-                      <option value=16 selected>Medium (16px)</option>
-                      <option value=32>Large (32px)</option>
-                    </select>
-                  </div>
-          
-                  <div>
-                    <label>Texture Name:</label>
-                    <input id="textureNameInput" type="text" />
-                    <button id="textureBrowseBtn" type="button">...</button>
-                  </div>
-                  
-                  
-          
-                  <div>
-                    <label>Dimensions:</label>
-                    <div class="dimension-input">
-                      <input id="sheetXDimInput" type="text" readonly />
-                      <input id="sheetYDimInput" type="text" readonly />
+                    <div class="container space-between">
+                      <span>New Tilesheet</span>
+                      <button id="newSheetCancelBtn" type="button">X</button>
                     </div>
-                  </div>
-          
-                  <button id="createSheetBtn">Create Tilesheet</button>
-                </form>
+                    <hr />
+                    <div>
+                      <label>Sheet Name:</label>
+                      <input id="sheetNameInput" type="text" />
+                    </div>
+                    <div>
+                      <label>Tile Size:</label>
+                      <br />
+                      <select id="tileSizeSelect">
+                        <option value=8>Small (8px)</option>
+                        <option value=16 selected>Medium (16px)</option>
+                        <option value=32>Large (32px)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label>Texture Name:</label>
+                      <input id="textureNameInput" type="text" />
+                      <button id="textureBrowseBtn" type="button">...</button>
+                    </div>
+                    <div>
+                      <label>Dimensions:</label>
+                      <div class="dimension-input">
+                        <input id="sheetXDimInput" type="text" readonly />
+                        <input id="sheetYDimInput" type="text" readonly />
+                      </div>
+                    </div>
+                    <button id="createSheetBtn">Create Tilesheet</button>
+                  </form>
                 </div>
               </div>
             </div>
-    
-              <div class="right-content">
-                <span class="heading">Tile Properties</span>
-                <div class="container">
-                  <label>Solid:</label>
-                  <input id="solidCheckbox" type="checkbox">
-                </div>
-                <div class="container">
-                  <label>Effect:</label>
-                  <select id="tileEffectSelect">
-                    <option value=0>None</option>
-                    <option value=1>Hurt</option>
-                    <option value=2>Teleport</option>
-                    <option value=3>Transition</option>
-                  </select>
-                </div>
-                <hr/>
+            <div class="right-content">
+              <span class="heading">Tile Properties</span>
+              <div class="container">
+                <label>Solid:</label>
+                <input id="solidCheckbox" type="checkbox">
+              </div>
+              <div class="container">
+                <label>Effect:</label>
+                <select id="tileEffectSelect">
+                  <option value=0>None</option>
+                  <option value=1>Hurt</option>
+                  <option value=2>Teleport</option>
+                  <option value=3>Transition</option>
+                </select>
+              </div>
+              <hr/>
+              <div>
+                <label>Layers:</label>
+                <select id="layerSelect" multiple>
+                </select>
+                <button id="addLayerBtn"  type="button">Add</button>
+                <button id="removeLayerBtn"  type="button">Remove</button>
+              </div>
+              <hr/>
+              <div>
+                <label>Tilesheets:</label>
+                <select id="tilesheetSelect" multiple>
+                </select>
                 <div>
-                  <label>Layers:</label>
-                  <select id="layerSelect" multiple>
-                    
-                  </select>
-                  <button id="addLayerBtn"  type="button">Add</button>
-                  <button id="removeLayerBtn"  type="button">Remove</button>
+                  <button id="newTilesheetBtn"  type="button">New</button>
+                  <button id="loadTilesheetBtn"  type="button">Load</button>
                 </div>
-
-                <hr/>
-
-                <div>
-                  <label>Tilesheets:</label>
-                  <select id="tilesheetSelect" multiple>
-                  </select>
-                  <div>
-                    <button id="newTilesheetBtn"  type="button">New</button>
-                    <button id="loadTilesheetBtn"  type="button">Load</button>
-                  </div>
-                  <button id="saveTilesheetBtn"  type="button">Export as JSON</button>
-                </div>
-                
+                <button id="saveTilesheetBtn"  type="button">Export as JSON</button>
               </div>
             </div>
+          </div>
 
 
 
@@ -179,25 +165,25 @@
 
 
 
-            <div id="tab-content-entities">
-              <div class="entity-list">
-                <span>Entity List</span>
-                <select id="entitySelect" multiple></select>
-              </div>
-              <div class="entity-details">
-                <span>Details</span>
-                <span>ID:</span>
-                <input id="entityIdInput" type="text" readonly />
-                <span>Archetype</span>
-                <select id="entitiyArchInput"></select>
-              </div>
-              <div class="entity-paths">
-                <span>Path Nodes</span>
-              </div>
-              <div class="entity-sprite">
-                <span>Sprite</span>
-              </div>
+          <div id="tab-content-entities">
+            <div class="entity-list">
+              <span>Entity List</span>
+              <select id="entitySelect" multiple></select>
             </div>
+            <div class="entity-details">
+              <span>Details</span>
+              <span>ID:</span>
+              <input id="entityIdInput" type="text" readonly />
+              <span>Archetype</span>
+              <select id="entitiyArchInput"></select>
+            </div>
+            <div class="entity-paths">
+              <span>Path Nodes</span>
+            </div>
+            <div class="entity-sprite">
+              <span>Sprite</span>
+            </div>
+          </div>
 
 
 
