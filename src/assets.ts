@@ -78,8 +78,8 @@ export namespace Assets{
     store.maps[map.id] = map;
   }
 
-  export function loadTexture(id: string, imgPath: string){
-    const bitmap = loadBitmap(imgPath);
+  export function loadTexture(id: string, srcData: any){
+    const bitmap = loadBitmap(srcData);
     const texture = new Texture(id, bitmap);
 
     store.textures[texture.id] = texture;
@@ -104,8 +104,10 @@ export namespace Assets{
     const rawAsset = await readFile(contentType);
 
     let assetJson;
+    let assetId = '';
     if (contentType === 'json'){
       assetJson = JSON.parse(rawAsset.content);
+      assetId = assetJson.id;
     }
     
     switch(assetType){
@@ -116,13 +118,16 @@ export namespace Assets{
         loadGameMap(assetJson);
         break;
       case AssetType.Texture:
+        const extIdx = rawAsset.name.lastIndexOf('.');
+        assetId = rawAsset.name.substring(0, extIdx);
+        loadTexture(assetId, rawAsset);
         break;
       default:
         contentType = 'json';
         break;
     }
 
-    return assetJson.id;
+    return assetId;
   }
 
   async function readFile(contentType: string){
