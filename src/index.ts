@@ -62,9 +62,9 @@ function initDom(){
   dom.yDimInput.value = App.config.editor.mapDimensions.y.toString();
   
   // Init tabs
-  $(dom.tabContentEntities).hide();
-  $(dom.tabContentTilemap).show();
-  $(dom.tabSelectorTilemap).css('color', 'yellow');
+  $(dom.tabContentEntities).show();
+  $(dom.tabContentTilemap).hide();
+  $(dom.tabSelectorEntities).css('color', 'yellow');
 
   $(dom.newSheetSection).hide();
 

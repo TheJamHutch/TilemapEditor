@@ -9,7 +9,7 @@
   <body>
     <div class="viewport">
       <span class="title" style="color: wheat;">Tilemap Editor v0.1.0</span>
-      <div class="container column content bordered">
+      <div class="content bordered">
 
         <div class="topbar bordered">
           <div class="container">
@@ -39,7 +39,7 @@
 
         <div class="bordered">
 
-          <div class="container" style="border-bottom: 1px solid grey;">
+          <div style="border-bottom: 1px solid grey;display: flex;">
             <div id="tab-selector-tilemap" class="tab-selector">
               <span>Tilemap</span>
             </div>
@@ -47,8 +47,6 @@
               <span>Entities</span>
             </div>
           </div>
-          
-          <div>
 
 
 
@@ -155,14 +153,29 @@
 
 
             <div id="tab-content-entities">
-              Entities
+              <div class="entity-list">
+                <span>Entity List</span>
+                <select id="entitySelect" multiple></select>
+              </div>
+              <div class="entity-details">
+                <span>Details</span>
+                <span>ID:</span>
+                <input id="entityIdInput" type="text" readonly />
+                <span>Archetype</span>
+                <select id="entitiyArchInput"></select>
+              </div>
+              <div class="entity-paths">
+                <span>Path Nodes</span>
+              </div>
+              <div class="entity-sprite">
+                <span>Sprite</span>
+              </div>
             </div>
 
 
 
 
 
-          </div>
         </div>
       </div>
     </div>
