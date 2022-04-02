@@ -36,6 +36,8 @@ export namespace View{
             const layerName = 'layer' + layerCount;
             $(dom.layerSelect).prepend(`<option value="${layerCount}" selected>${layerName}</option>`);
           }
+
+          
         },
       onLoadTilesheet:
         () => {

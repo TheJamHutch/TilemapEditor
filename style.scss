@@ -95,6 +95,10 @@ span.title{
 }
 
 .tab-content{
+  height: 100%;
+}
+
+#tab-content-tilemap{
   display: flex;
   flex-direction: row;
   .left-content {
@@ -113,6 +117,34 @@ span.title{
   }
   hr{
     margin-top: 10px;
+  }
+}
+
+#tab-content-entities{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 100%;
+
+  .entity-list{
+    border-right: 1px solid grey;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .entity-details{
+    border-right: 1px solid grey;
+    
+    display: flex;
+    flex-direction: column;
+  }
+
+  .entity-paths{
+    border-right: 1px solid grey;
+  }
+
+  .entity-sprite{
+
   }
 }
 
