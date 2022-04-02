@@ -41,15 +41,27 @@ function initDom(){
     sheetYDimInput: $('#sheetYDimInput')[0] as HTMLInputElement,
     createSheetBtn: $('#createSheetBtn')[0] as HTMLButtonElement,
 
+    tabSelectorTextures: $('#tab-selector-textures')[0] as HTMLDivElement,
     tabSelectorTilemap: $('#tab-selector-tilemap')[0] as HTMLDivElement,
     tabSelectorEntities: $('#tab-selector-entities')[0] as HTMLDivElement,
+    tabContentTextures: $('#tab-content-textures')[0] as HTMLDivElement,
     tabContentTilemap: $('#tab-content-tilemap')[0] as HTMLDivElement,
     tabContentEntities: $('#tab-content-entities')[0] as HTMLDivElement,
 
     newSheetSection: $('#newSheetSection')[0] as HTMLDivElement,
+    newSheetForm: $('#newSheetForm')[0] as HTMLFormElement,
+    newSheetCancelBtn: $('#newSheetCancelBtn')[0] as HTMLButtonElement,
 
     addLayerBtn: $('#addLayerBtn')[0] as HTMLButtonElement,
     removeLayerBtn: $('#removeLayerBtn')[0] as HTMLButtonElement,
+
+    // Texture tab content
+    tilemapTextureSelect: $('#tilemapTextureSelect')[0] as HTMLSelectElement,
+    tilemapTextureNewBtn: $('#tilemapTextureNewBtn')[0] as HTMLButtonElement,
+    tilemapTextureRemoveBtn: $('#tilemapTextureRemoveBtn')[0] as HTMLButtonElement,
+    entitiesTextureSelect: $('#entitiesTextureSelect')[0] as HTMLSelectElement,
+    entitiesTextureNewBtn: $('#entitiesTextureNewBtn')[0] as HTMLButtonElement,
+    entitiesTextureRemoveBtn: $('#entitiesTextureRemoveBtn')[0] as HTMLButtonElement,
   };
 
   // Set resolution of each canvas
@@ -62,6 +74,7 @@ function initDom(){
   dom.yDimInput.value = App.config.editor.mapDimensions.y.toString();
   
   // Init tabs
+  $(dom.tabContentTextures).hide();
   $(dom.tabContentEntities).hide();
   $(dom.tabContentTilemap).show();
   $(dom.tabSelectorTilemap).css('color', 'yellow');
@@ -132,6 +145,7 @@ function bindEvents(dom: any){
     });
   $(dom.newTilesheetBtn).on('click',
     (e: any) => {
+      $(dom.newSheetForm).trigger('reset');
       $(dom.paletteCanvas).hide();
       $(dom.newSheetSection).show();
     });
@@ -144,6 +158,13 @@ function bindEvents(dom: any){
       const tilesheetId = await Assets.loadAssetFromFile(Assets.AssetType.Tilesheet);
       App.listeners.onLoadTilesheet(tilesheetId);
       View.listeners.onLoadTilesheet();
+
+      const sheets = Object.values(Assets.store.tilesheets);
+      const firstSheet = (sheets.length === 1);
+      if (firstSheet){
+        // Trigger a tilesheetChange event to select and use the first tilesheet
+        $(dom.tilesheetSelect).trigger('change', tilesheetId);
+      }
     });
   $(dom.textureBrowseBtn).on('click',
     (e: any) => {
@@ -174,6 +195,9 @@ function bindEvents(dom: any){
       $(dom.newSheetSection).hide();
       $(dom.paletteCanvas).show();
     });
+  $(dom.tabSelectorTextures).on('click', (e: any) => {
+    View.listeners.onTabSelect('textures');
+  });
   $(dom.tabSelectorTilemap).on('click',
     (e: any) => {
       View.listeners.onTabSelect('tilemap');
@@ -206,7 +230,7 @@ function bindEvents(dom: any){
     (e: any) => {
       const layerIdx = View.selectedLayerIndex();
       App.listeners.onLayerChange(layerIdx);
-      View.listeners.onLayerChange();
+      View.listeners.onLayerChange(layerIdx);
     });
   $(dom.addLayerBtn).on('click',
     (e: any) => {
@@ -218,6 +242,21 @@ function bindEvents(dom: any){
       const selectedLayers = $(dom.layerSelect).val() as string[];
       const layerIdx = parseInt(selectedLayers[0]);
       App.listeners.onRemoveLayer(layerIdx);
+    });
+  $(dom.newSheetCancelBtn).on('click',
+    (e: any) => {
+      $(dom.paletteCanvas).show();
+      $(dom.newSheetSection).hide();
+    });
+
+  $(dom.tilemapTextureNewBtn).on('click',
+    async (e: any) => {
+      const textureId = await Assets.loadAssetFromFile(Assets.AssetType.Texture);
+      View.listeners.onTilemapTextureNew(textureId);
+    });
+  $(dom.tilemapTextureRemoveBtn).on('click',
+    (e: any) => {
+      View.listeners.onTilemapTextureRemove();
     });
 }
 

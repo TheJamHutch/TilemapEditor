@@ -44,6 +44,10 @@ export namespace View{
           for (let sheet of sheets){
             $(dom.tilesheetSelect).append(`<option value="${sheet.id}">${sheet.id}</option>`);
           }
+          const firstSheet = (sheets.length === 1);
+          if (firstSheet){
+            $(dom.tilesheetSelect).prop('selectedIndex', 0);
+          }
         },
       onPaletteSelect:
         () => {
@@ -55,22 +59,33 @@ export namespace View{
           $(dom.tileEffectSelect).prop('value', effect);
         },
       onLayerChange:
-        () => {
-          const tilesheetId = selectedTilesheetId();
+        (layerIdx: number) => {
+          const tilesheetId = App.editor.tilemap!.layers[layerIdx].tilesheetId;
           updateTilesheetSelection(tilesheetId);
         },
       onTabSelect:
         (tabId: string) => {
           if (tabId === 'tilemap'){
+            $(dom.tabContentTextures).hide();
             $(dom.tabContentEntities).hide();
             $(dom.tabContentTilemap).show();
             $(dom.tabSelectorEntities).css('color', 'white');
             $(dom.tabSelectorTilemap).css('color', 'yellow');
+            $(dom.tabSelectorTextures).css('color', 'white');
           } else if (tabId === 'entities'){
             $(dom.tabContentTilemap).hide();
+            $(dom.tabContentTextures).hide();
             $(dom.tabContentEntities).show();
             $(dom.tabSelectorEntities).css('color', 'yellow');
             $(dom.tabSelectorTilemap).css('color', 'white');
+            $(dom.tabSelectorTextures).css('color', 'white');
+          } else if (tabId === 'textures'){
+            $(dom.tabContentTilemap).hide();
+            $(dom.tabContentEntities).hide();
+            $(dom.tabContentTextures).show();
+            $(dom.tabSelectorEntities).css('color', 'white');
+            $(dom.tabSelectorTilemap).css('color', 'white');
+            $(dom.tabSelectorTextures).css('color', 'yellow');
           }
         },
       onTileSizeChange:
@@ -90,12 +105,22 @@ export namespace View{
         },
       onRemoveLayer:
         (layerIdx: number) => {
+          // @TODO: Don't use hardcoded element ID here
           $(`#layerSelect option[value="${layerIdx}"]`).remove();
         },
       onTextureLoad:
         (textureId: string) => {
           $(dom.textureNameInput).prop('value', textureId);
           updateSheetDimensions(textureId);
+        },
+      onTilemapTextureNew:
+        (textureId: string) => {
+          $(dom.tilemapTextureSelect).append(`<option value="${textureId}">${textureId}</option>`)
+        },
+      onTilemapTextureRemove:
+        (textureId: string) => {
+          // @TODO: Don't use hardcoded element ID here
+          $(`#tilemapTextureSelect option[value="${textureId}"]`).remove();
         }
     }
     

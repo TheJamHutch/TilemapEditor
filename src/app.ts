@@ -29,10 +29,6 @@ export namespace App{
     editor = new Editor(editorContext, config.editor);
     palette = new Palette(paletteContext, config.palette);
 
-    // @TODO: Find another way to load textures
-    Assets.loadTexture('basetiles', './assets/textures/basetiles.png');
-    Assets.loadTexture('overtiles', './assets/textures/overtiles.png');
-
     initListeners();
   }
 
