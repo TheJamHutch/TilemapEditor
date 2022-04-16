@@ -32,6 +32,10 @@ export namespace App{
     initListeners();
   }
 
+  export function tilesheetLoaded(): boolean {
+    return (palette.tilesheet);
+  }
+
   function initListeners(): void {
     listeners = {
       onKeyDown: 
@@ -94,6 +98,10 @@ export namespace App{
         (mapId: string) => {  
           editor.loadMap(mapId);
         },
+      onResizeMap:
+        (mapDimensions: Vector) => {
+          editor.resizeMap(mapDimensions);
+        },  
       onLoadTilesheet:
         () => {
           
@@ -228,16 +236,8 @@ export namespace App{
       }
     }
   
-    resizeMap(dimensions: Vector){
-      /*const n = dimensions.x * dimensions.y;
-      let tiles = [] as any[];
-  
-      for (let i = 0; i < n; i++){
-        tiles[i] = this.tilemap!.tiles[i];
-      }
-  
-      this.worldMap = new WorldMap(mapObj);
-      this.camera = new Camera(this.resolution, this.worldMap, { x: 0, y: 0 });*/
+    resizeMap(mapDimensions: Vector){
+      this.tilemap!.dimensions = mapDimensions;
     }
   
     onKeyDown(keycode: string): void {

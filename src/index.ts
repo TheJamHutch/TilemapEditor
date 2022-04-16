@@ -121,6 +121,12 @@ function bindEvents(dom: any){
   // Bind view element events
   $(dom.newBtn).on('click', 
     (e: any) => {
+      const sheets = Object.values(Assets.store.tilesheets);
+      if (sheets.length === 0){
+        console.warn('Cannot create a new map until a tilesheet has been loaded.');
+        return;
+      }
+
       const mapDimensions = View.mapDimensions();
       App.listeners.onNewMap(mapDimensions);
       View.listeners.onNewMap();
@@ -134,12 +140,18 @@ function bindEvents(dom: any){
   $(dom.loadBtn).on('click', 
     async (e: any) => {
       const mapId = await Assets.loadAssetFromFile(Assets.AssetType.Map);
+      if (!mapId){
+        console.warn('Failed to load map');
+        return;
+      }
+
       App.listeners.onLoadMap(mapId);
       View.listeners.onLoadMap(mapId);
     });
   $(dom.resizeBtn).on('click',
     (e: any) => {
-      //editor.resizeMap(View.mapDimensions());
+      const mapDimensions = View.mapDimensions();
+      App.listeners.onResizeMap(mapDimensions);
     });
   $(dom.newTilesheetBtn).on('click',
     (e: any) => {
@@ -154,6 +166,10 @@ function bindEvents(dom: any){
   $(dom.loadTilesheetBtn).on('click',
     async (e: any) => {
       const tilesheetId = await Assets.loadAssetFromFile(Assets.AssetType.Tilesheet);
+      if (!tilesheetId){
+        console.warn('Failed to load tilesheet');
+        return;
+      }
 
       const tilesheet = Assets.store.tilesheets[tilesheetId];
       // Check that there is a texture loaded for the tilesheet
@@ -264,9 +280,8 @@ function bindEvents(dom: any){
   $(dom.textureNewBtn).on('click',
     async (e: any) => {
       const textureId = await Assets.loadAssetFromFile(Assets.AssetType.Texture);
-
       if (!textureId){
-        console.warn('Failed to load texture, wrong file type?');
+        console.warn('Failed to load texture');
         return;
       }
 
@@ -290,7 +305,7 @@ function update() {
 }
 
 function exportJson(id: string, obj: any): void {
-  const json = JSON.stringify(obj);
+  const json = JSON.stringify(obj, null, '\t');
   const a = document.createElement('a');
   a.href = `data:application/json;charset=utf-8,${json}`;
   a.download = `${id}.json`;

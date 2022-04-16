@@ -10,7 +10,9 @@ export namespace Tilemaps{
     None = 0,
     Hurt,
     Teleport,
-    Transition
+    Transition,
+    Door,
+    Roof
   }
   
   export type Tile = {

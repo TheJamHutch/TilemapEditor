@@ -123,6 +123,9 @@ export namespace View{
         (textureId: string) => {
           // @TODO: Don't use hardcoded element ID here
           $(`#textureSelect option[value="${textureId}"]`).remove();
+          $(dom.textureImageDiv)
+            .find('img')
+            .remove();
         }
     }
     

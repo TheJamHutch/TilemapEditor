@@ -104,7 +104,11 @@ export namespace Assets{
         break;
     }
 
-    const rawAsset = await readFile(contentType);
+    let rawAsset = await readFile(contentType);
+    
+    if (rawAsset === null){
+      return null;
+    }
 
     // Get file extension and check that it matches contentType
     const extIdx = rawAsset.name.lastIndexOf('.');
@@ -140,7 +144,7 @@ export namespace Assets{
     return assetId;
   }
 
-  async function readFile(contentType: string){
+  async function readFile(contentType: string): Promise<any> {
     const pickerOpts = {
       types: [
         {
@@ -153,15 +157,21 @@ export namespace Assets{
       multiple: false
     };
 
-    // @ts-ignore
-    const [fileHandle] = await showOpenFilePicker(pickerOpts);
+    let fileHandle;
+    try {
+      // @ts-ignore
+      [fileHandle] = await showOpenFilePicker(pickerOpts);
 
-    const file = await fileHandle.getFile();
-    const content = await file.text();
+      const file = await fileHandle.getFile();
+      const content = await file.text();
 
-    return {
-      name: file.name,
-      content
-    };
+      return {
+        name: file.name,
+        content
+      };
+    } catch(ex) {
+      // User closed out without selecting file
+      return null;
+    }
   }
 }
