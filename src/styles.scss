@@ -1,0 +1,19 @@
+body{
+  background-color: black;
+  margin: 0;
+  color: white;
+  font-family: "Times New Roman", Times, serif;
+}
+
+canvas{
+  outline: none;
+}
+
+input, select, button{
+  background-color: black;
+  color: white;
+}
+
+.bordered{
+  border: 1px solid grey;
+}

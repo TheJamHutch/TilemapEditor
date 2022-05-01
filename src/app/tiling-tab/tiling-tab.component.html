@@ -1,0 +1,46 @@
+<div class="container">
+  <div>
+    <app-palette-control></app-palette-control>
+  </div>
+  <div class="container">
+    <div class="container static column bordered">
+      <div class="container static column">
+        <label>Layers:</label>
+        <select multiple>
+          <option *ngFor="let layer of layerOptions(); let i = index" [value]="i" [selected]="layerOptionSelected(i)" [value]="i" (click)="onLayerSelect($event.target.value)">layer{{i}}</option>
+        </select>
+        <div>
+          <button (click)="onAddLayerClick()">Add</button>
+          <button (click)="onRemoveLayerClick()">Remove</button>
+        </div>
+      </div>
+      <div class="container static column">
+        <label>Tilesheets:</label>
+        <select multiple>
+          <option *ngFor="let tilesheet of tilesheetOptions; let i = index" [selected]="tilesheetOptionSelected(tilesheet.id)" [value]="tilesheet.id" (click)="onTilesheetSelect($event.target.value)">{{tilesheet.id}}</option>
+        </select>
+      </div>
+    </div>
+    <div class="container column">
+      <span>Tile Properties</span>
+      <div class="properties container column">
+        <div>
+          <label>Solid: </label>
+          <input type="checkbox"  [checked]="tileIsSolid()">
+        </div>
+
+        <div>
+          <label>Animated: </label>
+          <input type="checkbox" [checked]="tileIsAnimated()">
+        </div>
+
+        <div>
+          <label>Effect: </label>
+          <select>
+            <option *ngFor="let effect of tileEffectOptions; let i = index" [value]="i" [selected]="tileEffectOptionSelected(i)">{{effect}}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

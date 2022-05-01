@@ -1,0 +1,19 @@
+.app{
+  height: 100vh;
+
+  .toolbar {
+    flex: 1;
+  }
+
+  .workspace {
+    flex: 16;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items:center;
+  }
+
+  .toolbox {
+    flex: 8;
+  }
+}

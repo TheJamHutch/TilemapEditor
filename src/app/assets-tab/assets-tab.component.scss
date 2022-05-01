@@ -1,0 +1,22 @@
+select{
+    width: 250px;
+    height: 200px;
+}
+
+.assets-tab{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.asset-list{
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+}
+
+.list-header{
+    display: flex;
+    justify-content: space-between;
+}

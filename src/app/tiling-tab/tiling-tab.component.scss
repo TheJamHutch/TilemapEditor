@@ -1,0 +1,12 @@
+select{
+  width: 100px;
+}
+select[multiple]{
+  width: 160px;
+  height: 100px;
+}
+
+.properties{
+  padding: 10px;
+  gap: 20px;
+}

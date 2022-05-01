@@ -1,0 +1,37 @@
+<div class="assets-tab">
+  <div class="asset-list">
+    <div class="list-header">
+      <span>Textures</span>
+      <div>
+        <button (click)="onTextureLoadClick()">Load</button>
+      </div>
+    </div>
+    <select type="text" multiple>
+      <option *ngFor="let id of textures" [value]="id">{{id}}</option>
+    </select>
+  </div>
+  <div class="asset-list">
+    <div class="list-header">
+      <span>Tilesheets</span>
+      <div>
+        <button>New</button>
+        <button (click)="onTilesheetLoadClick()">Load</button>
+      </div>
+    </div>
+    <select type="text" multiple>
+      <option *ngFor="let id of tilesheets" [value]="id">{{id}}</option>
+    </select>
+  </div>
+  <div class="asset-list">
+    <div class="list-header">
+      <span>Spritesheets</span>
+      <div>          
+        <button>New</button>
+        <button (click)="onSpritesheetLoadClick()">Load</button>
+      </div>
+    </div>
+    <select type="text" multiple>
+      <option *ngFor="let id of spritesheets" [value]="id">{{id}}</option>
+    </select>
+  </div>
+</div>
