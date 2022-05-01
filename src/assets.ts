@@ -132,6 +132,7 @@ export namespace Assets{
         loadGameMap(assetJson);
         break;
       case AssetType.Texture:
+        // @TODO: Textures must be in TilemapEditors assets/textures folder, should be able to pick from elsewhere
         assetId = rawAsset.name.substring(0, extIdx);
         const path = `assets/textures/${rawAsset.name}`;
         loadTexture(assetId, path);
