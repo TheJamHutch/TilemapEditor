@@ -102,9 +102,11 @@ export class Editor{
         break;
     }
 
+    // @TODO: Paste-in tiles while camera is moving but mouse isn't, or prevent them from being pasted in?
+    /*
     if (this.paste){
       this.updateTileAtCursorPos();
-    }
+    }*/
   }
 
   addSelectedTile(tilePos: Vector): void {
