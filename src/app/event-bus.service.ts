@@ -53,8 +53,8 @@ export class EventBusService {
       // Loop through all items in the queue
       for (let item of this.queue){
         // Run through all of the registered callbacks for each item.
-        for(let fn of this.listeners[item.key].callbacks){
-          fn(item.context);
+        for(let cb of this.listeners[item.key].callbacks){
+          cb(item.context);
         }
       }
 

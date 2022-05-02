@@ -46,10 +46,10 @@ export class PaletteControlComponent implements OnInit, AfterViewInit {
     this.palette = new Palette(paletteContext, config.palette);
 
     // Init palette canvas events
-    this.paletteCanvas.nativeElement.addEventListener('mousemove', (e: any) => {
+    this.paletteCanvas.nativeElement.addEventListener('mousemove', (e: PointerEvent) => {
       this.onMouseMove({ x: e.offsetX, y: e.offsetY });
     });
-    this.paletteCanvas.nativeElement.addEventListener('mousedown', (e: any) => {
+    this.paletteCanvas.nativeElement.addEventListener('mousedown', (e: PointerEvent) => {
       this.onMouseDown({ x: e.offsetX, y: e.offsetY });
     });
 

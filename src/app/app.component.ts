@@ -3,6 +3,7 @@ import { AssetsService } from './assets.service';
 import { EventBusService, EventType } from './event-bus.service';
 import { Rendering } from './core/rendering';
 import { config } from './core/config';
+import { PerformanceCounterService } from './performance-counter.service';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +18,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   title = 'TilemapEditor';
   selectedTab = 'Tiling';
 
-  constructor(private assets: AssetsService, private eventBus: EventBusService){}
+  constructor(private assets: AssetsService, private eventBus: EventBusService, private performanceCounter: PerformanceCounterService){}
   
   async ngOnInit(): Promise<void> {
     await this.assets.loadAll();
@@ -31,8 +32,9 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   update(): void {
-    this.eventBus.raise(EventType.NewFrame);
     this.eventBus.poll();
+    this.eventBus.raise(EventType.NewFrame);
+    this.performanceCounter.increment();
 
     requestAnimationFrame(() => {
       this.update();

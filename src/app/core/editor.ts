@@ -3,7 +3,13 @@ import { Rect, Vector } from "../core/primitives";
 import { Camera, CameraDirection } from "../core/camera";
 import { Tiling } from "../core/tilemap";
 
-export enum DrawModes{
+export enum EditorMode{
+  Draw,
+  Select,
+  Grab
+}
+
+export enum EditorDrawMode{
   Free = 0,
   Line,
   Rect,
@@ -16,17 +22,25 @@ export class Editor{
   cursor: Rect;
   selectedTileIdx = 1;
   tileSize: number;
-  pasteMode = false;
+  paste = false;
   tilemap?: Tiling.Tilemap;
   camera?: Camera;
   topLayerIdx = -1;
   showGrid = false;
-  drawMode = DrawModes.Free;
+
+  mode = EditorMode.Draw;
+  drawMode = EditorDrawMode.Free;
+
+  // @TODO: Tiles can be free-selected when Ctrl is held. Should be able to click on an already selected tile and have it de-select but not when mouse is moved (in paste mode)
+  selectedTiles = [];
+
+  lineDashSpeed = 0; // Controls the speed of the line dash animation shown when selecting a tile.
 
   constructor(context: Rendering.RenderContext, config: any){
     this.context = context;
     this.cursor = new Rect({ x: 0, y: 0, w: config.tileSize, h: config.tileSize });
     this.tileSize = config.tileSize;
+    this.lineDashSpeed = config.lineDashSpeed;
   }
 
   loadMap(rawMap: any){
@@ -61,11 +75,13 @@ export class Editor{
     };
   }
 
-  update(): void {
+  update(frameCount: number): void {
     if (!this.camera || !this.tilemap){
       return;
     }
-    
+
+    this.context.nativeContext.lineDashOffset = Math.floor(frameCount / this.lineDashSpeed);
+
     this.camera.update();
     this.render();
   }
@@ -86,9 +102,29 @@ export class Editor{
         break;
     }
 
-    if (this.pasteMode){
+    if (this.paste){
       this.updateTileAtCursorPos();
     }
+  }
+
+  addSelectedTile(tilePos: Vector): void {
+    let addTile = true;
+
+    for (let i = this.selectedTiles.length - 1; i >= 0; i--){
+      let selTile = this.selectedTiles[i];
+      if (tilePos.x === selTile.x && tilePos.y === selTile.y){
+          addTile = false;
+          break;
+      }
+    }
+
+    if (addTile){
+      this.selectedTiles.push(tilePos);
+    }
+  }
+
+  clearSelectedTiles(): void {
+    this.selectedTiles = [];
   }
 
   posOnMap(pos: Vector): boolean {
@@ -103,6 +139,12 @@ export class Editor{
     const tilePos = Tiling.worldToTilePos(this.tilemap, worldPos);
 
     this.tilemap.setTile(this.topLayerIdx, tilePos, this.selectedTileIdx);
+  }
+
+  getTileAtCursorPos(): Vector {
+    const worldPos = this.camera.viewToWorld(this.cursor) as Vector;
+    const tilePos = Tiling.worldToTilePos(this.tilemap, worldPos);
+    return tilePos;
   }
 
   setCursorPosition(pos: Vector): void {
@@ -121,6 +163,25 @@ export class Editor{
       this.renderGrid();
     }
 
+    // Render overlay for any selected tiles.
+    for (let tilePos of this.selectedTiles){
+      const tileViewPos = { x: tilePos.x * this.tileSize, y: tilePos.y * this.tileSize };
+      const tileWorldPos = this.camera.worldToView(tileViewPos);
+      let tileRect = new Rect({ 
+        x: tileWorldPos.x, 
+        y: tileWorldPos.y, 
+        w: this.tileSize,
+        h: this.tileSize
+      });
+      this.context.nativeContext.setLineDash([4, 2]);
+      this.context.setFillColor('red');
+      this.context.setStrokeColor('black');
+      this.context.setStrokeWeight(1);
+      this.context.fillRect(tileRect, 0.3);
+      this.context.strokeRect(tileRect);
+    }
+    this.context.nativeContext.setLineDash([0]);
+
     this.context.setStrokeColor('yellow');
     this.context.setStrokeWeight(4);
     this.context.strokeRect(this.cursor);
@@ -131,7 +192,7 @@ export class Editor{
     this.context.setStrokeWeight(1);
     const dims = this.tilemap.dimensions;
 
-    // Vertical lines
+     // Vertical lines
     for (let x = 0; x < dims.x; x++){
       let start = {
         x: (this.camera.view.x + (x * this.tileSize)) - (this.camera.world.x % this.tileSize),

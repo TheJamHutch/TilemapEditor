@@ -6,7 +6,8 @@ import { Rect, Vector } from "../core/primitives";
 import { Camera, CameraDirection } from "../core/camera";
 import { Tiling } from "../core/tilemap";
 import { AssetsService } from '../assets.service';
-import { Editor } from '../core/editor';
+import { Editor, EditorMode } from '../core/editor';
+import { PerformanceCounterService } from '../performance-counter.service';
 
 @Component({
   selector: 'app-editor-control',
@@ -18,12 +19,14 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
   @ViewChild('mapCanvas') mapCanvas: ElementRef<HTMLCanvasElement>;
 
   editor: Editor;
+  ctrlHeld = false;
+  shiftHeld = false;
 
-  constructor(private assets: AssetsService, private eventBus: EventBusService) { }
+  constructor(private assets: AssetsService, private eventBus: EventBusService, private performanceCounter: PerformanceCounterService) { }
 
   ngOnInit(): void {
     this.eventBus.register(EventType.NewFrame, (context: any) => {
-      this.editor.update();
+      this.editor.update(this.performanceCounter.frameCount);
     });
     this.eventBus.register(EventType.PaletteSelect, (context: any) => {
       this.editor.selectedTileIdx = context.cellIdx;
@@ -80,21 +83,39 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
     this.editor = new Editor(editorContext, config.editor)
 
     // Init map canvas events
-    this.mapCanvas.nativeElement.addEventListener('keydown', (e: any) => {
+    this.mapCanvas.nativeElement.addEventListener('keydown', (e: KeyboardEvent) => {
       this.onKeyDown(e.code);
     });
-    this.mapCanvas.nativeElement.addEventListener('keyup', (e: any) => {
+    this.mapCanvas.nativeElement.addEventListener('keyup', (e: KeyboardEvent) => {
       this.onKeyUp(e.code);
     });
-    this.mapCanvas.nativeElement.addEventListener('mousemove', (e: any) => {
-      this.onMouseMove({ x: e.offsetX, y: e.offsetY });
+    this.mapCanvas.nativeElement.addEventListener('mousemove', (e: PointerEvent) => {
+      if (e.button === 0){
+        this.onMouseMove({ x: e.offsetX, y: e.offsetY });
+      } else if (e.button === 2){
+        
+      }
     });
-    this.mapCanvas.nativeElement.addEventListener('mousedown', (e: any) => {
-      this.onMouseDown({ x: e.offsetX, y: e.offsetY });
+    this.mapCanvas.nativeElement.addEventListener('mousedown', (e: PointerEvent) => {
+      // @TODO: Extrat these hardcoded nums into an enum
+      if (e.button === 0){
+        this.mapCanvas.nativeElement.style.cursor = 'crosshair';
+        this.onMouseDown({ x: e.offsetX, y: e.offsetY });
+      } else if (e.button === 2){
+        this.mapCanvas.nativeElement.style.cursor = 'grabbing';
+      }
     });
     // Bind this particular event listener to the document instead, to prevent an annoying bug where the editor is still in paste mode when mouseup occurs off-canavs.
-    document.addEventListener('mouseup', (e: any) => {
-      this.onMouseUp({ x: e.offsetX, y: e.offsetY });
+    document.addEventListener('mouseup', (e: PointerEvent) => {
+      if (e.button === 0){
+        this.onMouseUp({ x: e.offsetX, y: e.offsetY });
+      } else if (e.button === 2){
+        this.mapCanvas.nativeElement.style.cursor = 'grab';
+      }
+    });
+    // Right-mosue button events (overrides default contextMenu behaviour)
+    this.mapCanvas.nativeElement.addEventListener('contextmenu', (e: PointerEvent) => {
+      e.preventDefault();
     });
   }
 
@@ -102,7 +123,7 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
     if (!this.editor.tilemap){
       return;
     }
-
+    
     switch(keycode){
       case 'KeyW':
         this.editor.moveCamera(CameraDirection.North);
@@ -115,6 +136,14 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
         break;
       case 'KeyD':
         this.editor.moveCamera(CameraDirection.East);
+        break;
+      case 'ShiftLeft':
+        this.shiftHeld = true;
+        this.editor.mode = EditorMode.Select;
+        break;
+      case 'ControlLeft':
+        this.ctrlHeld = true;
+        this.editor.mode = EditorMode.Select;
         break;
         /*
       case 'Equal':
@@ -153,6 +182,15 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
       case 'KeyD':
         this.editor.camera.velocity.x = 0;
         break;
+      case 'ShiftLeft':
+        this.shiftHeld = false;
+        this.editor.mode = EditorMode.Draw;
+        break;
+      case 'ControlLeft':
+        this.ctrlHeld = false;
+        this.editor.mode = EditorMode.Draw;
+        this.editor.paste = false;
+        break;
         /*
       case 'ControlLeft':
         this.ctrlHeld = false;
@@ -171,8 +209,17 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
   
     this.editor.setCursorPosition(mousePos);
 
-    if (this.editor.pasteMode){
-      this.editor.updateTileAtCursorPos();
+    if (this.editor.paste)
+    {
+      if (this.ctrlHeld)
+      {
+        let tilePos = this.editor.getTileAtCursorPos();
+        this.editor.addSelectedTile(tilePos);
+      }
+      else 
+      {
+        this.editor.updateTileAtCursorPos();
+      }
     }
   }
 
@@ -187,8 +234,23 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
     
     this.editor.setCursorPosition(mousePos);
 
-    this.editor.pasteMode = true;
-    this.editor.updateTileAtCursorPos();
+    this.editor.paste = true;
+
+    if (this.ctrlHeld){
+      let tilePos = this.editor.getTileAtCursorPos();
+      this.editor.addSelectedTile(tilePos);
+    } else {
+      // If no tiles are currently selected then draw the tile as normal.
+      if (this.editor.selectedTiles.length === 0)
+      {
+        this.editor.updateTileAtCursorPos();
+      } 
+      // Otherwise clear the tile selection first.
+      else 
+      {
+        this.editor.clearSelectedTiles();
+      }
+    }
   }
 
   onMouseUp(mousePos: Vector): void {
@@ -196,6 +258,6 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    this.editor.pasteMode = false;
+    this.editor.paste = false;
   }
 }
