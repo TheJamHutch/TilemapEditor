@@ -35,6 +35,14 @@ export class AssetsService {
     this.eventBus.raise(EventType.AssetsChange);
   }
 
+  exportJson(id: string, obj: any): void {
+    const json = JSON.stringify(obj);
+    const a = document.createElement('a');
+    a.href = `data:application/json;charset=utf-8,${json}`;
+    a.download = `${id}.json`;
+    a.click();
+  }
+
   async loadFromFile(assetType: Assets.AssetType): Promise<string | null> {
     let contentType = '';
     

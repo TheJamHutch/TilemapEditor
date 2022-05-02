@@ -8,6 +8,6 @@ export const config = {
     },
     palette: {
       resolution: { x: 800, y: 300 },
-      tileSize: 32
+      cellSize: 32
     }
   };
