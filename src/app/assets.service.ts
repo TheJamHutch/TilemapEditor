@@ -16,7 +16,7 @@ export class AssetsService {
   };
   readonly assetFiles = {
     textures: ['basetiles', 'glass', 'glass_night', 'toptiles', 'villager', 'slime', 'player'],
-    maps: ['wretch', 'tesst', 'small', 'rev', 'empty', 'newone', 'daynight', 'tod'],
+    maps: [ ],
     tilesheets: ['basetiles', 'toptiles' ],
     spritesheets: ['player', 'slime', 'villager'],
     data: ['archetypes']
@@ -26,12 +26,21 @@ export class AssetsService {
 
   constructor(private eventBus: EventBusService) {}
 
+  // Load order: Textures, Tilesheets, Spritesheet, Maps, other data.
   async loadAll(){
     this.store = {
-      textures: await this.loadAllTextures(),
-      tilesheets: await this.loadAllTilesheets(),
-      spritesheets: await this.loadAllSpritesheets()
-    };
+      textures: {},
+      tilesheets: {},
+      spritesheets: {},
+      maps: {},
+      data: {}
+    } as any;
+
+    await this.loadAllTextures();
+    await this.loadAllTilesheets(this.store.textures);
+    await this.loadAllSpritesheets();
+    await this.loadAllMaps(this.store.tilesheets);
+
     this.eventBus.raise(EventType.AssetsChange);
   }
 
@@ -82,15 +91,14 @@ export class AssetsService {
     
     switch(assetType){
       case Assets.AssetType.Tilesheet:
-        const tilesheet = Object.assign({}, assetJson);
-        this.store.tilesheets[tilesheet.id] = tilesheet;
+        this.loadTilesheet(assetJson, this.store.textures);
         break;
       case Assets.AssetType.Spritesheet:
-        const spritesheet = Object.assign({}, assetJson);
-        this.store.spritesheets[tilesheet.id] = spritesheet;
+        //const spritesheet = Object.assign({}, assetJson);
+        //this.store.spritesheets[tilesheet.id] = spritesheet;
         break;
       case Assets.AssetType.GameMap:
-        //loadGameMap(assetJson);
+        this.loadGameMap(assetJson, this.store.tilesheets);
         break;
       case Assets.AssetType.Texture:
         // @TODO: Textures must be in TilemapEditors assets/textures folder, should be able to pick from elsewhere
@@ -114,9 +122,28 @@ export class AssetsService {
     return assetId;
   }
 
-  private async loadAllTextures(): Promise<any> {
+  loadTilesheet(rawTilesheet: any, textures: { [ id: string ]: Assets.Texture }): void {
+    // @TODO: Check tilesheet properties
+
+    const tilesheet = Object.assign({}, rawTilesheet);
+    tilesheet.texture = textures[rawTilesheet.textureId];
+    this.store.tilesheets[tilesheet.id] = tilesheet;
+  }
+
+  loadGameMap(rawMap: any, tilesheets: { [ id: string ]: Assets.Tilesheet }){
+    // @TODO: Check game map properties
+
+    const gameMap = Object.assign({}, rawMap);
+    for (let layer of gameMap.tilemap.layers){
+      const tilesheet = tilesheets[layer.tilesheetId];
+      layer.tilesheet = tilesheet;
+    }
+    
+    this.store.maps[gameMap.id] = gameMap;
+  }
+
+  private async loadAllTextures(): Promise<void> {
     const ext = '.png';
-    let textures = {};
 
     for (let fileName of this.assetFiles.textures){
       try{
@@ -124,38 +151,30 @@ export class AssetsService {
         
         const texture = Assets.createTexture(fileName, url);
         
-        textures[texture.id] = texture;
+        this.store.textures[texture.id] = texture;
       } catch(ex){
         console.warn(`Failed to load texture asset: ${fileName}${ext}`);
       }
     }
-
-    return textures;
   }
 
-  private async loadAllTilesheets(): Promise<any> {
+  private async loadAllTilesheets(textures: { [ id: string ]: Assets.Texture }): Promise<void> {
     const ext = '.json';
-    let tilesheets = {};
 
     for (let fileName of this.assetFiles.tilesheets){
       try{
         const url = this.assetFolders.tilesheets + fileName + ext;
         const rawJson = await this.fetchFileJson(url);
 
-        const tilesheet = Object.assign({}, rawJson);
-        
-        tilesheets[tilesheet.id] = tilesheet;
+        this.loadTilesheet(rawJson, textures)
       } catch(ex){
         console.warn(`Failed to load tilesheet asset: ${fileName}${ext}`);
       }
     }
-
-    return tilesheets;
   }
 
-  private async loadAllSpritesheets(): Promise<any> {
+  private async loadAllSpritesheets(): Promise<void> {
     const ext = '.json';
-    let spritesheets = {};
 
     for (let fileName of this.assetFiles.spritesheets){
       try{
@@ -164,13 +183,26 @@ export class AssetsService {
 
         const spritesheet = Object.assign({}, rawJson);
         
-        spritesheets[spritesheet.id] = spritesheet;
+        this.store.spritesheets[spritesheet.id] = spritesheet;
       } catch(ex){
         console.warn(`Failed to load spritesheet asset: ${fileName}${ext}`);
       }
     }
+  }
 
-    return spritesheets;
+  private async loadAllMaps(tilesheets: { [ id: string ]: Assets.Tilesheet }): Promise<void> {
+    const ext = '.json';
+
+    for (let fileName of this.assetFiles.maps){
+      try{
+        const url = this.assetFolders.maps + fileName + ext;
+        const rawJson = await this.fetchFileJson(url);
+
+        this.loadGameMap(rawJson, tilesheets);
+      } catch(ex){
+        console.warn(`Failed to load map asset: ${fileName}${ext}`);
+      }
+    }
   }
 
   private async fetchFileJson(url: string): Promise<any> {

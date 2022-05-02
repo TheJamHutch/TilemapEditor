@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { AssetsService } from '../assets.service';
+import { Assets } from '../core/assets';
 import { EventBusService, EventType } from '../event-bus.service';
 
 @Component({
@@ -15,7 +17,7 @@ export class ToolbarComponent implements OnInit {
   drawModes = ['Free', 'Line', 'Rect', 'Block'];
   drawModeIdx = 0;
 
-  constructor(private eventBus: EventBusService) { }
+  constructor(private assets: AssetsService, private eventBus: EventBusService) { }
 
   ngOnInit(): void {
 
@@ -29,8 +31,11 @@ export class ToolbarComponent implements OnInit {
     this.eventBus.raise(EventType.SaveMap);
   }
 
-  onLoadMapClick(): void {
-    this.eventBus.raise(EventType.LoadMap);
+  async onLoadMapClick(): Promise<void> {
+    const mapId = await this.assets.loadFromFile(Assets.AssetType.GameMap);
+    if (mapId){
+      this.eventBus.raise(EventType.LoadMap, { mapId: mapId });
+    }
   }
 
   onToggleGridClick(): void {

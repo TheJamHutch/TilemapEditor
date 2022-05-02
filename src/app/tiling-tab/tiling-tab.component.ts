@@ -38,6 +38,7 @@ export class TilingTabComponent implements OnInit, AfterViewInit {
     });
     this.eventBus.register(EventType.MapChange, (context: any) => {
       this.tilemap = context.tilemap;
+      this.layerIdx = 0;
     });
     this.eventBus.register(EventType.PaletteSelect, (context: any) => {
       this.tileIdx = context.cellIdx;

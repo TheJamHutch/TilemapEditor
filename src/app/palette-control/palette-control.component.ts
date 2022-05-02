@@ -28,8 +28,6 @@ export class PaletteControlComponent implements OnInit, AfterViewInit {
     });
     this.eventBus.register(EventType.TilesheetChange, (context: any) => {
       const tilesheet = this.assets.store.tilesheets[context.tilesheetId] as any;
-      const texture = this.assets.store.textures[tilesheet.id];
-      tilesheet.texture = texture;
       this.palette.changeTilesheet(tilesheet);
       this.eventBus.raise(EventType.PaletteSelect, { cellIdx: 0 });
     });

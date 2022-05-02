@@ -13,7 +13,9 @@ export namespace Assets{
   export type Store = {
     textures: { [id: string]: Texture },
     tilesheets: { [id: string]: Tilesheet },
-    spritesheets: { [id: string]: Spritesheet }
+    spritesheets: { [id: string]: Spritesheet },
+    maps: { [id: string]: GameMap },
+    data: { [id: string]: any }
   };
 
   export type Texture = {
@@ -25,12 +27,12 @@ export namespace Assets{
     id: string;
     name: string;
     tilemap: any;
-    entities: any;
+    entities: any[];
   }
 
   export type Tilesheet = {
     id: string;
-    textureId: string;
+    texture: Texture;
     clipSize: number;
     nCells: number;
     cellsPerRow: number;

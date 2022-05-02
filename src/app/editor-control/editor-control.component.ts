@@ -33,15 +33,14 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
     });
     this.eventBus.register(EventType.NewMap, (_) => {
       let firstSheet = Object.values(this.assets.store.tilesheets)[0] as any;
-      firstSheet.texture = this.assets.store.textures[firstSheet.textureId];
-      const initMap = this.editor.generateNewMap(firstSheet);
+      const initMap = this.editor.generateNewMap(firstSheet, config.editor.mapDimensions);
       this.editor.loadMap(initMap);
 
       this.eventBus.raise(EventType.MapChange, { tilemap: this.editor.tilemap });
     });
     this.eventBus.register(EventType.LoadMap, (context: any) => {
-      this.editor.loadMap(context.map);
-
+      const loadedMap = this.assets.store.maps[context.mapId];
+      this.editor.loadMap(loadedMap);
       this.eventBus.raise(EventType.MapChange, { tilemap: this.editor.tilemap });
     });
     this.eventBus.register(EventType.SaveMap, (_) => {

@@ -50,10 +50,16 @@ export class EventBusService {
 
   poll(): void {
     if (this.queue.length > 0){
-      let item = this.queue.shift();
-      for(let fn of this.listeners[item.key].callbacks){
-        fn(item.context);
+      // Loop through all items in the queue
+      for (let item of this.queue){
+        // Run through all of the registered callbacks for each item.
+        for(let fn of this.listeners[item.key].callbacks){
+          fn(item.context);
+        }
       }
+
+      // Finally clear the queue
+      this.queue = [];
     }
   }
 

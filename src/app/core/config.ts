@@ -3,7 +3,7 @@ export const config = {
     storageEnabled: false,
     editor: {
       resolution: { x: 800, y: 600 },
-      mapDimensions: { x: 10, y: 10 },
+      mapDimensions: { x: 100, y: 100 },
       tileSize: 32
     },
     palette: {

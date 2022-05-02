@@ -30,7 +30,7 @@ export class Camera{
 
   update(): void {
     // Check world bounds
-    if ((this.velocity.x < 0 && this.world.x <= 0) || ( this.velocity.x > 0 && this.world.x + this.view.x > this.worldBounds.x)){
+    if ((this.velocity.x < 0 && this.world.x <= 0) || ( this.velocity.x > 0 && this.world.x + this.view.w > this.worldBounds.x)){
       this.velocity.x = 0;
     }
     if ((this.velocity.y < 0 && this.world.y <= 0) || ( this.velocity.y > 0 && this.world.y + this.view.h > this.worldBounds.y)){

@@ -31,8 +31,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   update(): void {
-    this.eventBus.poll();
     this.eventBus.raise(EventType.NewFrame);
+    this.eventBus.poll();
 
     requestAnimationFrame(() => {
       this.update();

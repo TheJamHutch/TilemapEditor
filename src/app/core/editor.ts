@@ -33,7 +33,7 @@ export class Editor{
     this.tilemap = new Tiling.Tilemap(rawMap.tilemap, this.tileSize);
     this.camera = new Camera(this.context.resolution, this.tilemap.resolution);
 
-    this.topLayerIdx = this.tilemap.layers.length - 1;
+    this.topLayerIdx = 0;
   }
 
   saveMap(mapId: string): any {
@@ -138,13 +138,11 @@ export class Editor{
     }
   }
 
-  generateNewMap(tilesheet: any): any {
-    const dimensions = { x: 100, y: 100 };
-
+  generateNewMap(tilesheet: any, mapDims: Vector): any {
     const mapObj = {
       id: '',
       tilemap: {
-        dimensions,
+        dimensions: mapDims,
         layers: [
           {
             tilesheet,
@@ -154,7 +152,7 @@ export class Editor{
       }
     }
     // Insert tiles
-    const nTiles = dimensions.x * dimensions.y;
+    const nTiles = mapDims.x * mapDims.y;
     for (let i = 0; i < nTiles; i++){
       mapObj.tilemap.layers[0].tiles.push(0);
     }
