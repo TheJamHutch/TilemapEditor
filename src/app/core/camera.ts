@@ -1,5 +1,13 @@
 import { Vector, Rect } from './primitives';
 
+export enum CameraDirection{
+  None,
+  North,
+  East,
+  South,
+  West
+}
+
 export class Camera{
   world: Rect;
   view: Rect;

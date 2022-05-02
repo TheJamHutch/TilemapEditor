@@ -3,7 +3,7 @@ import { EventBusService, EventType } from '../event-bus.service';
 import { Rendering } from '../core/rendering';
 import { config } from '../core/config';
 import { Rect, Vector } from "../core/primitives";
-import { Camera } from "../core/camera";
+import { Camera, CameraDirection } from "../core/camera";
 import { Tiling } from "../core/tilemap";
 import { AssetsService } from '../assets.service';
 import { Editor } from '../core/editor';
@@ -105,16 +105,16 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
 
     switch(keycode){
       case 'KeyW':
-        this.editor.camera.velocity.y = -1;
+        this.editor.moveCamera(CameraDirection.North);
         break;
       case 'KeyS':
-        this.editor.camera.velocity.y = 1;
+        this.editor.moveCamera(CameraDirection.South);
         break;
       case 'KeyA':
-        this.editor.camera.velocity.x = -1;
+        this.editor.moveCamera(CameraDirection.West);
         break;
       case 'KeyD':
-        this.editor.camera.velocity.x = 1;
+        this.editor.moveCamera(CameraDirection.East);
         break;
         /*
       case 'Equal':

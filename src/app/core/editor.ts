@@ -1,6 +1,6 @@
 import { Rendering } from '../core/rendering';
 import { Rect, Vector } from "../core/primitives";
-import { Camera } from "../core/camera";
+import { Camera, CameraDirection } from "../core/camera";
 import { Tiling } from "../core/tilemap";
 
 export enum DrawModes{
@@ -68,6 +68,27 @@ export class Editor{
     
     this.camera.update();
     this.render();
+  }
+
+  moveCamera(direction: CameraDirection): void {
+    switch (direction){
+      case CameraDirection.North:
+        this.camera.velocity.y = -1;
+        break;
+      case CameraDirection.South:
+        this.camera.velocity.y = 1;
+        break;
+      case CameraDirection.East:
+        this.camera.velocity.x = 1;
+        break;
+      case CameraDirection.West:
+        this.camera.velocity.x = -1;
+        break;
+    }
+
+    if (this.pasteMode){
+      this.updateTileAtCursorPos();
+    }
   }
 
   posOnMap(pos: Vector): boolean {
