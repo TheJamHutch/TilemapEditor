@@ -1,3 +1,9 @@
 <div class="bordered">
-  <canvas #mapCanvas id="map-canvas" tabindex="0"></canvas>
+  <canvas #mapCanvas id="map-canvas" tabindex="0"
+    (keydown)="onKeyDown($event)"
+    (keyup)="onKeyUp($event)"
+    (mouseenter)="onMouseEnter($event)"
+    (mousedown)="onMouseDown($event)"
+    (mousemove)="onMouseMove($event)"
+  ></canvas>
 </div>

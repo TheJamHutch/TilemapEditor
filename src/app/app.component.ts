@@ -28,6 +28,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    document.addEventListener('contextmenu', (e: PointerEvent) => {
+      //e.preventDefault();
+    });
+
     this.update();
   }
 

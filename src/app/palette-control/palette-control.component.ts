@@ -45,19 +45,13 @@ export class PaletteControlComponent implements OnInit, AfterViewInit {
 
     this.palette = new Palette(paletteContext, config.palette);
 
-    // Init palette canvas events
-    this.paletteCanvas.nativeElement.addEventListener('mousemove', (e: PointerEvent) => {
-      this.onMouseMove({ x: e.offsetX, y: e.offsetY });
-    });
-    this.paletteCanvas.nativeElement.addEventListener('mousedown', (e: PointerEvent) => {
-      this.onMouseDown({ x: e.offsetX, y: e.offsetY });
-    });
-
     // Select first item in palette on startup.
     this.eventBus.raise(EventType.PaletteSelect, { cellIdx: 0 });
   }
 
-  onMouseMove(mousePos: Vector): void {
+  onMouseMove(e: PointerEvent): void {
+    const mousePos = { x: e.offsetX, y: e.offsetY };
+
     if (!this.palette.tilesheet){
       return;
     }
@@ -68,7 +62,9 @@ export class PaletteControlComponent implements OnInit, AfterViewInit {
     this.palette.setCursorPosition(mousePos);
   }
 
-  onMouseDown(mousePos: Vector): void {
+  onMouseDown(e: PointerEvent): void {
+    const mousePos = { x: e.offsetX, y: e.offsetY };
+
     if (!this.palette.posOnSheet(mousePos)){
       return;
     }

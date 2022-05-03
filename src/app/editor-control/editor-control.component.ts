@@ -82,49 +82,17 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
 
     this.editor = new Editor(editorContext, config.editor)
 
-    // Init map canvas events
-    this.mapCanvas.nativeElement.addEventListener('keydown', (e: KeyboardEvent) => {
-      this.onKeyDown(e.code);
-    });
-    this.mapCanvas.nativeElement.addEventListener('keyup', (e: KeyboardEvent) => {
-      this.onKeyUp(e.code);
-    });
-    this.mapCanvas.nativeElement.addEventListener('mousemove', (e: PointerEvent) => {
-      if (e.button === 0){
-        this.onMouseMove({ x: e.offsetX, y: e.offsetY });
-      } else if (e.button === 2){
-        
-      }
-    });
-    this.mapCanvas.nativeElement.addEventListener('mousedown', (e: PointerEvent) => {
-      // @TODO: Extrat these hardcoded nums into an enum
-      if (e.button === 0){
-        this.mapCanvas.nativeElement.style.cursor = 'crosshair';
-        this.onMouseDown({ x: e.offsetX, y: e.offsetY });
-      } else if (e.button === 2){
-        this.mapCanvas.nativeElement.style.cursor = 'grabbing';
-      }
-    });
-    // Bind this particular event listener to the document instead, to prevent an annoying bug where the editor is still in paste mode when mouseup occurs off-canavs.
-    document.addEventListener('mouseup', (e: PointerEvent) => {
-      if (e.button === 0){
-        this.onMouseUp({ x: e.offsetX, y: e.offsetY });
-      } else if (e.button === 2){
-        this.mapCanvas.nativeElement.style.cursor = 'grab';
-      }
-    });
-    // Right-mosue button events (overrides default contextMenu behaviour)
-    this.mapCanvas.nativeElement.addEventListener('contextmenu', (e: PointerEvent) => {
-      e.preventDefault();
-    });
+    // MouseUp event is bound to document instead to prevent an annyoing bug where the editor is stil in paste mode after canvas
+    // mouseleave and mouse button has been released.
+    document.addEventListener('mouseup', this.onMouseUp.bind(this));
   }
 
-  onKeyDown(keycode: string): void {
+  onKeyDown(e: KeyboardEvent): void {
     if (!this.editor.tilemap){
       return;
     }
-    
-    switch(keycode){
+
+    switch(e.code){
       case 'KeyW':
         this.editor.moveCamera(CameraDirection.North);
         break;
@@ -152,9 +120,6 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
       case 'Minus':
         this.camera!.zoomOut();
         break;
-      case 'ControlLeft':
-        this.ctrlHeld = true;
-        break;
       case 'KeyZ':
         if (this.ctrlHeld){
           //this.undo();
@@ -168,12 +133,12 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onKeyUp(keycode: string): void {
+  onKeyUp(e: KeyboardEvent): void {
     if (!this.editor.tilemap){
       return;
     }
 
-    switch(keycode){
+    switch(e.code){
       case 'KeyW':
       case 'KeyS':
         this.editor.camera.velocity.y = 0;
@@ -191,39 +156,18 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
         this.editor.mode = EditorMode.Draw;
         this.editor.paste = false;
         break;
-        /*
-      case 'ControlLeft':
-        this.ctrlHeld = false;
-        break;*/
     }
   }
 
-  onMouseMove(mousePos: Vector): void {
-    if (!this.editor.tilemap){
-      return;
-    }
-
-    if (!this.editor.posOnMap(mousePos)){
-      return;
-    }
-  
-    this.editor.setCursorPosition(mousePos);
-
-    if (this.editor.paste)
-    {
-      if (this.ctrlHeld)
-      {
-        let tilePos = this.editor.getTileAtCursorPos();
-        this.editor.addSelectedTile(tilePos);
-      }
-      else 
-      {
-        this.editor.updateTileAtCursorPos();
-      }
-    }
+  onMouseEnter(e: PointerEvent): void {
+    // This prevents a bug where the current selection is cleared when clicking off the canvas and back onto it, amongst others.
+    const elem = e.target as HTMLCanvasElement;
+    elem.focus();
   }
 
-  onMouseDown(mousePos: Vector): void {
+  onMouseDown(e: PointerEvent): void {    
+    const mousePos = { x: e.offsetX, y: e.offsetY };
+
     if (!this.editor.tilemap){
       return;
     }
@@ -253,11 +197,41 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onMouseUp(mousePos: Vector): void {
+  onMouseUp(e: PointerEvent): void {
+    const mousePos = { x: e.offsetX, y: e.offsetY };
+
     if (!this.editor.tilemap){
       return;
     }
 
     this.editor.paste = false;
+  }
+
+  onMouseMove(e: PointerEvent): void {
+    const mousePos = { x: e.offsetX, y: e.offsetY };
+
+    if (!this.editor.tilemap){
+      return;
+    }
+
+    if (!this.editor.posOnMap(mousePos)){
+      return;
+    }
+  
+    this.editor.setCursorPosition(mousePos);
+
+    // @TODO: Decide on a brace style.
+    if (this.editor.paste)
+    {
+      if (this.ctrlHeld)
+      {
+        let tilePos = this.editor.getTileAtCursorPos();
+        this.editor.addSelectedTile(tilePos);
+      }
+      else 
+      {
+        this.editor.updateTileAtCursorPos();
+      }
+    }
   }
 }
