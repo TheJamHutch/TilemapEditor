@@ -4,7 +4,7 @@ import { Rect, Vector } from "../core/primitives";
 import { config } from '../core/config';
 import { EventBusService, EventType } from '../event-bus.service';
 import { AssetsService } from '../assets.service';
-import { Palette } from '../core/palette';
+import { Palette } from './palette';
 
 @Component({
   selector: 'app-palette-control',

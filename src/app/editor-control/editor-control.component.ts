@@ -6,7 +6,7 @@ import { Rect, Vector } from "../core/primitives";
 import { Camera, CameraDirection } from "../core/camera";
 import { Tiling } from "../core/tilemap";
 import { AssetsService } from '../assets.service';
-import { Editor, EditorMode } from '../core/editor';
+import { Editor, EditorMode } from './editor';
 import { PerformanceCounterService } from '../performance-counter.service';
 
 @Component({
