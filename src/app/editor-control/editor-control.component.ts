@@ -25,50 +25,16 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
   constructor(private assets: AssetsService, private eventBus: EventBusService, private performanceCounter: PerformanceCounterService) { }
 
   ngOnInit(): void {
-    this.eventBus.register(EventType.NewFrame, (context: any) => {
-      this.editor.update(this.performanceCounter.frameCount);
-    });
-    this.eventBus.register(EventType.PaletteSelect, (context: any) => {
-      this.editor.selectedTileIdx = context.cellIdx;
-    });
-    this.eventBus.register(EventType.ToggleGrid, (context: any) => {
-      this.editor.toggleGrid();
-    });
-    this.eventBus.register(EventType.NewMap, (_) => {
-      let firstSheet = Object.values(this.assets.store.tilesheets)[0] as any;
-      const initMap = this.editor.generateNewMap(firstSheet, config.editor.mapDimensions);
-      this.editor.loadMap(initMap);
-
-      this.eventBus.raise(EventType.MapChange, { tilemap: this.editor.tilemap });
-    });
-    this.eventBus.register(EventType.LoadMap, (context: any) => {
-      const loadedMap = this.assets.store.maps[context.mapId];
-      this.editor.loadMap(loadedMap);
-      this.eventBus.raise(EventType.MapChange, { tilemap: this.editor.tilemap });
-    });
-    this.eventBus.register(EventType.SaveMap, (_) => {
-      const savedMap = this.editor.saveMap('TEST');
-      this.assets.exportJson(savedMap.id, savedMap);
-    });
-    this.eventBus.register(EventType.TilesheetChange, (context: any) => {
-      if (this.editor.tilemap){
-        const tilesheet = this.assets.store.tilesheets[context.tilesheetId];
-        this.editor.changeTilesheet(this.editor.topLayerIdx, tilesheet);
-      }
-    });
-    this.eventBus.register(EventType.AddLayer, (context: any) => {
-      const firstSheet = Object.values(this.assets.store.tilesheets)[0];
-      this.editor.addLayer(firstSheet);
-    });
-    this.eventBus.register(EventType.RemoveLayer, (context: any) => {
-      this.editor.removeLayer(context.layerIdx);
-    });
-    this.eventBus.register(EventType.LayerChange, (context: any) => {
-      this.editor.topLayerIdx = parseInt(context.layerIdx);
-    });
-    this.eventBus.register(EventType.DrawModeChange, (context: any) => {
-      
-    });
+    this.eventBus.register(EventType.NewFrame, this.onNewFrame.bind(this));
+    this.eventBus.register(EventType.PaletteSelect, this.onPaletteSelect.bind(this));
+    this.eventBus.register(EventType.ToggleGrid, this.onToggleGrid.bind(this));
+    this.eventBus.register(EventType.NewMap, this.onNewMap.bind(this));
+    this.eventBus.register(EventType.LoadMap, this.onLoadMap.bind(this));
+    this.eventBus.register(EventType.SaveMap, this.onSaveMap.bind(this));
+    this.eventBus.register(EventType.TilesheetChange, this.onTilesheetChange.bind(this));
+    this.eventBus.register(EventType.AddLayer, this.onAddLayer.bind(this));
+    this.eventBus.register(EventType.RemoveLayer, this.onRemoveLayer.bind(this));
+    this.eventBus.register(EventType.LayerChange, this.onLayerChange.bind(this));
   }
 
   ngAfterViewInit(): void {
@@ -236,5 +202,66 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
         this.editor.updateTileAtCursorPos();
       }
     }
+  }
+
+  onNewFrame(e: any): void {
+    this.editor.update(this.performanceCounter.frameCount);
+  }
+
+  onPaletteSelect(e: any): void {
+    this.editor.selectedTileIdx = e.cellIdx;
+  }
+
+  onToggleGrid(e: any): void {
+    this.editor.toggleGrid();
+  }
+
+  onNewMap(e: any): void {
+    let firstSheet = Object.values(this.assets.store.tilesheets)[0] as any;
+    const initMap = this.editor.generateNewMap(firstSheet, e.dimensions);
+    this.editor.loadMap(initMap);
+    this.eventBus.raise(EventType.MapChange, { 
+      name: '', 
+      dimensions: this.editor.tilemap.dimensions, 
+      tilemap: this.editor.tilemap 
+    });
+  }
+
+  onLoadMap(e: any): void {
+    // @TODO: Is this necessary?
+    this.editor.clearSelectedTiles();
+
+    const loadedMap = this.assets.store.maps[e.mapId];
+    this.editor.loadMap(loadedMap);
+    this.eventBus.raise(EventType.MapChange, { 
+      name: loadedMap.id, 
+      dimensions: this.editor.tilemap.dimensions, 
+      tilemap: this.editor.tilemap 
+    });
+  }
+
+  onSaveMap(e: any): void {
+    const savedMap = this.editor.saveMap('TEST');
+    this.assets.exportJson(savedMap.id, savedMap);
+  }
+
+  onTilesheetChange(e: any): void {
+    if (this.editor.tilemap){
+      const tilesheet = this.assets.store.tilesheets[e.tilesheetId];
+      this.editor.changeTilesheet(this.editor.topLayerIdx, tilesheet);
+    }
+  }
+
+  onAddLayer(e: any): void {
+    const firstSheet = Object.values(this.assets.store.tilesheets)[0];
+    this.editor.addLayer(firstSheet);
+  }
+
+  onRemoveLayer(e: any): void {
+    this.editor.removeLayer(e.layerIdx);
+  }
+
+  onLayerChange(e: any): void {
+    this.editor.topLayerIdx = parseInt(e.layerIdx);
   }
 }

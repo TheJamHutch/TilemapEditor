@@ -24,7 +24,10 @@ export class AppComponent implements OnInit, AfterViewInit {
     await this.assets.loadAll();
     let firstSheet = Object.values(this.assets.store.tilesheets)[0];
     this.eventBus.raise(EventType.TilesheetChange, { tilesheetId: firstSheet.id });
-    this.eventBus.raise(EventType.NewMap);
+    const newMap = {
+      dimensions: config.editor.mapDimensions
+    };
+    this.eventBus.raise(EventType.NewMap, newMap);
   }
 
   ngAfterViewInit(): void {

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AssetsService } from '../assets.service';
 import { Assets } from '../core/assets';
 import { EventBusService, EventType } from '../event-bus.service';
+import { config } from '../core/config';
 
 @Component({
   selector: 'app-toolbar',
@@ -17,14 +18,25 @@ export class ToolbarComponent implements OnInit {
   drawModes = ['Free', 'Line', 'Rect', 'Block'];
   drawModeIdx = 0;
 
+  mapName = '';
+  mapDimsX = 0;
+  mapDimsY = 0;
+
   constructor(private assets: AssetsService, private eventBus: EventBusService) { }
 
   ngOnInit(): void {
-
+    this.eventBus.register(EventType.MapChange, (e: any) => {
+      this.mapName = e.name;
+      this.mapDimsX = e.dimensions.x;
+      this.mapDimsY = e.dimensions.y;
+    });
   }
 
   onNewMapClick(): void {
-    this.eventBus.raise(EventType.NewMap);
+    const newMap = {
+      dimensions: { x: this.mapDimsX, y: this.mapDimsY }
+    };
+    this.eventBus.raise(EventType.NewMap, newMap);
   }
 
   onSaveMapClick(): void {

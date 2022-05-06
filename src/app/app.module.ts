@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
 import { TabBarComponent } from './tab-bar/tab-bar.component';
@@ -22,7 +23,8 @@ import { EditorControlComponent } from './editor-control/editor-control.componen
     EditorControlComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
