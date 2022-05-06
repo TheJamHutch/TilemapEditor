@@ -109,23 +109,33 @@ export class Editor{
     }*/
   }
 
-  addSelectedTile(tilePos: Vector): void {
-    let addTile = true;
+  selectTiles(...tiles: Vector[]): void {
 
-    for (let i = this.selectedTiles.length - 1; i >= 0; i--){
-      let selTile = this.selectedTiles[i];
-      if (tilePos.x === selTile.x && tilePos.y === selTile.y){
+    for (let tilePos of tiles){
+      let addTile = true;
+
+      for (let i = this.selectedTiles.length - 1; i >= 0; i--){
+        let selTile = this.selectedTiles[i];
+        if (tilePos.x === selTile.x && tilePos.y === selTile.y){
           addTile = false;
-          break;
+        }
       }
-    }
 
-    if (addTile){
-      this.selectedTiles.push(tilePos);
+      if (addTile){
+        this.selectedTiles.push(tilePos);
+      }
     }
   }
 
   clearSelectedTiles(): void {
+    this.selectedTiles = [];
+  }
+
+  resetTileSelection(): void {
+    for (let tilePos of this.selectedTiles){
+      const tileVal = (this.topLayerIdx === 0) ? 0 : -1;
+      this.tilemap.setTile(this.topLayerIdx, tilePos, tileVal);
+    }
     this.selectedTiles = [];
   }
 

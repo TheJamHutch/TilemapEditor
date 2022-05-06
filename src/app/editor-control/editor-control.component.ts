@@ -64,7 +64,7 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
       this.editor.removeLayer(context.layerIdx);
     });
     this.eventBus.register(EventType.LayerChange, (context: any) => {
-      this.editor.topLayerIdx = context.layerIdx;
+      this.editor.topLayerIdx = parseInt(context.layerIdx);
     });
     this.eventBus.register(EventType.DrawModeChange, (context: any) => {
       
@@ -112,6 +112,9 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
       case 'ControlLeft':
         this.ctrlHeld = true;
         this.editor.mode = EditorMode.Select;
+        break;
+      case 'Delete':
+        this.editor.resetTileSelection();
         break;
         /*
       case 'Equal':
@@ -182,7 +185,7 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
 
     if (this.ctrlHeld){
       let tilePos = this.editor.getTileAtCursorPos();
-      this.editor.addSelectedTile(tilePos);
+      this.editor.selectTiles(tilePos);
     } else {
       // If no tiles are currently selected then draw the tile as normal.
       if (this.editor.selectedTiles.length === 0)
@@ -226,7 +229,7 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
       if (this.ctrlHeld)
       {
         let tilePos = this.editor.getTileAtCursorPos();
-        this.editor.addSelectedTile(tilePos);
+        this.editor.selectTiles(tilePos);
       }
       else 
       {
