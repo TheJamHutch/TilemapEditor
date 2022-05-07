@@ -27,14 +27,8 @@ export class PaletteControlComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    this.eventBus.register(EventType.NewFrame, (context: any) => {
-      this.palette.update();
-    });
-    this.eventBus.register(EventType.TilesheetChange, (context: any) => {
-      const tilesheet = this.assets.store.tilesheets[context.tilesheetId] as any;
-      this.palette.changeTilesheet(tilesheet);
-      this.eventBus.raise(EventType.PaletteSelect, { cellIdx: 0 });
-    });
+    this.eventBus.register(EventType.NewFrame, this.onNewFrame.bind(this));
+    this.eventBus.register(EventType.TilesheetChange, this.onTilesheetChange.bind(this));
   }
 
   ngAfterViewInit(): void {
@@ -80,5 +74,15 @@ export class PaletteControlComponent implements OnInit, AfterViewInit {
 
     const cellIdx = this.palette.cellIdxAtPosition(this.palette.cursor);
     this.eventBus.raise(EventType.PaletteSelect, { cellIdx });
+  }
+
+  onNewFrame(e: any): void {
+    this.palette.update();
+  }
+
+  onTilesheetChange(e: any): void {
+    const tilesheet = this.assets.store.tilesheets[e.tilesheetId] as any;
+    this.palette.changeTilesheet(tilesheet);
+    this.eventBus.raise(EventType.PaletteSelect, { cellIdx: 0 });
   }
 }

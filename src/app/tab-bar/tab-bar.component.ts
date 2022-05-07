@@ -1,4 +1,5 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { ConfigService } from '../config.service';
 
 @Component({
   selector: 'app-tab-bar',
@@ -8,12 +9,12 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 export class TabBarComponent implements OnInit {
 
   tabs = ['Assets', 'Tiling', 'Entities'];
-  selectedTabId = this.tabs[1]; // @TODO: Hardcoded
+  selectedTabId: string;
 
   @Output('selected') tabSelectEvent = new EventEmitter<string>();
 
-  constructor() {
-
+  constructor(private config: ConfigService) {
+    this.selectedTabId = this.config.selectedTab;
   }
 
   ngOnInit(): void {
