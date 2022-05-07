@@ -10,3 +10,17 @@ select[multiple]{
   padding: 10px;
   gap: 20px;
 }
+
+.tilesheet-props{
+  padding: 10px;
+  gap: 10px;
+  input{
+    width: 100px;
+  }
+  .button-block{
+    gap: 2px;
+    button{
+      width: 100px;
+    }
+  }
+}
