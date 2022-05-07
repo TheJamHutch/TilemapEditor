@@ -17,6 +17,11 @@ select{
 }
 
 .list-header{
-    display: flex;
-    justify-content: space-between;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.list-footer{
+  display: flex;
+  justify-content: flex-end;
 }

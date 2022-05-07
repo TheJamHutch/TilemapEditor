@@ -1,13 +1,11 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { EventBusService, EventType } from '../event-bus.service';
 import { Rendering } from '../core/rendering';
-import { config } from '../core/config';
-import { Rect, Vector } from "../core/primitives";
 import { Camera, CameraDirection } from "../core/camera";
-import { Tiling } from "../core/tilemap";
 import { AssetsService } from '../assets.service';
 import { Editor, EditorMode } from './editor';
 import { PerformanceCounterService } from '../performance-counter.service';
+import { ConfigService } from '../config.service';
 
 @Component({
   selector: 'app-editor-control',
@@ -22,7 +20,12 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
   ctrlHeld = false;
   shiftHeld = false;
 
-  constructor(private assets: AssetsService, private eventBus: EventBusService, private performanceCounter: PerformanceCounterService) { }
+  constructor(
+    private assets: AssetsService,
+    private eventBus: EventBusService,
+    private performanceCounter: PerformanceCounterService,
+    private config: ConfigService  
+  ) { }
 
   ngOnInit(): void {
     this.eventBus.register(EventType.NewFrame, this.onNewFrame.bind(this));
@@ -39,14 +42,14 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     // Init map canvas resolution
-    this.mapCanvas.nativeElement.width = config.editor.resolution.x;
-    this.mapCanvas.nativeElement.height = config.editor.resolution.y;
+    this.mapCanvas.nativeElement.width = this.config.editorResolution.x;
+    this.mapCanvas.nativeElement.height = this.config.editorResolution.y;
     // Init map canvas context
     const rawEditorContext = this.mapCanvas.nativeElement.getContext('2d');
     rawEditorContext.imageSmoothingEnabled = false;
-    const editorContext = new Rendering.RenderContext(rawEditorContext, config.editor.resolution);
+    const editorContext = new Rendering.RenderContext(rawEditorContext, this.config.editorResolution);
 
-    this.editor = new Editor(editorContext, config.editor)
+    this.editor = new Editor(editorContext, this.config.tileSize, this.config.lineDashSpeed);
 
     // MouseUp event is bound to document instead to prevent an annyoing bug where the editor is stil in paste mode after canvas
     // mouseleave and mouse button has been released.

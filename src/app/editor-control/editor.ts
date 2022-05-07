@@ -36,11 +36,11 @@ export class Editor{
 
   lineDashSpeed = 0; // Controls the speed of the line dash animation shown when selecting a tile.
 
-  constructor(context: Rendering.RenderContext, config: any){
+  constructor(context: Rendering.RenderContext, tileSize: number, lineDashSpeed: number){
     this.context = context;
-    this.cursor = new Rect({ x: 0, y: 0, w: config.tileSize, h: config.tileSize });
-    this.tileSize = config.tileSize;
-    this.lineDashSpeed = config.lineDashSpeed;
+    this.cursor = new Rect({ x: 0, y: 0, w: tileSize, h: tileSize });
+    this.tileSize = tileSize;
+    this.lineDashSpeed = lineDashSpeed;
   }
 
   loadMap(rawMap: any){

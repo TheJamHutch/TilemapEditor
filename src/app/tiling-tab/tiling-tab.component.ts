@@ -1,7 +1,6 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { AssetsService } from '../assets.service';
 import { Rendering } from '../core/rendering';
-import { config } from '../core/config';
 import { EventBusService, EventType } from '../event-bus.service';
 
 @Component({

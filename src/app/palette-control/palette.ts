@@ -9,9 +9,9 @@ export class Palette{
   marker: Rect;
   tilesheet?: any;
 
-  constructor(context: Rendering.RenderContext, config: any){
+  constructor(context: Rendering.RenderContext, cellSize: number){
     this.context = context;
-    this.cellSize = { x: config.cellSize, y: config.cellSize };
+    this.cellSize = { x: cellSize, y: cellSize };
     this.cursor = new Rect({ x: 0, y: 0, w: this.cellSize.x, h: this.cellSize.y });
     this.marker = new Rect(this.cursor);
   }

@@ -32,6 +32,7 @@ export namespace Assets{
 
   export type Tilesheet = {
     id: string;
+    name: string;
     texture: Texture;
     clipSize: number;
     nCells: number;

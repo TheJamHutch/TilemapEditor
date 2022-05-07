@@ -1,10 +1,10 @@
 import { AfterViewInit, Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Rendering } from '../core/rendering';
 import { Rect, Vector } from "../core/primitives";
-import { config } from '../core/config';
 import { EventBusService, EventType } from '../event-bus.service';
 import { AssetsService } from '../assets.service';
 import { Palette } from './palette';
+import { ConfigService } from '../config.service';
 
 @Component({
   selector: 'app-palette-control',
@@ -20,7 +20,11 @@ export class PaletteControlComponent implements OnInit, AfterViewInit {
 
   palette: Palette;
 
-  constructor(private assets: AssetsService, private eventBus: EventBusService) {}
+  constructor(
+    private assets: AssetsService,
+    private eventBus: EventBusService,
+    private config: ConfigService
+  ) {}
 
   ngOnInit(): void {
     this.eventBus.register(EventType.NewFrame, (context: any) => {
@@ -35,15 +39,15 @@ export class PaletteControlComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     // Init palette canvas resolution
-    this.paletteCanvas.nativeElement.width = config.palette.resolution.x;
-    this.paletteCanvas.nativeElement.height = config.palette.resolution.y;
+    this.paletteCanvas.nativeElement.width = this.config.paletteResolution.x;
+    this.paletteCanvas.nativeElement.height = this.config.paletteResolution.y;
 
     // Init palette canvas context
     const rawPaletteContext = this.paletteCanvas.nativeElement.getContext('2d');
     rawPaletteContext.imageSmoothingEnabled = false;
-    const paletteContext = new Rendering.RenderContext(rawPaletteContext, config.palette.resolution);
+    const paletteContext = new Rendering.RenderContext(rawPaletteContext, this.config.paletteResolution);
 
-    this.palette = new Palette(paletteContext, config.palette);
+    this.palette = new Palette(paletteContext, this.config.paletteCellSize);
 
     // Select first item in palette on startup.
     this.eventBus.raise(EventType.PaletteSelect, { cellIdx: 0 });
