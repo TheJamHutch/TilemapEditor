@@ -8,7 +8,7 @@ export class ConfigService {
   // Immutable, injectable config service.
 
   readonly editorResolution = { x: 800, y: 600 }
-  readonly paletteResolution = { x: 600, y: 400 };
+  readonly paletteResolution = { x: 700, y: 350 };
 
   readonly initMapDimensions = { x: 100, y: 100 };
 
@@ -17,7 +17,7 @@ export class ConfigService {
 
   readonly lineDashSpeed = 4;
 
-  readonly selectedTab = 'Assets'
+  readonly selectedTab = 'Tiling'
 
   constructor() { }
 }

@@ -6,7 +6,10 @@ import { EventBusService, EventType } from '../event-bus.service';
 @Component({
   selector: 'app-assets-tab',
   templateUrl: './assets-tab.component.html',
-  styleUrls: ['./assets-tab.component.scss']
+  styleUrls: [
+    './assets-tab.component.scss',
+    '../../common/app.common.scss'
+  ]
 })
 export class AssetsTabComponent implements OnInit {
 

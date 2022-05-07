@@ -14,16 +14,17 @@ import { EventBusService, EventType } from '../event-bus.service';
 export class TilingTabComponent implements OnInit, AfterViewInit {
 
   tilesheetOptions = [];
-  tilesheetId: string;
   tilemap?: any;
   layerIdx: number = 0;
   tileIdx: number = 0;
   tileEffectOptions = [];
 
+  openTilesheet: any;
+  allTilesheets = [];
+
   constructor(private assets: AssetsService, private eventBus: EventBusService) { }
 
   ngOnInit(): void {
-
     // Generate options for tileEffect select from the enum in Tiling.
     // @TODO: This is hardcoded
     this.tileEffectOptions = ['None', 'Hurt', 'Teleport', 'Transition', 'Door', 'Roof'];
@@ -41,6 +42,14 @@ export class TilingTabComponent implements OnInit, AfterViewInit {
     });
     this.eventBus.register(EventType.PaletteSelect, (context: any) => {
       this.tileIdx = context.cellIdx;
+    });
+
+    this.eventBus.register(EventType.TilesheetChange, (context: any) => {
+      this.openTilesheet = this.assets.store.tilesheets[context.tilesheetId];
+    });
+
+    this.eventBus.register(EventType.AssetsChange, (context: any) => {
+      this.allTilesheets = Object.values(this.assets.store.tilesheets);
     });
   }
 
@@ -86,7 +95,6 @@ export class TilingTabComponent implements OnInit, AfterViewInit {
   }
 
   onTilesheetSelect(tilesheetId: string): void {
-    this.tilesheetId = tilesheetId;
     this.eventBus.raise(EventType.TilesheetChange, { tilesheetId });
   }
 
