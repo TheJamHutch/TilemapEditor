@@ -3,19 +3,6 @@ import { Rect, Vector } from "../core/primitives";
 import { Camera, CameraDirection } from "../core/camera";
 import { Tiling } from "../core/tilemap";
 
-export enum EditorMode{
-  Draw,
-  Select,
-  Grab
-}
-
-export enum EditorDrawMode{
-  Free = 0,
-  Line,
-  Rect,
-  Block
-}
-
 export class Editor{
 
   context: Rendering.RenderContext;
@@ -26,9 +13,6 @@ export class Editor{
   tilemap?: Tiling.Tilemap;
   camera?: Camera;
   showGrid = false;
-
-  mode = EditorMode.Draw;
-  drawMode = EditorDrawMode.Free;
 
   // @TODO: Tiles can be free-selected when Ctrl is held. Should be able to click on an already selected tile and have it de-select but not when mouse is moved (in paste mode)
   selectedTiles = [];

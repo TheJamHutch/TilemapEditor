@@ -12,8 +12,7 @@ export enum EventType{
   AssetsUpdate,
   LayerChange,
   AddLayer,
-  RemoveLayer,
-  DrawModeChange
+  RemoveLayer
 }
 
 @Injectable({
@@ -102,9 +101,6 @@ export class EventBusService {
         break;
       case EventType.RemoveLayer:
         key = 'RemoveLayer';
-        break;
-      case EventType.DrawModeChange:
-        key = 'DrawModeChange';
         break;
       default:
         key = 'Noop';

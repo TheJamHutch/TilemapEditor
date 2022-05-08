@@ -1,9 +1,9 @@
 <div class="container space-between bordered" style="height:60px; align-items: center;">
   <div class="container static">
     <div class="container static column">
-      <input [(ngModel)]="mapName" type="text" class="mapname" />
+      <input #mapNameInput type="text" class="mapname" [value]="mapName()" />
       <div>
-        <input [(ngModel)]="mapDimsX" type="number" class="dimensions" min="1" /> x <input [(ngModel)]="mapDimsY" type="number" class="dimensions" min="1" />
+        <input #mapDimsXInput type="number" class="dimensions" min="1" [value]="mapDimensions().x" /> x <input #mapDimsYInput type="number" class="dimensions" min="1" [value]="mapDimensions().x" />
       </div>
     </div>
     <div>
@@ -16,10 +16,6 @@
     <span>Tilemap Editor v0.2.0</span>
   </div>
   <div class="container static">
-    <fieldset>
-      <legend>Draw Mode</legend>
-      <button *ngFor="let mode of drawModes; let i = index" [value]="i" (click)="onDrawModeChange(i)" [style.color]="(i === drawModeIdx) ? 'yellow' : 'white'">{{mode}}</button>
-    </fieldset>
     <div>
       <button (click)="onToggleGridClick()">Grid</button>
     </div>

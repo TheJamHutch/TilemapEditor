@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AssetsService } from '../assets.service';
 import { Assets } from '../core/assets';
+import { Vector } from '../core/primitives';
 import { EventBusService, EventType } from '../event-bus.service';
+import { MapInstanceService } from '../map-instance.service';
 
 @Component({
   selector: 'app-toolbar',
@@ -13,33 +15,46 @@ import { EventBusService, EventType } from '../event-bus.service';
 })
 export class ToolbarComponent implements OnInit {
 
-  // @TODO: Hardcoded
-  drawModes = ['Free', 'Line', 'Rect', 'Block'];
-  drawModeIdx = 0;
+  @ViewChild('mapNameInput') mapNameInput: ElementRef<HTMLInputElement>;
+  @ViewChild('mapDimsXInput') mapDimsXInput: ElementRef<HTMLInputElement>;
+  @ViewChild('mapDimsYInput') mapDimsYInput: ElementRef<HTMLInputElement>;
 
-  mapName = '';
-  mapDimsX = 0;
-  mapDimsY = 0;
-
-  constructor(private assets: AssetsService, private eventBus: EventBusService) { }
+  constructor(
+    private assets: AssetsService,
+    private eventBus: EventBusService,
+    private mapInstance: MapInstanceService
+  ) { }
 
   ngOnInit(): void {
-    this.eventBus.register(EventType.MapChange, (e: any) => {
-      this.mapName = e.name;
-      this.mapDimsX = e.dimensions.x;
-      this.mapDimsY = e.dimensions.y;
-    });
+
+  }
+
+  mapName(): string {
+    const mapName = this.mapInstance.name;
+    return (mapName) ? mapName : '';
+  }
+
+  mapDimensions(): Vector {
+    const mapDims = this.mapInstance.dimensions;
+    return (mapDims) ? mapDims : { x: 0, y: 0 };
   }
 
   onNewMapClick(): void {
+    const dimensions = {
+      x: parseInt(this.mapDimsXInput.nativeElement.value),
+      y: parseInt(this.mapDimsYInput.nativeElement.value)
+    };
+    
     const newMap = {
-      dimensions: { x: this.mapDimsX, y: this.mapDimsY }
+      dimensions
     };
     this.eventBus.raise(EventType.NewMap, newMap);
   }
 
   onSaveMapClick(): void {
-    this.eventBus.raise(EventType.SaveMap);
+    const name = this.mapNameInput.nativeElement.value;
+    const saveMap = { name };
+    this.eventBus.raise(EventType.SaveMap, saveMap);
   }
 
   async onLoadMapClick(): Promise<void> {
@@ -51,11 +66,6 @@ export class ToolbarComponent implements OnInit {
 
   onToggleGridClick(): void {
     this.eventBus.raise(EventType.ToggleGrid);
-  }
-
-  onDrawModeChange(modeIdx: number): void {
-    this.drawModeIdx = modeIdx;
-    this.eventBus.raise(EventType.DrawModeChange, { modeIdx });
   }
 
 }

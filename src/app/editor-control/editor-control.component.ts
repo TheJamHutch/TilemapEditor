@@ -3,7 +3,7 @@ import { EventBusService, EventType } from '../event-bus.service';
 import { Rendering } from '../core/rendering';
 import { Camera, CameraDirection } from "../core/camera";
 import { AssetsService } from '../assets.service';
-import { Editor, EditorMode } from './editor';
+import { Editor } from './editor';
 import { PerformanceCounterService } from '../performance-counter.service';
 import { ConfigService } from '../config.service';
 
@@ -41,7 +41,7 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Init map canvas resolution
+    // Init map canvas resolution 
     this.mapCanvas.nativeElement.width = this.config.editorResolution.x;
     this.mapCanvas.nativeElement.height = this.config.editorResolution.y;
     // Init map canvas context
@@ -76,11 +76,9 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
         break;
       case 'ShiftLeft':
         this.shiftHeld = true;
-        this.editor.mode = EditorMode.Select;
         break;
       case 'ControlLeft':
         this.ctrlHeld = true;
-        this.editor.mode = EditorMode.Select;
         break;
       case 'Delete':
         this.editor.resetTileSelection();
@@ -121,11 +119,9 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
         break;
       case 'ShiftLeft':
         this.shiftHeld = false;
-        this.editor.mode = EditorMode.Draw;
         break;
       case 'ControlLeft':
         this.ctrlHeld = false;
-        this.editor.mode = EditorMode.Draw;
         this.editor.paste = false;
         break;
     }
@@ -244,7 +240,7 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
   }
 
   onSaveMap(e: any): void {
-    const savedMap = this.editor.saveMap('TEST');
+    const savedMap = this.editor.saveMap(e.name);
     this.assets.exportJson(savedMap.id, savedMap);
   }
 
