@@ -9,7 +9,7 @@ export enum EventType{
   MapChange,
   PaletteSelect,
   ToggleGrid,
-  AssetsChange,
+  AssetsUpdate,
   LayerChange,
   AddLayer,
   RemoveLayer,
@@ -91,8 +91,8 @@ export class EventBusService {
       case EventType.ToggleGrid:
         key = 'ToggleGrid';
         break;
-      case EventType.AssetsChange:
-        key = 'AssetsChange';
+      case EventType.AssetsUpdate:
+        key = 'AssetsUpdate';
         break;
       case EventType.LayerChange:
         key = 'LayerChange';

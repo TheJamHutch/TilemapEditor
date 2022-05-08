@@ -25,7 +25,6 @@ export class Editor{
   paste = false;
   tilemap?: Tiling.Tilemap;
   camera?: Camera;
-  topLayerIdx = -1;
   showGrid = false;
 
   mode = EditorMode.Draw;
@@ -46,8 +45,6 @@ export class Editor{
   loadMap(rawMap: any){
     this.tilemap = new Tiling.Tilemap(rawMap.tilemap, this.tileSize);
     this.camera = new Camera(this.context.resolution, this.tilemap.resolution);
-
-    this.topLayerIdx = 0;
   }
 
   saveMap(mapId: string): any {
@@ -133,8 +130,8 @@ export class Editor{
 
   resetTileSelection(): void {
     for (let tilePos of this.selectedTiles){
-      const tileVal = (this.topLayerIdx === 0) ? 0 : -1;
-      this.tilemap.setTile(this.topLayerIdx, tilePos, tileVal);
+      const tileVal = (this.topLayerIdx() === 0) ? 0 : -1;
+      this.tilemap.setTile(this.topLayerIdx(), tilePos, tileVal);
     }
     this.selectedTiles = [];
   }
@@ -150,7 +147,7 @@ export class Editor{
     const worldPos = this.camera.viewToWorld(this.cursor) as Vector;
     const tilePos = Tiling.worldToTilePos(this.tilemap, worldPos);
 
-    this.tilemap.setTile(this.topLayerIdx, tilePos, this.selectedTileIdx);
+    this.tilemap.setTile(this.topLayerIdx(), tilePos, this.selectedTileIdx);
   }
 
   getTileAtCursorPos(): Vector {
@@ -169,7 +166,7 @@ export class Editor{
     this.context.setFillColor('black');
     this.context.fillRect(new Rect({ x: 0, y: 0, w: this.context.resolution.x, h: this.context.resolution.y }));
 
-    Tiling.renderTilemap(this.context, this.tilemap, this.camera, this.topLayerIdx);
+    Tiling.renderTilemap(this.context, this.tilemap, this.camera, this.topLayerIdx());
 
     if (this.showGrid){
       this.renderGrid();
@@ -239,6 +236,7 @@ export class Editor{
         dimensions: mapDims,
         layers: [
           {
+            id: 'Base',
             tilesheet,
             tiles: [] as any[]
           }
@@ -262,13 +260,25 @@ export class Editor{
     this.tilemap.layers[layerIdx].tilesheet = tilesheet;
   }
 
-  addLayer(tilesheet: any): void {
-    const layer = new Tiling.TilemapLayer([], tilesheet, this.tilemap.dimensions);
+  addLayer(layerId: string, tilesheet: any): void {
+    const layer = new Tiling.TilemapLayer(layerId, [], tilesheet, this.tilemap.dimensions);
     this.tilemap.layers.push(layer);
   }
 
-  removeLayer(layerIdx: number): void {
+  removeLayer(layerId: string): void {
+    let layerIdx = this.tilemap.layers.findIndex((layer: Tiling.TilemapLayer) => layer.id === layerId)
     this.tilemap.layers.splice(layerIdx, 1);
-    this.topLayerIdx--;
+  }
+
+  topLayerIdx(): number {
+    let topLayerIdx = 0;
+
+    for (let i = 0; i < this.tilemap.layers.length; i++){
+      if (this.tilemap.layers[i].visible){
+        topLayerIdx = i;
+      }
+    }
+
+    return topLayerIdx;
   }
 }

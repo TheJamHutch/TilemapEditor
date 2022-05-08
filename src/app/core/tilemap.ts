@@ -37,7 +37,7 @@ export namespace Tiling{
       this.layers = [];
 
       for (let layer of tilemap.layers){
-        this.layers.push(new TilemapLayer(layer.tiles, layer.tilesheet, this.dimensions));
+        this.layers.push(new TilemapLayer(layer.id, layer.tiles, layer.tilesheet, this.dimensions));
       }
   
       this.resolution = { 
@@ -102,11 +102,14 @@ export namespace Tiling{
   }
   
   export class TilemapLayer{
+    id: string // @TODO: Distinguish layer ID from name?
     tilesheet: any;
     tiles: number[];
     hiddenTiles: any[];
+    visible = true;
   
-    constructor(tiles: number[], tilesheet: any, dimensions: Vector){
+    constructor(id: string, tiles: number[], tilesheet: any, dimensions: Vector){
+      this.id = id;
       this.tilesheet = tilesheet;
       this.tiles = [];
       this.hiddenTiles = [];
@@ -199,10 +202,15 @@ export namespace Tiling{
     };
     
     for (let i = 0; i <= topLayerIdx; i++){
+      const layer = tilemap.layers[i];
+
+      if (!layer.visible){
+        continue;
+      }
+
       for (let y = start.y; y < end.y; y++){
         for (let x = start.x; x < end.x; x++){
           const tileIdx = (y * tilemap.dimensions.x) + x;
-          const layer = tilemap.layers[i];
           const tileType = layer.tiles[tileIdx];
 
           if (tileType > -1 && !tilemap.isTileHidden(tileIdx, i)){

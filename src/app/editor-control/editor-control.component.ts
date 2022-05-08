@@ -251,20 +251,39 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
   onTilesheetChange(e: any): void {
     if (this.editor.tilemap){
       const tilesheet = this.assets.store.tilesheets[e.tilesheetId];
-      this.editor.changeTilesheet(this.editor.topLayerIdx, tilesheet);
+      this.editor.changeTilesheet(this.editor.topLayerIdx(), tilesheet);
     }
   }
 
   onAddLayer(e: any): void {
     const firstSheet = Object.values(this.assets.store.tilesheets)[0];
-    this.editor.addLayer(firstSheet);
+    this.editor.addLayer(e.layerId, firstSheet);
+    this.eventBus.raise(EventType.TilesheetChange, { tilesheetId: firstSheet.id });
   }
 
   onRemoveLayer(e: any): void {
-    this.editor.removeLayer(e.layerIdx);
+    this.editor.removeLayer(e.layerId);
+    const tilesheetId = this.editor.tilemap.layers[this.editor.topLayerIdx()].tilesheet.id;
+    this.eventBus.raise(EventType.TilesheetChange, { tilesheetId });
   }
 
   onLayerChange(e: any): void {
-    this.editor.topLayerIdx = parseInt(e.layerIdx);
+    // Change the visibility of a tile layer.
+    if (e.visible !== undefined){
+      let layerIdx = -1;
+      for (let i = 0; i < this.editor.tilemap.layers.length; i++){
+        if (this.editor.tilemap.layers[i].id === e.layerId){
+          layerIdx = i;
+          break;
+        }
+      }
+
+      // Base layer (0) must always be visibile.
+      if (layerIdx > 0){
+        this.editor.tilemap.layers[layerIdx].visible = e.visible;
+        const tilesheetId = this.editor.tilemap.layers[this.editor.topLayerIdx()].tilesheet.id;
+        this.eventBus.raise(EventType.TilesheetChange, { tilesheetId });
+      }
+    }
   }
 }

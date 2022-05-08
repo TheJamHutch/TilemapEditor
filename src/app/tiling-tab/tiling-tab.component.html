@@ -1,16 +1,19 @@
 <div class="container">
 
 
-
-  <div class="container column bordered">
-    <label>Layers:</label>
-    <select multiple>
-      <option *ngFor="let layer of layerOptions(); let i = index" [value]="i" [selected]="layerOptionSelected(i)" (click)="onLayerSelect($event.target.value)">layer{{i}}</option>
-    </select>
-    <div>
-      <button (click)="onAddLayerClick()">Add</button>
-      <button (click)="onRemoveLayerClick()">Remove</button>
+  <div class="container column bordered" style="height: 390px;">
+    <div class="layer-box">
+      <div *ngFor="let layer of this.tilemap?.layers.slice().reverse()" class="layer-option" [style.border]="(layer.id === 'Base') ? '1px solid yellow' : null">
+        <span>{{ layer.id }}</span>
+        <div class="button-block">
+          <input type="checkbox" [checked]="layer.visible" (change)="onLayerVisibilityChange(layer.id, $event.target.checked)">
+          <button [disabled]="i === 0" (click)="onRemoveLayerClick(layer.id)">X</button>
+        </div>
+      </div>
     </div>
+    <button (click)="onAddLayerClick()" class="add-layer">
+      Add new layer...
+    </button>
   </div>
 
 

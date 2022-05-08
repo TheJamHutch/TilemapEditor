@@ -8,8 +8,9 @@
 		},
 		"layers":[
 			{
+				"id": "Base",
 				"tilesheetId":"basetiles",
-				"tiles":[
+				"tiles":[ 
 					0,
 					0,
 					0,
@@ -913,6 +914,7 @@
 				]
 			},
 			{
+				"layerId": "Scenery",
 				"tilesheetId":"toptiles",
 				"tiles":[
 					1,
@@ -1818,6 +1820,7 @@
 				]
 			},
 			{
+				"layerId": "Glass",
 				"tilesheetId":"glass",
 				"tiles":[
 					-1,
