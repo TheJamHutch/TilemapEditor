@@ -3,11 +3,11 @@
 
   <div class="container column bordered" style="height: 390px;">
     <div class="layer-box">
-      <div *ngFor="let layer of this.tilemap?.layers.slice().reverse()" class="layer-option" [style.border]="(layer.id === 'Base') ? '1px solid yellow' : null">
+      <div *ngFor="let layer of layerOptions()" class="layer-option" [style.border]="(layerSelected(layer.id)) ? '1px solid yellow' : null">
         <span>{{ layer.id }}</span>
         <div class="button-block">
-          <input type="checkbox" [checked]="layer.visible" (change)="onLayerVisibilityChange(layer.id, $event.target.checked)">
-          <button [disabled]="i === 0" (click)="onRemoveLayerClick(layer.id)">X</button>
+          <input type="checkbox" [checked]="layer.visible" [disabled]="isBaseLayer(layer.id)" (change)="onLayerVisibilityChange(layer.id, $event.target.checked)">
+          <button [disabled]="isBaseLayer(layer.id)" (click)="onRemoveLayerClick(layer.id)">X</button>
         </div>
       </div>
     </div>
@@ -23,11 +23,11 @@
       <div>
         <label>Name:</label>
         <select (change)="onTilesheetSelect($event.target.value)">
-          <option *ngFor="let sheet of allTilesheets" [value]="sheet.id" [selected]="sheet.id === openTilesheet.id">{{ sheet.name }}</option>
+          <option *ngFor="let sheet of tilesheetOptions()" [value]="sheet.id" [selected]="tilesheetSelected(sheet.id)">{{ sheet.name }}</option>
         </select>
       </div>
       <div>
-        <span>Cell: {{ tileIdx + 1 }}/ {{ openTilesheet?.nCells }}</span>
+        <span>{{ tileIdx + 1 }}/ {{ tilesheetCellCount() }}</span>
       </div>
     </div>
     <div>
@@ -51,7 +51,7 @@
       <div>
         <label>Effect: </label>
         <select>
-          <option *ngFor="let effect of tileEffectOptions; let i = index" [value]="i" [selected]="tileEffectOptionSelected(i)">{{effect}}</option>
+          <option *ngFor="let effect of tileEffectOptions; let i = index" [value]="i" [selected]="tileEffectSelected(i)">{{effect}}</option>
         </select>
       </div>
     </div>

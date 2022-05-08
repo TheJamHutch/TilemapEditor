@@ -80,6 +80,7 @@ export class Palette{
       }
     }
 
+    // Render cursor and marker
     this.context.setStrokeWeight(4);
     this.context.setStrokeColor('yellow');
     this.context.strokeRect(this.cursor);

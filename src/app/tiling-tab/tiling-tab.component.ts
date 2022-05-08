@@ -1,8 +1,10 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { AssetsService } from '../assets.service';
+import { Assets } from '../core/assets';
 import { Rendering } from '../core/rendering';
 import { Tiling } from '../core/tilemap';
 import { EventBusService, EventType } from '../event-bus.service';
+import { MapInstanceService } from '../map-instance.service';
 
 @Component({
   selector: 'app-tiling-tab',
@@ -14,61 +16,87 @@ import { EventBusService, EventType } from '../event-bus.service';
 })
 export class TilingTabComponent implements OnInit, AfterViewInit {
 
-  tilesheetOptions = [];
-  tilemap?: any;
   tileIdx: number = 0;
   tileEffectOptions = [];
 
-  openTilesheet: any;
-  allTilesheets = [];
-
-  constructor(private assets: AssetsService, private eventBus: EventBusService) { }
+  constructor(
+    private assets: AssetsService,
+    private eventBus: EventBusService,
+    private mapInstance: MapInstanceService  
+  ) { }
 
   ngOnInit(): void {
     // Generate options for tileEffect select from the enum in Tiling.
     // @TODO: This is hardcoded
     this.tileEffectOptions = ['None', 'Hurt', 'Teleport', 'Transition', 'Door', 'Roof'];
 
-    this.eventBus.register(EventType.AssetsUpdate, (_) => {
-      this.tilesheetOptions = [];
-      const tilesheets = Object.values(this.assets.store.tilesheets);
-      for (let sheet of tilesheets){
-        this.tilesheetOptions.push(sheet);
-      }
-    });
-    this.eventBus.register(EventType.MapChange, (context: any) => {
-      this.tilemap = context.tilemap;
-    });
-    this.eventBus.register(EventType.PaletteSelect, (context: any) => {
-      this.tileIdx = context.cellIdx;
-    });
-
-    this.eventBus.register(EventType.TilesheetChange, (context: any) => {
-      this.openTilesheet = this.assets.store.tilesheets[context.tilesheetId];
-    });
-
-    this.eventBus.register(EventType.AssetsUpdate, (context: any) => {
-      this.allTilesheets = Object.values(this.assets.store.tilesheets);
-    });
+    this.eventBus.register(EventType.PaletteSelect, this.onPaletteSelect.bind(this));
   }
 
   ngAfterViewInit(): void {
     
   }
 
-  layerOptionSelected(layerId: string): boolean {
-    return false; //(layerIdx === this.topLayerIdx);
+  tileIsSolid(): boolean {
+    let isSolid = false;
+
+    const tilesheet = this.mapInstance.topTilesheet();
+    if (tilesheet){
+      isSolid = (tilesheet.solidMap[this.tileIdx] === 1);
+    }
+
+    return isSolid;
   }
 
-  /*
-  onLayerSelect(layerId: string): void {
-    this.eventBus.raise(EventType.LayerChange, { layerId });
-    const layer = this.tilemap.layers.filter((layer: Tiling.TilemapLayer) => layer.id === layerId)[0];
-    this.eventBus.raise(EventType.TilesheetChange, { tilesheetId: layer.tilesheetId });
-  }*/
+  tileIsAnimated(): boolean {
+    let isAnimated = false;
+
+    const tilesheet = this.mapInstance.topTilesheet();
+    if (tilesheet){
+      isAnimated = (tilesheet.animatedMap[this.tileIdx] === 1);
+    }
+
+    return isAnimated;
+  }
+
+  tileEffectSelected(effectOptionIdx: number): boolean {
+    let selected = false;
+
+    const tilesheet = this.mapInstance.topTilesheet();
+    if (tilesheet){
+      selected = (effectOptionIdx === tilesheet.effectMap[this.tileIdx]);
+    }
+
+    return selected;
+  }
+
+  isBaseLayer(layerId: string): boolean {
+    return (layerId === this.mapInstance.baseLayerId());
+  }
+
+  tilesheetSelected(tilesheetId: string): boolean {
+    return (tilesheetId === this.mapInstance.topTilesheet()?.id);
+  }
+
+  layerSelected(layerId: string): boolean {
+    return (layerId === this.mapInstance.topLayerId());
+  }
+
+  tilesheetCellCount(): number {
+    const nCells = this.mapInstance.topTilesheet()?.nCells
+    return (nCells) ? nCells : 0;
+  }
+
+  layerOptions(): Tiling.TilemapLayer[] {
+    return (this.mapInstance.tilemap) ? this.mapInstance.tilemap.layers.slice().reverse() : [];
+  }
+
+  tilesheetOptions(): Assets.Tilesheet[] {
+    return Object.values(this.assets.store.tilesheets);
+  }
 
   onAddLayerClick(): void {
-    this.eventBus.raise(EventType.AddLayer, { layerId: `layer${this.tilemap.layers.length}` });
+    this.eventBus.raise(EventType.AddLayer, { layerId: `Layer${this.mapInstance.layerCount()}` });
   }
 
   onRemoveLayerClick(layerId: string): void {
@@ -79,31 +107,12 @@ export class TilingTabComponent implements OnInit, AfterViewInit {
     this.eventBus.raise(EventType.TilesheetChange, { tilesheetId });
   }
 
-  tileIsSolid(): boolean {
-    let isSolid = false;
-    if (this.tilemap){
-      //isSolid = (this.tilemap.layers[this.topLayerIdx].tilesheet.solidMap[this.tileIdx]);
-    }
-
-    return isSolid;
-  }
-
-  tileIsAnimated(): boolean {
-    let isAnimated = false;
-
-    //if (this.tilemap){
-      //isAnimated = (this.tilemap.layers[this.topLayerIdx].tilesheet.animatedMap[this.tileIdx])
-   // }
-
-    return isAnimated;
-  }
-
-  tileEffectOptionSelected(optionIdx: number): boolean {
-    return false; //(optionIdx === this.tilemap?.layers[this.topLayerIdx].tilesheet.effectMap[this.tileIdx]);
-  }
-
   onLayerVisibilityChange(layerId: string, checked: boolean): void {
     this.eventBus.raise(EventType.LayerChange, { layerId, visible: checked });
+  }
+
+  onPaletteSelect(e: any): void {
+    this.tileIdx = e.cellIdx;
   }
 
 }

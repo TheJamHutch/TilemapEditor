@@ -4,6 +4,7 @@ import { EventBusService, EventType } from './event-bus.service';
 import { Rendering } from './core/rendering';
 import { PerformanceCounterService } from './performance-counter.service';
 import { ConfigService } from './config.service';
+import { MapInstanceService } from './map-instance.service';
 
 @Component({
   selector: 'app-root',
@@ -22,13 +23,15 @@ export class AppComponent implements OnInit, AfterViewInit {
     private assets: AssetsService,
     private eventBus: EventBusService,
     private performanceCounter: PerformanceCounterService,
-    private config: ConfigService
+    private config: ConfigService,
+    private mapInstance: MapInstanceService
   ){
     this.selectedTab = this.config.selectedTab;
   }
   
   async ngOnInit(): Promise<void> {
     await this.assets.loadAll();
+    this.mapInstance.init();
 
     let firstSheet = Object.values(this.assets.store.tilesheets)[0];
     this.eventBus.raise(EventType.TilesheetChange, { tilesheetId: firstSheet.id });
