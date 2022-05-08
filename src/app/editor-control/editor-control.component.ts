@@ -1,13 +1,11 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { EventBusService, EventType } from '../event-bus.service';
 import { Rendering } from '../core/rendering';
-import { config } from '../core/config';
-import { Rect, Vector } from "../core/primitives";
 import { Camera, CameraDirection } from "../core/camera";
-import { Tiling } from "../core/tilemap";
 import { AssetsService } from '../assets.service';
 import { Editor, EditorMode } from './editor';
 import { PerformanceCounterService } from '../performance-counter.service';
+import { ConfigService } from '../config.service';
 
 @Component({
   selector: 'app-editor-control',
@@ -22,7 +20,12 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
   ctrlHeld = false;
   shiftHeld = false;
 
-  constructor(private assets: AssetsService, private eventBus: EventBusService, private performanceCounter: PerformanceCounterService) { }
+  constructor(
+    private assets: AssetsService,
+    private eventBus: EventBusService,
+    private performanceCounter: PerformanceCounterService,
+    private config: ConfigService  
+  ) { }
 
   ngOnInit(): void {
     this.eventBus.register(EventType.NewFrame, this.onNewFrame.bind(this));
@@ -39,14 +42,14 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     // Init map canvas resolution
-    this.mapCanvas.nativeElement.width = config.editor.resolution.x;
-    this.mapCanvas.nativeElement.height = config.editor.resolution.y;
+    this.mapCanvas.nativeElement.width = this.config.editorResolution.x;
+    this.mapCanvas.nativeElement.height = this.config.editorResolution.y;
     // Init map canvas context
     const rawEditorContext = this.mapCanvas.nativeElement.getContext('2d');
     rawEditorContext.imageSmoothingEnabled = false;
-    const editorContext = new Rendering.RenderContext(rawEditorContext, config.editor.resolution);
+    const editorContext = new Rendering.RenderContext(rawEditorContext, this.config.editorResolution);
 
-    this.editor = new Editor(editorContext, config.editor)
+    this.editor = new Editor(editorContext, this.config.tileSize, this.config.lineDashSpeed);
 
     // MouseUp event is bound to document instead to prevent an annyoing bug where the editor is stil in paste mode after canvas
     // mouseleave and mouse button has been released.
@@ -248,20 +251,39 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
   onTilesheetChange(e: any): void {
     if (this.editor.tilemap){
       const tilesheet = this.assets.store.tilesheets[e.tilesheetId];
-      this.editor.changeTilesheet(this.editor.topLayerIdx, tilesheet);
+      this.editor.changeTilesheet(this.editor.topLayerIdx(), tilesheet);
     }
   }
 
   onAddLayer(e: any): void {
     const firstSheet = Object.values(this.assets.store.tilesheets)[0];
-    this.editor.addLayer(firstSheet);
+    this.editor.addLayer(e.layerId, firstSheet);
+    this.eventBus.raise(EventType.TilesheetChange, { tilesheetId: firstSheet.id });
   }
 
   onRemoveLayer(e: any): void {
-    this.editor.removeLayer(e.layerIdx);
+    this.editor.removeLayer(e.layerId);
+    const tilesheetId = this.editor.tilemap.layers[this.editor.topLayerIdx()].tilesheet.id;
+    this.eventBus.raise(EventType.TilesheetChange, { tilesheetId });
   }
 
   onLayerChange(e: any): void {
-    this.editor.topLayerIdx = parseInt(e.layerIdx);
+    // Change the visibility of a tile layer.
+    if (e.visible !== undefined){
+      let layerIdx = -1;
+      for (let i = 0; i < this.editor.tilemap.layers.length; i++){
+        if (this.editor.tilemap.layers[i].id === e.layerId){
+          layerIdx = i;
+          break;
+        }
+      }
+
+      // Base layer (0) must always be visibile.
+      if (layerIdx > 0){
+        this.editor.tilemap.layers[layerIdx].visible = e.visible;
+        const tilesheetId = this.editor.tilemap.layers[this.editor.topLayerIdx()].tilesheet.id;
+        this.eventBus.raise(EventType.TilesheetChange, { tilesheetId });
+      }
+    }
   }
 }

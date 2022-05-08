@@ -1,10 +1,10 @@
 import { AfterViewInit, Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Rendering } from '../core/rendering';
 import { Rect, Vector } from "../core/primitives";
-import { config } from '../core/config';
 import { EventBusService, EventType } from '../event-bus.service';
 import { AssetsService } from '../assets.service';
 import { Palette } from './palette';
+import { ConfigService } from '../config.service';
 
 @Component({
   selector: 'app-palette-control',
@@ -20,30 +20,28 @@ export class PaletteControlComponent implements OnInit, AfterViewInit {
 
   palette: Palette;
 
-  constructor(private assets: AssetsService, private eventBus: EventBusService) {}
+  constructor(
+    private assets: AssetsService,
+    private eventBus: EventBusService,
+    private config: ConfigService
+  ) {}
 
   ngOnInit(): void {
-    this.eventBus.register(EventType.NewFrame, (context: any) => {
-      this.palette.update();
-    });
-    this.eventBus.register(EventType.TilesheetChange, (context: any) => {
-      const tilesheet = this.assets.store.tilesheets[context.tilesheetId] as any;
-      this.palette.changeTilesheet(tilesheet);
-      this.eventBus.raise(EventType.PaletteSelect, { cellIdx: 0 });
-    });
+    this.eventBus.register(EventType.NewFrame, this.onNewFrame.bind(this));
+    this.eventBus.register(EventType.TilesheetChange, this.onTilesheetChange.bind(this));
   }
 
   ngAfterViewInit(): void {
     // Init palette canvas resolution
-    this.paletteCanvas.nativeElement.width = config.palette.resolution.x;
-    this.paletteCanvas.nativeElement.height = config.palette.resolution.y;
+    this.paletteCanvas.nativeElement.width = this.config.paletteResolution.x;
+    this.paletteCanvas.nativeElement.height = this.config.paletteResolution.y;
 
     // Init palette canvas context
     const rawPaletteContext = this.paletteCanvas.nativeElement.getContext('2d');
     rawPaletteContext.imageSmoothingEnabled = false;
-    const paletteContext = new Rendering.RenderContext(rawPaletteContext, config.palette.resolution);
+    const paletteContext = new Rendering.RenderContext(rawPaletteContext, this.config.paletteResolution);
 
-    this.palette = new Palette(paletteContext, config.palette);
+    this.palette = new Palette(paletteContext, this.config.paletteCellSize);
 
     // Select first item in palette on startup.
     this.eventBus.raise(EventType.PaletteSelect, { cellIdx: 0 });
@@ -76,5 +74,15 @@ export class PaletteControlComponent implements OnInit, AfterViewInit {
 
     const cellIdx = this.palette.cellIdxAtPosition(this.palette.cursor);
     this.eventBus.raise(EventType.PaletteSelect, { cellIdx });
+  }
+
+  onNewFrame(e: any): void {
+    this.palette.update();
+  }
+
+  onTilesheetChange(e: any): void {
+    const tilesheet = this.assets.store.tilesheets[e.tilesheetId] as any;
+    this.palette.changeTilesheet(tilesheet);
+    this.eventBus.raise(EventType.PaletteSelect, { cellIdx: 0 });
   }
 }

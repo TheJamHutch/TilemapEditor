@@ -6,7 +6,10 @@ import { EventBusService, EventType } from '../event-bus.service';
 @Component({
   selector: 'app-assets-tab',
   templateUrl: './assets-tab.component.html',
-  styleUrls: ['./assets-tab.component.scss']
+  styleUrls: [
+    './assets-tab.component.scss',
+    '../../common/app.common.scss'
+  ]
 })
 export class AssetsTabComponent implements OnInit {
 
@@ -17,7 +20,7 @@ export class AssetsTabComponent implements OnInit {
   constructor(private assets: AssetsService, private eventBus: EventBusService) { }
 
   ngOnInit(): void {
-    this.eventBus.register(EventType.AssetsChange, (context: any) => {
+    this.eventBus.register(EventType.AssetsUpdate, (context: any) => {
       this.textures = Object.keys(this.assets.store.textures);
       this.tilesheets = Object.keys(this.assets.store.tilesheets);
       this.spritesheets = Object.keys(this.assets.store.spritesheets);

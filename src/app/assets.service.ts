@@ -41,7 +41,7 @@ export class AssetsService {
     await this.loadAllSpritesheets();
     await this.loadAllMaps(this.store.tilesheets);
 
-    this.eventBus.raise(EventType.AssetsChange);
+    this.eventBus.raise(EventType.AssetsUpdate);
   }
 
   exportJson(id: string, obj: any): void {
@@ -117,7 +117,7 @@ export class AssetsService {
         break;
     }
 
-    this.eventBus.raise(EventType.AssetsChange);
+    this.eventBus.raise(EventType.AssetsUpdate);
 
     return assetId;
   }

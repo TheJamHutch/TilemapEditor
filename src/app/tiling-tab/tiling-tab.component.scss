@@ -10,3 +10,37 @@ select[multiple]{
   padding: 10px;
   gap: 20px;
 }
+
+.tilesheet-bar{
+  padding-left: 10px;
+  padding-right: 10px;
+  height: 40px;
+  align-items: center !important;
+}
+
+.layer-box{
+  height: 100%;
+  overflow-y: auto;
+}
+
+.layer-option{
+  display: flex;
+  justify-content: space-between;
+  padding-left: 10px;
+  padding-right: 10px;
+  height: 40px;
+  align-items: center;
+
+  .button-block{
+    display: flex;
+    gap: 10px;
+
+    button[disabled]{
+      color: grey;
+    }
+  }
+}
+
+.add-layer{
+  height: 40px;  
+}

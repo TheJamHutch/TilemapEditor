@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { AssetsService } from '../assets.service';
 import { Assets } from '../core/assets';
 import { EventBusService, EventType } from '../event-bus.service';
-import { config } from '../core/config';
 
 @Component({
   selector: 'app-toolbar',

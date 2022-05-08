@@ -2,8 +2,8 @@ import { Component, ElementRef, OnInit, AfterViewInit, ViewChild } from '@angula
 import { AssetsService } from './assets.service';
 import { EventBusService, EventType } from './event-bus.service';
 import { Rendering } from './core/rendering';
-import { config } from './core/config';
 import { PerformanceCounterService } from './performance-counter.service';
+import { ConfigService } from './config.service';
 
 @Component({
   selector: 'app-root',
@@ -18,14 +18,22 @@ export class AppComponent implements OnInit, AfterViewInit {
   title = 'TilemapEditor';
   selectedTab = 'Tiling';
 
-  constructor(private assets: AssetsService, private eventBus: EventBusService, private performanceCounter: PerformanceCounterService){}
+  constructor(
+    private assets: AssetsService,
+    private eventBus: EventBusService,
+    private performanceCounter: PerformanceCounterService,
+    private config: ConfigService
+  ){
+    this.selectedTab = this.config.selectedTab;
+  }
   
   async ngOnInit(): Promise<void> {
     await this.assets.loadAll();
+
     let firstSheet = Object.values(this.assets.store.tilesheets)[0];
     this.eventBus.raise(EventType.TilesheetChange, { tilesheetId: firstSheet.id });
     const newMap = {
-      dimensions: config.editor.mapDimensions
+      dimensions: this.config.initMapDimensions
     };
     this.eventBus.raise(EventType.NewMap, newMap);
   }

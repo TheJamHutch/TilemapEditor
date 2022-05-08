@@ -1,37 +1,82 @@
-<div class="assets-tab">
-  <div class="asset-list">
-    <div class="list-header">
+<div class="container space-evenly bordered">
+
+  <div class="asset-list container column static">
+    <div>
       <span>Textures</span>
-      <div>
-        <button (click)="onTextureLoadClick()">Load</button>
-      </div>
     </div>
     <select type="text" multiple>
       <option *ngFor="let id of textures" [value]="id">{{id}}</option>
     </select>
+    <div class="button-block container right">
+      <button (click)="onTextureLoadClick()">Load</button>
+    </div>
   </div>
-  <div class="asset-list">
-    <div class="list-header">
+
+  <div class="asset-list container column static">
+    <div>
       <span>Tilesheets</span>
-      <div>
-        <button>New</button>
-        <button (click)="onTilesheetLoadClick()">Load</button>
-      </div>
     </div>
     <select type="text" multiple>
       <option *ngFor="let id of tilesheets" [value]="id">{{id}}</option>
     </select>
+    <div class="button-block container right">
+      <button>New</button>
+      <button>Edit</button>
+      <button (click)="onTilesheetLoadClick()">Load</button>
+      <button>Export</button>
+    </div>
   </div>
-  <div class="asset-list">
-    <div class="list-header">
+
+  <div class="asset-list container column static">
+    <div>
       <span>Spritesheets</span>
-      <div>          
-        <button>New</button>
-        <button (click)="onSpritesheetLoadClick()">Load</button>
-      </div>
     </div>
     <select type="text" multiple>
       <option *ngFor="let id of spritesheets" [value]="id">{{id}}</option>
     </select>
+    <div class="button-block container right">          
+      <button>New</button>
+      <button>Edit</button>
+      <button (click)="onSpritesheetLoadClick()">Load</button>
+      <button>Export</button>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="tilesheet-props container static column bordered">
+  <div class="container center">
+    <span>Tilesheet</span>
+  </div>
+  
+  <div class="container column static">
+    <label>Name:</label>
+    <input type="text">
+  </div>
+  <div class="container column static">
+    <label>Texture:</label>
+    <div>
+      <input type="text">
+      <button>...</button>
+    </div>
+  </div>
+  <div class="container column static">
+    <label>Clip Size:</label>
+    <input type="number" min="1">
+  </div>
+  <div class="container column static">
+    <label>nCells:</label>
+    <input type="number" min="1">
+  </div>
+  <div class="container column static">
+    <label>Cells per row:</label>
+    <input type="number" min="1">
+  </div>
+  <br />
+  <div class="button-block container column" style="align-items: center">
+    <button>New</button>
+    <button>Save</button>
+    <button>Load</button>
   </div>
 </div>
