@@ -21,6 +21,12 @@ export namespace Tiling{
     effect: number;
     topLayerIdx?: number;
   };
+
+  export type TileAnimation = {
+    name: string;
+    speed: number;
+    frames: number[];
+  };
   
   export class Tilemap{
     // The original tile size before zoom
@@ -178,7 +184,7 @@ export namespace Tiling{
     return viewTiles;
   }
   
-  export function renderTilemap(context: Rendering.RenderContext, tilemap: Tilemap, camera: Camera, topLayerIdx: number): void {
+  export function renderTilemap(context: Rendering.RenderContext, tilemap: Tilemap, camera: Camera, topLayerIdx: number, frameCount: number): void {
     //
     const inView = {
       x: Math.ceil(camera.view.w / tilemap.tileSize),
@@ -216,17 +222,15 @@ export namespace Tiling{
           if (tileType > -1 && !tilemap.isTileHidden(tileIdx, i)){
             let clip = setClip(tileType, layer.tilesheet.clipSize, layer.tilesheet.nCells, layer.tilesheet.cellsPerRow);
 
+            // @TODO: Tile animations screw up when frame count resets
             // Overwrite clip if tile is animated
             const tileIsAnimated = (layer.tilesheet.animatedMap[tileType] === 1);
-            /*
             if (tileIsAnimated){
-              // Find the correct animation to use from the tilesheet.
-              // @ts-ignore
-              let animation = layer.tilesheet.tileAnimations.find((anims: any) => anims.id === tileType); // @TODO: This seems to work but probably shouldnt, tileAnimations is a map not an array
+              const animation = layer.tilesheet.tileAnimations.filter((anim: TileAnimation) => tileType === anim.frames[0])[0];
               let animIdx = Math.floor(((frameCount / animation.speed) % animation.frames.length));
               let idx = animation.frames[animIdx];
               clip = setClip(idx, layer.tilesheet.clipSize, layer.tilesheet.nCells, layer.tilesheet.cellsPerRow);
-            }*/
+            }
             
             const view = new Rect({ x: 0, y: 0, w: tilemap.tileSize, h: tilemap.tileSize });
             view.x = offset.x + ((x * tilemap.tileSize) - camera.world.x);
@@ -289,7 +293,7 @@ export namespace Tiling{
   }
 
   // Returns the position and size of the clipping rectangle of a spritesheet at a particular index.
-  function setClip(index: number, cellSize: number, nCells: number, cellsPerRow: number): Rect {
+  export function setClip(index: number, cellSize: number, nCells: number, cellsPerRow: number): Rect {
     let x = 0;
     let y = 0;
     let c = 0;

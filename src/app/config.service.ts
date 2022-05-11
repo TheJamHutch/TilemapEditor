@@ -13,7 +13,7 @@ export class ConfigService {
   readonly initMapDimensions = { x: 100, y: 100 };
 
   readonly tileSize = 32;
-  readonly paletteCellSize = 32;
+  readonly paletteCellSize = 48;
 
   readonly lineDashSpeed = 4;
 

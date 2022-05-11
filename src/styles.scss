@@ -17,3 +17,8 @@ input, select, button{
 .bordered{
   border: 1px solid grey;
 }
+
+/* @TODO: This should be temporary, figure out why button outlines aren't showing */
+button{
+  outline: 1px solid grey;
+}

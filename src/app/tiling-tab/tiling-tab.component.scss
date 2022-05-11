@@ -44,3 +44,15 @@ select[multiple]{
 .add-layer{
   height: 40px;  
 }
+
+table{
+  width: 100%;
+
+  th{
+    text-decoration: underline;
+  }
+
+  tr{
+    outline: 1px solid grey !important;
+  }
+}

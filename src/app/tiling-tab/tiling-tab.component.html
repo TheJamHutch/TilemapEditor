@@ -27,7 +27,7 @@
         </select>
       </div>
       <div>
-        <span>{{ tileIdx + 1 }}/ {{ tilesheetCellCount() }}</span>
+        <span>{{ tileIdx }}/ {{ tilesheetCellCount() - 1 }}</span>
       </div>
     </div>
     <div>
@@ -37,23 +37,36 @@
 
 
 
-  <div class="container column bordered">
+  <div class="properties container column bordered">
     <span>Tile Properties</span>
-    <div class="properties container column">
-      <div>
-        <label>Solid: </label>
-        <input type="checkbox"  [checked]="tileIsSolid()">
-      </div>
-      <div>
-        <label>Animated: </label>
-        <input type="checkbox" [checked]="tileIsAnimated()">
-      </div>
-      <div>
-        <label>Effect: </label>
-        <select>
-          <option *ngFor="let effect of tileEffectOptions; let i = index" [value]="i" [selected]="tileEffectSelected(i)">{{effect}}</option>
-        </select>
-      </div>
+    <div>
+      <label>Solid: </label>
+      <input type="checkbox"  [checked]="tileIsSolid()">
+    </div>
+    <div>
+      <label>Animated: </label>
+      <input type="checkbox" [checked]="tileIsAnimated()">
+    </div>
+    <div>
+      <label>Effect: </label>
+      <select>
+        <option *ngFor="let effect of tileEffectOptions; let i = index" [value]="i" [selected]="tileEffectSelected(i)">{{effect}}</option>
+      </select>
+    </div>
+    <div>
+      <span>Animations:</span>
+      <table style="text-align: center;">
+        <tr>
+          <th>Name</th>
+          <th>Speed</th>
+          <th>Frames</th>
+        </tr>
+        <tr *ngFor="let anim of tilesheetAnimations()">
+          <td>{{ anim.name }}</td>
+          <td>{{ anim.speed }}</td>
+          <td>[{{ anim.frames }}]</td>
+        </tr>
+      </table>
     </div>
   </div>
 

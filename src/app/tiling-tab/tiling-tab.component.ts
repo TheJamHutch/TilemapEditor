@@ -78,6 +78,10 @@ export class TilingTabComponent implements OnInit, AfterViewInit {
     return (tilesheetId === this.mapInstance.topTilesheet()?.id);
   }
 
+  tilesheetAnimations(): any[] {
+    return this.mapInstance.topTilesheet()?.tileAnimations;
+  }
+
   layerSelected(layerId: string): boolean {
     return (layerId === this.mapInstance.topLayerId());
   }
