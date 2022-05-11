@@ -67,7 +67,9 @@
           </div>
           <div>
             <label>Frames:</label>
-            <span>{{ tileAnimation().frames }}</span>
+            <textarea cols="30" rows="10">
+              {{ tileAnimation().frames.toString() }}
+            </textarea>
           </div>
         </div>
         <div *ngIf="!tileAnimation()">

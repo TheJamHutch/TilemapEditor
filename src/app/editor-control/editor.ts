@@ -168,9 +168,9 @@ export class Editor{
       });
       this.context.nativeContext.setLineDash([4, 2]);
       this.context.setFillColor('red');
-      this.context.setStrokeColor('black');
+      this.context.setStrokeColor('white');
       this.context.setStrokeWeight(1);
-      this.context.fillRect(tileRect, 0.3);
+      this.context.fillRect(tileRect, 0.4);
       this.context.strokeRect(tileRect);
     }
     this.context.nativeContext.setLineDash([0]);
