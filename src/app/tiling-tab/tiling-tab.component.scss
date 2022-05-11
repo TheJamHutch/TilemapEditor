@@ -56,3 +56,20 @@ table{
     outline: 1px solid grey !important;
   }
 }
+
+.animations-box{
+  margin-top: 10px;
+  gap: 10px;
+
+  input[type="text"]{
+    width: 140px;
+  }
+
+  input[type="number"]{
+    width: 80px;
+  }
+
+  label{
+    margin-right: 5px;
+  }
+}

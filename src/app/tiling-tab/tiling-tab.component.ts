@@ -70,6 +70,23 @@ export class TilingTabComponent implements OnInit, AfterViewInit {
     return selected;
   }
 
+  tileAnimation(): any {
+    let animation = null;
+    const tilesheet = this.mapInstance.topTilesheet();
+
+    if (tilesheet?.tileAnimations){
+      for (let anim of tilesheet.tileAnimations){
+        const idx = anim.frames.findIndex((frame: number) => frame === this.tileIdx);
+        if (idx === 0){
+          animation = anim;
+          break;
+        }
+      }
+    }
+
+    return animation;
+  }
+
   isBaseLayer(layerId: string): boolean {
     return (layerId === this.mapInstance.baseLayerId());
   }

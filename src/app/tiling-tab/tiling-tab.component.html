@@ -55,18 +55,25 @@
     </div>
     <div>
       <span>Animations:</span>
-      <table style="text-align: center;">
-        <tr>
-          <th>Name</th>
-          <th>Speed</th>
-          <th>Frames</th>
-        </tr>
-        <tr *ngFor="let anim of tilesheetAnimations()">
-          <td>{{ anim.name }}</td>
-          <td>{{ anim.speed }}</td>
-          <td>[{{ anim.frames }}]</td>
-        </tr>
-      </table>
+      <div class="animations-box">
+        <div *ngIf="tileAnimation()" class="container column">
+          <div>
+            <label>Name:</label>
+            <input type="text" [value]="tileAnimation()?.name" />
+          </div>
+          <div>
+            <label>Speed:</label>
+            <input type="number" min="1" [value]="tileAnimation()?.speed" />
+          </div>
+          <div>
+            <label>Frames:</label>
+            <span>{{ tileAnimation().frames }}</span>
+          </div>
+        </div>
+        <div *ngIf="!tileAnimation()">
+          <span>None</span>
+        </div>
+      </div>
     </div>
   </div>
 
