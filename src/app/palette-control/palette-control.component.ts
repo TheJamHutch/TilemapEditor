@@ -70,10 +70,7 @@ export class PaletteControlComponent implements OnInit, AfterViewInit {
     }
 
     this.palette.setCursorPosition(mousePos);
-
-    this.palette.marker.x = this.palette.cursor.x;
-
-    this.palette.marker.y = this.palette.cursor.y;
+    this.palette.setMarkers();
 
     const cellIdx = this.palette.cellIdxAtPosition(this.palette.cursor);
     this.eventBus.raise(EventType.PaletteSelect, { cellIdx });

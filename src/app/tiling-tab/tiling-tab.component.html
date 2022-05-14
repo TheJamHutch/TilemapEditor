@@ -65,12 +65,6 @@
             <label>Speed:</label>
             <input type="number" min="1" [value]="tileAnimation()?.speed" />
           </div>
-          <div>
-            <label>Frames:</label>
-            <textarea cols="30" rows="10">
-              {{ tileAnimation().frames.toString() }}
-            </textarea>
-          </div>
         </div>
         <div *ngIf="!tileAnimation()">
           <span>None</span>

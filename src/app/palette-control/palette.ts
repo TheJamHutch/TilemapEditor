@@ -7,14 +7,14 @@ export class Palette{
   context: Rendering.RenderContext;
   cellSize: Vector;
   cursor: Rect;
-  marker: Rect;
+  markers: Rect[];
   tilesheet?: any;
 
   constructor(context: Rendering.RenderContext, cellSize: number){
     this.context = context;
     this.cellSize = { x: cellSize, y: cellSize };
     this.cursor = new Rect({ x: 0, y: 0, w: this.cellSize.x, h: this.cellSize.y });
-    this.marker = new Rect(this.cursor);
+    this.markers = [ new Rect(this.cursor) ];
   }
 
   update(): void {
@@ -28,7 +28,7 @@ export class Palette{
   changeTilesheet(tilesheet: any): void {
     this.tilesheet = tilesheet;
     this.cursor.x = 0; this.cursor.y = 0;
-    this.marker.x = 0; this.marker.y = 0;
+    
   }
 
   cellIdxAtPosition(pos: Vector){
@@ -50,6 +50,19 @@ export class Palette{
     this.cursor.y = rawPos.y - (rawPos.y % this.cellSize.y);
   }
 
+  setMarkers(): void {
+    const tileIdx = this.cellIdxAtPosition(this.cursor);
+    let frames = [];
+    for (let anim of this.tilesheet.tileAnimations){
+      if (anim.frames.find((frame) => frame === tileIdx) !== -1){
+        frames = anim.frames;
+        break;
+      }
+    }
+
+    
+  }
+
   private render(): void {
     // Render black background
     this.context.fillRect(new Rect({ x: 0, y: 0, w: this.context.resolution.x, h: this.context.resolution.y }));
@@ -64,11 +77,6 @@ export class Palette{
     
     for (let i = 0; i < this.tilesheet.nCells; i++){
       this.context.renderBitmap(this.tilesheet.texture.bitmap, clip, view);
-      if (showOverlay){
-        this.context.setFillColor('black');
-        this.context.fillRect(view, 0.5);
-        showOverlay = false;
-      }
 
       // Update clip rect
       cx += 1;
@@ -79,6 +87,7 @@ export class Palette{
       clip.x = cx * this.tilesheet.clipSize;
       clip.y = cy * this.tilesheet.clipSize;
 
+      /*
       const tileType = (cy * this.tilesheet.cellsPerRow) + cx;
       if (this.tilesheet.tileAnimations){
         for (let anim of this.tilesheet.tileAnimations){
@@ -87,7 +96,7 @@ export class Palette{
             showOverlay = true;
           }
         }
-      }
+      }*/
 
       // Update view rect
       view.x += this.cellSize.x + padding;
@@ -102,6 +111,8 @@ export class Palette{
     this.context.setStrokeColor('yellow');
     this.context.strokeRect(this.cursor);
     this.context.setStrokeColor('red');
-    this.context.strokeRect(this.marker);
+    for (let marker of this.markers){
+      this.context.strokeRect(marker);
+    }
   }
 }
