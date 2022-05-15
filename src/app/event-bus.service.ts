@@ -12,7 +12,8 @@ export enum EventType{
   AssetsUpdate,
   LayerChange,
   AddLayer,
-  RemoveLayer
+  RemoveLayer,
+  PaletteUpdate   // Occurs when a cell of the palette is double-clicked, event context contains the cell index which is used to set all of the selected tiles to that tile type.
 }
 
 @Injectable({
@@ -101,6 +102,9 @@ export class EventBusService {
         break;
       case EventType.RemoveLayer:
         key = 'RemoveLayer';
+        break;
+      case EventType.PaletteUpdate:
+        key = 'PaletteUpdate';
         break;
       default:
         key = 'Noop';

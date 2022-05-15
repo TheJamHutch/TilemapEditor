@@ -80,6 +80,17 @@ export class PaletteControlComponent implements OnInit, AfterViewInit {
     this.eventBus.raise(EventType.PaletteSelect, { cellIdx });
   }
 
+  onDoubleClick(e: MouseEvent): void {
+    const mousePos = { x: e.offsetX, y: e.offsetY };
+    
+    if (!this.palette.posOnSheet(mousePos)){
+      return;
+    }
+
+    const cellIdx = this.palette.cellPosToIndex(this.palette.viewPosToCellPos(this.palette.cursor));
+    this.eventBus.raise(EventType.PaletteUpdate, { cellIdx });
+  }
+
   onNewFrame(e: any): void {
     this.palette.update();
   }

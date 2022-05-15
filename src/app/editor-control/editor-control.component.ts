@@ -38,6 +38,7 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
     this.eventBus.register(EventType.AddLayer, this.onAddLayer.bind(this));
     this.eventBus.register(EventType.RemoveLayer, this.onRemoveLayer.bind(this));
     this.eventBus.register(EventType.LayerChange, this.onLayerChange.bind(this));
+    this.eventBus.register(EventType.PaletteUpdate, this.onPaletteUpdate.bind(this));
   }
 
   ngAfterViewInit(): void {
@@ -297,5 +298,9 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
         this.eventBus.raise(EventType.TilesheetChange, { tilesheetId });
       }
     }
+  }
+
+  onPaletteUpdate(e: any): void {
+    this.editor.updateSelectedTiles(e.cellIdx);
   }
 }

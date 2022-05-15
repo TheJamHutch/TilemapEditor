@@ -333,4 +333,11 @@ export class Editor{
 
     return topLayerIdx;
   }
+
+  // Sets all of the currently selected tiles to the tile type at tileIdx
+  updateSelectedTiles(tileIdx: number): void {
+    for (let tilePos of this.selectedTiles){
+      this.tilemap.setTile(this.topLayerIdx(), tilePos, tileIdx);
+    }
+  }
 }
