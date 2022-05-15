@@ -63,6 +63,10 @@ export class PaletteControlComponent implements OnInit, AfterViewInit {
   }
 
   onMouseDown(e: PointerEvent): void {
+    if (!this.palette.tilesheet){
+      return;
+    }
+
     const mousePos = { x: e.offsetX, y: e.offsetY };
 
     if (!this.palette.posOnSheet(mousePos)){

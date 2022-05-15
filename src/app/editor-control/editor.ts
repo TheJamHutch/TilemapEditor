@@ -14,6 +14,10 @@ export class Editor{
   camera?: Camera;
   showGrid = false;
 
+  rectSelectStarted = false;
+  selectStart = { x: 0, y: 0 };
+  selectEnd = { x: 0, y: 0 };
+
   // @TODO: Tiles can be free-selected when Ctrl is held. Should be able to click on an already selected tile and have it de-select but not when mouse is moved (in paste mode)
   selectedTiles = [];
 
@@ -128,14 +132,14 @@ export class Editor{
   }
 
   updateTileAtCursorPos(): void {
-    const worldPos = this.camera.viewToWorld(this.cursor) as Vector;
+    const worldPos = this.camera.viewToWorld({ x: this.cursor.x, y: this.cursor.y }) as Vector;
     const tilePos = Tiling.worldToTilePos(this.tilemap, worldPos);
 
     this.tilemap.setTile(this.topLayerIdx(), tilePos, this.selectedTileIdx);
   }
 
   getTileAtCursorPos(): Vector {
-    const worldPos = this.camera.viewToWorld(this.cursor) as Vector;
+    const worldPos = this.camera.viewToWorld({ x: this.cursor.x, y: this.cursor.y }) as Vector;
     const tilePos = Tiling.worldToTilePos(this.tilemap, worldPos);
     return tilePos;
   }
@@ -143,6 +147,57 @@ export class Editor{
   setCursorPosition(pos: Vector): void {
     this.cursor.x = (pos.x - (pos.x % this.tilemap.tileSize)) - (this.camera.world.x % this.tilemap.tileSize) - (this.camera.view.x % this.tilemap.tileSize);
     this.cursor.y = (pos.y - (pos.y % this.tilemap.tileSize)) - (this.camera.world.y % this.tilemap.tileSize) - (this.camera.view.y % this.tilemap.tileSize);
+  }
+
+  startRectSelect(): void {
+    this.selectStart = this.camera.viewToWorld({ x: this.cursor.x, y: this.cursor.y });
+    this.selectEnd = this.selectStart;
+    this.rectSelectStarted = true;
+    
+  }
+
+  updateRectSelect(): void {
+    if (this.rectSelectStarted){
+      this.selectEnd = this.camera.viewToWorld({ x: this.cursor.x, y: this.cursor.y });
+    }
+  }
+
+  endRectSelect(): void {
+    this.rectSelectStarted = false;
+
+    
+    const selectRect = new Rect({ x: this.selectStart.x, y: this.selectStart.y, w: this.selectEnd.x - this.selectStart.x, h: this.selectEnd.y - this.selectStart.y });
+    const selectedTiles = this.getTilesInWorldRect(selectRect);
+    this.selectedTiles.push(...selectedTiles);
+
+    this.selectStart = { x: 0, y: 0 };
+    this.selectEnd = { x: 0, y: 0 };
+  }
+
+  clearRectSelect(): void {
+    this.selectStart = { x: 0, y: 0 };
+    this.selectEnd = { x: 0, y: 0 };
+  }
+
+  getTilesInWorldRect(world: Rect): Vector[] {
+    // Start and end inclusive ranges
+    const start = {
+      x: Math.floor(world.x / this.tileSize),
+      y: Math.floor(world.y / this.tileSize)
+    };
+    const end = {
+      x: (start.x + Math.floor(world.w / this.tileSize)) - 1,
+      y: (start.y + Math.floor(world.h / this.tileSize)) - 1
+    };
+    let tiles = [];
+
+    for (let y = start.y; y <= end.y; y++){
+      for (let x = start.x; x <= end.x; x++){
+        tiles.push({ x, y });
+      }
+    }
+
+    return tiles;
   }
 
   private render(frameCount: number): void {
@@ -168,12 +223,25 @@ export class Editor{
       });
       this.context.nativeContext.setLineDash([4, 2]);
       this.context.setFillColor('red');
-      this.context.setStrokeColor('white');
+      this.context.setStrokeColor('black');
       this.context.setStrokeWeight(1);
       this.context.fillRect(tileRect, 0.4);
       this.context.strokeRect(tileRect);
     }
     this.context.nativeContext.setLineDash([0]);
+
+    if (this.rectSelectStarted){
+      const worldSelectStart = this.camera.worldToView(this.selectStart);
+      const worldSelectEnd = {
+        x: this.camera.worldToView(this.selectEnd).x - worldSelectStart.x,
+        y: this.camera.worldToView(this.selectEnd).y - worldSelectStart.y
+      };
+
+      const selectRect = new Rect({ x: worldSelectStart.x, y: worldSelectStart.y, w: worldSelectEnd.x, h: worldSelectEnd.y });
+      
+      this.context.setFillColor('red');
+      this.context.fillRect(selectRect, 0.3);
+    }
 
     this.context.setStrokeColor('yellow');
     this.context.setStrokeWeight(4);

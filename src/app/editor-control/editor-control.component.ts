@@ -148,6 +148,13 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
 
     this.editor.paste = true;
 
+    if (this.shiftHeld && !this.editor.rectSelectStarted){
+      this.editor.startRectSelect();
+      return;
+    } else {
+      this.editor.clearRectSelect();
+    }
+
     if (this.ctrlHeld){
       let tilePos = this.editor.getTileAtCursorPos();
       this.editor.selectTiles(tilePos);
@@ -172,6 +179,10 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    if (this.editor.rectSelectStarted){
+      this.editor.endRectSelect();
+    }
+
     this.editor.paste = false;
   }
 
@@ -187,6 +198,11 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
     }
   
     this.editor.setCursorPosition(mousePos);
+
+    if (this.editor.rectSelectStarted){
+      this.editor.updateRectSelect();
+      return;
+    }
 
     // @TODO: Decide on a brace style.
     if (this.editor.paste)
