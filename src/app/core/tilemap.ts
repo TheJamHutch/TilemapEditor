@@ -224,12 +224,21 @@ export namespace Tiling{
 
             // @TODO: Tile animations screw up when frame count resets
             // Overwrite clip if tile is animated
-            const tileIsAnimated = (layer.tilesheet.animatedMap[tileType] === 1);
-            if (tileIsAnimated){
-              const animation = layer.tilesheet.tileAnimations.filter((anim: TileAnimation) => tileType === anim.frames[0])[0];
-              let animIdx = Math.floor(((frameCount / animation.speed) % animation.frames.length));
-              let idx = animation.frames[animIdx];
-              clip = setClip(idx, layer.tilesheet.clipSize, layer.tilesheet.nCells, layer.tilesheet.cellsPerRow);
+            let tileIsAnimated = false;
+            let animation;
+            if (layer.tilesheet.tileAnimations){
+              for (let anim of layer.tilesheet.tileAnimations){
+                if (anim.frames.find((frame: number) => frame === tileType)){
+                  animation = anim;
+                  break;
+                }
+              }
+
+              if (animation){
+                let animIdx = Math.floor(((frameCount / animation.speed) % animation.frames.length));
+                let idx = animation.frames[animIdx];
+                clip = setClip(idx, layer.tilesheet.clipSize, layer.tilesheet.nCells, layer.tilesheet.cellsPerRow);
+              }
             }
             
             const view = new Rect({ x: 0, y: 0, w: tilemap.tileSize, h: tilemap.tileSize });

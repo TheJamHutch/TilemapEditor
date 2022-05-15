@@ -31,17 +31,21 @@ export class Palette{
     
   }
 
-  cellIdxAtPosition(pos: Vector){
-    let cell = {
-      x: Math.floor(pos.x / this.cellSize.x),
-      y: Math.floor(pos.y / this.cellSize.y)
+  viewPosToCellPos(viewPos: Vector): Vector {
+    const cellPos = {
+      x: Math.floor(viewPos.x / this.cellSize.x),
+      y: Math.floor(viewPos.y / this.cellSize.y)
     };
-    const cellIdx = (cell.y * Math.floor(this.context.resolution.x / this.cellSize.x)) + cell.x;
+    return cellPos;
+  }
+
+  cellPosToIndex(cellPos: Vector): number {
+    const cellIdx = (cellPos.y * Math.floor(this.context.resolution.x / this.cellSize.x)) + cellPos.x;
     return cellIdx;
   }
 
   posOnSheet(pos: Vector): boolean {
-    const cellIdx = this.cellIdxAtPosition(pos);
+    const cellIdx = this.cellPosToIndex(this.viewPosToCellPos(pos));
     return (cellIdx < this.tilesheet.nCells);
   }
 
@@ -51,16 +55,35 @@ export class Palette{
   }
 
   setMarkers(): void {
-    const tileIdx = this.cellIdxAtPosition(this.cursor);
+    this.markers = [];
+
+    const cellIdx = this.cellPosToIndex(this.viewPosToCellPos(this.cursor));
+    
     let frames = [];
     for (let anim of this.tilesheet.tileAnimations){
-      if (anim.frames.find((frame) => frame === tileIdx) !== -1){
+      if (anim.frames.find((frame: number) => frame === cellIdx)){
         frames = anim.frames;
         break;
       }
     }
 
+    if (frames.length === 0){
+      frames.push(cellIdx);
+    }
     
+    // Convert each of the frame indexes to a position vector
+    const paletteWidth = Math.floor(this.context.resolution.x / this.cellSize.x);
+    
+    for (let frameIdx of frames){
+      const rect = new Rect({
+        x: (frameIdx % paletteWidth) * this.cellSize.x,
+        y: Math.floor(frameIdx / paletteWidth) * this.cellSize.x,
+        w: this.cellSize.x,
+        h: this.cellSize.y
+      });
+
+      this.markers.push(rect);
+    }
   }
 
   private render(): void {

@@ -44,10 +44,6 @@
       <input type="checkbox"  [checked]="tileIsSolid()">
     </div>
     <div>
-      <label>Animated: </label>
-      <input type="checkbox" [checked]="tileIsAnimated()">
-    </div>
-    <div>
       <label>Effect: </label>
       <select>
         <option *ngFor="let effect of tileEffectOptions; let i = index" [value]="i" [selected]="tileEffectSelected(i)">{{effect}}</option>

@@ -40,7 +40,6 @@ export namespace Assets{
     cellsPerRow: number;
     solidMap: number[];
     effectMap: number[];
-    animatedMap: number[];
     tileAnimations: Tiling.TileAnimation[];
   }
 

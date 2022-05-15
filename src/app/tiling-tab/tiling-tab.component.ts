@@ -50,10 +50,15 @@ export class TilingTabComponent implements OnInit, AfterViewInit {
 
   tileIsAnimated(): boolean {
     let isAnimated = false;
-
+    
     const tilesheet = this.mapInstance.topTilesheet();
     if (tilesheet){
-      isAnimated = (tilesheet.animatedMap[this.tileIdx] === 1);
+      for (let anim of tilesheet.tileAnimations){
+        if (anim.frames.find((frame: number) => this.tileIdx === frame)){
+          isAnimated = true;
+          break;
+        }
+      }
     }
 
     return isAnimated;
@@ -76,8 +81,7 @@ export class TilingTabComponent implements OnInit, AfterViewInit {
 
     if (tilesheet?.tileAnimations){
       for (let anim of tilesheet.tileAnimations){
-        const idx = anim.frames.findIndex((frame: number) => frame === this.tileIdx);
-        if (idx === 0){
+        if (anim.frames.find((frame: number) => this.tileIdx === frame)){
           animation = anim;
           break;
         }
