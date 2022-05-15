@@ -27,7 +27,7 @@
         </select>
       </div>
       <div>
-        <span>{{ tileIdx + 1 }}/ {{ tilesheetCellCount() }}</span>
+        <span>{{ tileIdx }}/ {{ tilesheetCellCount() - 1 }}</span>
       </div>
     </div>
     <div>
@@ -37,22 +37,34 @@
 
 
 
-  <div class="container column bordered">
+  <div class="properties container column bordered">
     <span>Tile Properties</span>
-    <div class="properties container column">
-      <div>
-        <label>Solid: </label>
-        <input type="checkbox"  [checked]="tileIsSolid()">
-      </div>
-      <div>
-        <label>Animated: </label>
-        <input type="checkbox" [checked]="tileIsAnimated()">
-      </div>
-      <div>
-        <label>Effect: </label>
-        <select>
-          <option *ngFor="let effect of tileEffectOptions; let i = index" [value]="i" [selected]="tileEffectSelected(i)">{{effect}}</option>
-        </select>
+    <div>
+      <label>Solid: </label>
+      <input type="checkbox"  [checked]="tileIsSolid()">
+    </div>
+    <div>
+      <label>Effect: </label>
+      <select>
+        <option *ngFor="let effect of tileEffectOptions; let i = index" [value]="i" [selected]="tileEffectSelected(i)">{{effect}}</option>
+      </select>
+    </div>
+    <div>
+      <span>Animations:</span>
+      <div class="animations-box">
+        <div *ngIf="tileAnimation()" class="container column">
+          <div>
+            <label>Name:</label>
+            <input type="text" [value]="tileAnimation()?.name" />
+          </div>
+          <div>
+            <label>Speed:</label>
+            <input type="number" min="1" [value]="tileAnimation()?.speed" />
+          </div>
+        </div>
+        <div *ngIf="!tileAnimation()">
+          <span>None</span>
+        </div>
       </div>
     </div>
   </div>

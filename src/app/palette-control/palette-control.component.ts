@@ -5,6 +5,7 @@ import { EventBusService, EventType } from '../event-bus.service';
 import { AssetsService } from '../assets.service';
 import { Palette } from './palette';
 import { ConfigService } from '../config.service';
+import { PerformanceCounterService } from '../performance-counter.service';
 
 @Component({
   selector: 'app-palette-control',
@@ -23,7 +24,8 @@ export class PaletteControlComponent implements OnInit, AfterViewInit {
   constructor(
     private assets: AssetsService,
     private eventBus: EventBusService,
-    private config: ConfigService
+    private config: ConfigService,
+    private performanceCounter: PerformanceCounterService
   ) {}
 
   ngOnInit(): void {
@@ -68,11 +70,9 @@ export class PaletteControlComponent implements OnInit, AfterViewInit {
     }
 
     this.palette.setCursorPosition(mousePos);
+    this.palette.setMarkers();
 
-    this.palette.marker.x = this.palette.cursor.x;
-    this.palette.marker.y = this.palette.cursor.y;
-
-    const cellIdx = this.palette.cellIdxAtPosition(this.palette.cursor);
+    const cellIdx = this.palette.cellPosToIndex(this.palette.viewPosToCellPos(this.palette.cursor));
     this.eventBus.raise(EventType.PaletteSelect, { cellIdx });
   }
 

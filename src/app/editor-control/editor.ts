@@ -64,7 +64,7 @@ export class Editor{
     this.context.nativeContext.lineDashOffset = Math.floor(frameCount / this.lineDashSpeed);
 
     this.camera.update();
-    this.render();
+    this.render(frameCount);
   }
 
   moveCamera(direction: CameraDirection): void {
@@ -145,12 +145,12 @@ export class Editor{
     this.cursor.y = (pos.y - (pos.y % this.tilemap.tileSize)) - (this.camera.world.y % this.tilemap.tileSize) - (this.camera.view.y % this.tilemap.tileSize);
   }
 
-  private render(): void {
+  private render(frameCount: number): void {
     // Render black background
     this.context.setFillColor('black');
     this.context.fillRect(new Rect({ x: 0, y: 0, w: this.context.resolution.x, h: this.context.resolution.y }));
 
-    Tiling.renderTilemap(this.context, this.tilemap, this.camera, this.topLayerIdx());
+    Tiling.renderTilemap(this.context, this.tilemap, this.camera, this.topLayerIdx(), frameCount);
 
     if (this.showGrid){
       this.renderGrid();
@@ -168,9 +168,9 @@ export class Editor{
       });
       this.context.nativeContext.setLineDash([4, 2]);
       this.context.setFillColor('red');
-      this.context.setStrokeColor('black');
+      this.context.setStrokeColor('white');
       this.context.setStrokeWeight(1);
-      this.context.fillRect(tileRect, 0.3);
+      this.context.fillRect(tileRect, 0.4);
       this.context.strokeRect(tileRect);
     }
     this.context.nativeContext.setLineDash([0]);

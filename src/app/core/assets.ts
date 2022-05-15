@@ -1,5 +1,6 @@
 import { Vector } from "./primitives";
 import { Rendering } from "./rendering";
+import { Tiling } from "./tilemap";
 
 export namespace Assets{
 
@@ -39,8 +40,7 @@ export namespace Assets{
     cellsPerRow: number;
     solidMap: number[];
     effectMap: number[];
-    animatedMap: number[];
-    tileAnimations: Map<number, number[]>;
+    tileAnimations: Tiling.TileAnimation[];
   }
 
   export type Spritesheet = {
