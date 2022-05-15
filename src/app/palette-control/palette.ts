@@ -14,7 +14,7 @@ export class Palette{
     this.context = context;
     this.cellSize = { x: cellSize, y: cellSize };
     this.cursor = new Rect({ x: 0, y: 0, w: this.cellSize.x, h: this.cellSize.y });
-    this.markers = [ new Rect(this.cursor) ];
+    this.markers = [ new Rect({ x: 0, y: 0, w: this.cellSize.x, h: this.cellSize.y }) ];
   }
 
   update(): void {
@@ -28,7 +28,7 @@ export class Palette{
   changeTilesheet(tilesheet: any): void {
     this.tilesheet = tilesheet;
     this.cursor.x = 0; this.cursor.y = 0;
-    
+    this.markers = [ new Rect({ x: 0, y: 0, w: this.cellSize.x, h: this.cellSize.y }) ];
   }
 
   viewPosToCellPos(viewPos: Vector): Vector {
@@ -60,10 +60,12 @@ export class Palette{
     const cellIdx = this.cellPosToIndex(this.viewPosToCellPos(this.cursor));
     
     let frames = [];
-    for (let anim of this.tilesheet.tileAnimations){
-      if (anim.frames.find((frame: number) => frame === cellIdx)){
-        frames = anim.frames;
-        break;
+    if (this.tilesheet.tileAnimations){
+      for (let anim of this.tilesheet.tileAnimations){
+        if (anim.frames.find((frame: number) => frame === cellIdx)){
+          frames = anim.frames;
+          break;
+        }
       }
     }
 
