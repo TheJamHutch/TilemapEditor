@@ -258,16 +258,18 @@ export class Editor{
     this.context.setStrokeColor('black');
     this.context.setStrokeWeight(1);
     const dims = this.tilemap.dimensions;
+    
 
+    const offset = Tiling.tilemapRenderOffset(this.tilemap, this.camera);
      // Vertical lines
     for (let x = 0; x < dims.x; x++){
       let start = {
         x: (this.camera.view.x + (x * this.tileSize)) - (this.camera.world.x % this.tileSize),
-        y: 0
+        y: offset.y
       };
       let end = {
         x: (this.camera.view.x + (x * this.tileSize)) - (this.camera.world.x % this.tileSize),
-        y: this.tilemap.resolution.y
+        y: offset.y + this.tilemap.resolution.y
       };
 
       this.context.drawLine(start, end);
@@ -275,11 +277,11 @@ export class Editor{
     // Horizontal lines
     for (let y = 0; y < dims.y; y++){
       let start = {
-        x: 0,
+        x: offset.x,
         y: (this.camera.view.y + (y * this.tileSize)) - (this.camera.world.y % this.tileSize)
       };
       let end = {
-        x: this.tilemap.resolution.x,
+        x: offset.x + this.tilemap.resolution.x,
         y: (this.camera.view.y + (y * this.tileSize)) - (this.camera.world.y % this.tileSize)
       };
 

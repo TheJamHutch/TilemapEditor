@@ -145,6 +145,17 @@ export namespace Tiling{
 
     return viewTiles;
   }
+
+  export function tilemapRenderOffset (tilemap: Tilemap, camera: Camera): Vector {
+    const scrollsX = (tilemap.resolution.x > camera.view.w);
+    const scrollsY = (tilemap.resolution.y > camera.view.h);
+    const offset = {
+      x: (!scrollsX) ? (camera.view.w / 2) - (tilemap.resolution.x / 2) : 0,
+      y: (!scrollsY) ? ((camera.view.h) / 2) - (tilemap.resolution.y / 2) : 0
+    };
+
+    return offset;
+  }
   
   export function renderTilemap(context: Rendering.RenderContext, tilemap: Tilemap, camera: Camera, topLayerIdx: number, frameCount: number): void {
     //
@@ -162,12 +173,7 @@ export namespace Tiling{
       y: (tilemap.dimensions.y > inView.y) ? start.y + inView.y + 1 : tilemap.dimensions.y
     };
     
-    const scrollsX = (tilemap.resolution.x > camera.view.w);
-    const scrollsY = (tilemap.resolution.y > camera.view.h);
-    const offset = {
-      x: (!scrollsX) ? (camera.view.w / 2) - (tilemap.resolution.x / 2) : 0,
-      y: (!scrollsY) ? ((camera.view.h) / 2) - (tilemap.resolution.y / 2) : 0
-    };
+    const offset = tilemapRenderOffset(tilemap, camera);
     
     for (let i = 0; i <= topLayerIdx; i++){
       const layer = tilemap.layers[i];

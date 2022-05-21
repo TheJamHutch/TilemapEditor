@@ -10,7 +10,7 @@ export class ConfigService {
   readonly editorResolution = { x: 800, y: 600 }
   readonly paletteResolution = { x: 700, y: 350 };
 
-  readonly initMapDimensions = { x: 30, y: 20 };
+  readonly initMapDimensions = { x: 10, y: 10 };
 
   readonly tileSize = 32;
   readonly paletteCellSize = 48;
