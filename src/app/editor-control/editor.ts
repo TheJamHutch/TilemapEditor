@@ -30,6 +30,12 @@ export class Editor{
     this.lineDashSpeed = lineDashSpeed;
   }
 
+  // @TODO: Would it be easier/ better to just take the old tilemap and copy it into a new one with the right dimensions? Rather than doing all of this resize malarkey
+  resizeMap(addNorth: number, addEast: number, addSouth: number, addWest: number): void {
+    // @TODO: Resizing north or west-wards will break the transition tile indexes.
+    this.camera = new Camera(this.context.resolution, this.tilemap.resolution);
+  }
+
   loadMap(rawMap: any){
     this.tilemap = new Tiling.Tilemap(rawMap.tilemap, this.tileSize);
     this.camera = new Camera(this.context.resolution, this.tilemap.resolution);

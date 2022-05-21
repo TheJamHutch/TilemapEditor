@@ -33,8 +33,14 @@ export namespace Tiling{
     tileSize: number;
     layers: TilemapLayer[];
     dimensions: Vector;
-    resolution: Vector;
     transitionTiles: { idx: number, mapId: string }[];
+
+    get resolution(): Vector {
+      return {
+        x: this.dimensions.x * this.tileSize,
+        y: this.dimensions.y * this.tileSize
+      }
+    }
   
     constructor(tilemap: any, tileSize: number){
       this.tileSize = tileSize;
@@ -46,10 +52,6 @@ export namespace Tiling{
         this.layers.push(new TilemapLayer(layer.id, layer.tiles, layer.tilesheet, this.dimensions));
       }
   
-      this.resolution = { 
-        x: this.dimensions.x * this.tileSize,
-        y: this.dimensions.y * this.tileSize
-      };
     }
 
     setTile(layerIdx: number, pos: Vector, tileType: number){
@@ -62,48 +64,10 @@ export namespace Tiling{
     }
 
     indexToPos(idx: number): Vector {
-      let x = 0;
-      let y = 0;
-      let c = 0;
-
-      while (c < idx){
-        x++;
-        if (x >= this.dimensions.x){
-          x = 0;
-          y++;
-        }
-        
-        c++;
+      return {
+        x: Math.floor(idx % this.dimensions.x),
+        y: Math.floor(idx / this.dimensions.x)
       }
-
-      return { x, y };
-    }
-
-    pushHiddenTiles(layerIdx: number, tiles: Tile[]): void {
-      this.layers[layerIdx].hiddenTiles.push(...tiles);
-    }
-
-    // @TOOD: popHiddenTiles ?
-
-    clearHiddenTiles(): void {
-      for (let layer of this.layers){
-        layer.hiddenTiles = [];
-      }
-    }
-
-    isTileHidden(tileIdx: number, layerIdx: number): boolean {
-      let isHidden = false;
-
-      for (const htile of this.layers[layerIdx].hiddenTiles){
-        // Get idx of the hidden tile
-        const htileIdx = this.posToIndex(htile.pos);
-        if (tileIdx === htileIdx){
-          isHidden = true;
-          break;
-        }
-      }
-  
-      return isHidden;
     }
   }
   
@@ -111,14 +75,12 @@ export namespace Tiling{
     id: string // @TODO: Distinguish layer ID from name?
     tilesheet: any;
     tiles: number[];
-    hiddenTiles: any[];
     visible = true;
   
     constructor(id: string, tiles: number[], tilesheet: any, dimensions: Vector){
       this.id = id;
       this.tilesheet = tilesheet;
       this.tiles = [];
-      this.hiddenTiles = [];
   
       const nTiles = dimensions.x * dimensions.y;
       for (let i = 0; i < nTiles; i++)
@@ -160,7 +122,7 @@ export namespace Tiling{
         for (let x = start.x; x < end.x; x++){
           const tileIdx = (y * tilemap.dimensions.x) + x;
           const layer = tilemap.layers[i];
-          if (layer.tiles[tileIdx] > -1 && !tilemap.isTileHidden(tileIdx, i)){
+          if (layer.tiles[tileIdx] > -1){
           
             const tileType = layer.tiles[tileIdx];
             const solid = (layer.tilesheet.solidMap[tileType] === 1) ? true : false;
@@ -219,7 +181,7 @@ export namespace Tiling{
           const tileIdx = (y * tilemap.dimensions.x) + x;
           const tileType = layer.tiles[tileIdx];
 
-          if (tileType > -1 && !tilemap.isTileHidden(tileIdx, i)){
+          if (tileType > -1){
             let clip = setClip(tileType, layer.tilesheet.clipSize, layer.tilesheet.nCells, layer.tilesheet.cellsPerRow);
 
             // @TODO: Tile animations screw up when frame count resets

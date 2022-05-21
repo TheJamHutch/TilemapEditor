@@ -1,7 +1,9 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { AssetsService } from '../assets.service';
 import { Assets } from '../core/assets';
 import { Vector } from '../core/primitives';
+import { ResizeMapDialogComponent } from '../dialogs/resize-map-dialog/resize-map-dialog.component';
 import { EventBusService, EventType } from '../event-bus.service';
 import { MapInstanceService } from '../map-instance.service';
 
@@ -22,7 +24,9 @@ export class ToolbarComponent implements OnInit {
   constructor(
     private assets: AssetsService,
     private eventBus: EventBusService,
-    private mapInstance: MapInstanceService
+    private mapInstance: MapInstanceService,
+
+    private dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -66,6 +70,13 @@ export class ToolbarComponent implements OnInit {
 
   onToggleGridClick(): void {
     this.eventBus.raise(EventType.ToggleGrid);
+  }
+
+  onResizeClick(): void {
+    this.dialog.open(ResizeMapDialogComponent, {
+      panelClass: 'custom-dialog',
+      disableClose: true
+    });
   }
 
 }

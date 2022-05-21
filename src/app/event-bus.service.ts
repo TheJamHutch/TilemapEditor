@@ -13,7 +13,8 @@ export enum EventType{
   LayerChange,
   AddLayer,
   RemoveLayer,
-  PaletteUpdate   // Occurs when a cell of the palette is double-clicked, event context contains the cell index which is used to set all of the selected tiles to that tile type.
+  PaletteUpdate,   // Occurs when a cell of the palette is double-clicked, event context contains the cell index which is used to set all of the selected tiles to that tile type.
+  MapResize
 }
 
 @Injectable({
@@ -105,6 +106,9 @@ export class EventBusService {
         break;
       case EventType.PaletteUpdate:
         key = 'PaletteUpdate';
+        break;
+      case EventType.MapResize:
+        key = 'MapResize';
         break;
       default:
         key = 'Noop';
