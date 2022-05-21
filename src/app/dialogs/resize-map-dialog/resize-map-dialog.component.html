@@ -1,0 +1,19 @@
+<div class="resize-map container column">
+
+  <span class="title">Resize Map</span>
+  <div class="grow-shrink-box container column">
+    <span>Grow/ Shrink:</span>
+    <span>North: <input type="number" value="0" [(ngModel)]="addNorth"></span>
+    <span>East: <input type="number" value="0" [(ngModel)]="addEast"></span>
+    <span>South: <input type="number" value="0" [(ngModel)]="addSouth"></span>
+    <span>West: <input type="number" value="0" [(ngModel)]="addWest"></span>
+  </div>
+  <span>Original:  X: {{ mapDims.x }}, Y: {{ mapDims.y }} </span>
+  <span>After:  X: {{ mapDims.x + addEast + addWest }}, Y: {{ mapDims.y + addNorth + addSouth }} </span>
+  <hr style="width: 100%">
+  <div class="container right">
+    <button (click)="onCancelClick()">Cancel</button>
+    <button (click)="onOkClick()">Apply</button>
+  </div>
+
+</div>
