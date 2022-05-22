@@ -59,15 +59,8 @@ export class Palette{
 
     const cellIdx = this.cellPosToIndex(this.viewPosToCellPos(this.cursor));
     
-    let frames = [];
-    if (this.tilesheet.tileAnimations){
-      for (let anim of this.tilesheet.tileAnimations){
-        if (anim.frames.find((frame: number) => frame === cellIdx)){
-          frames = anim.frames;
-          break;
-        }
-      }
-    }
+    const animation = this.tilesheet.tileData[cellIdx].animation;
+    const frames = (animation) ? animation.frames : [];
 
     if (frames.length === 0){
       frames.push(cellIdx);
@@ -98,7 +91,6 @@ export class Palette{
 
     let cx = 0;
     let cy = 0;
-    let showOverlay = false;
     
     for (let i = 0; i < this.tilesheet.nCells; i++){
       this.context.renderBitmap(this.tilesheet.texture.bitmap, clip, view);
@@ -111,17 +103,6 @@ export class Palette{
       }
       clip.x = cx * this.tilesheet.clipSize;
       clip.y = cy * this.tilesheet.clipSize;
-
-      /*
-      const tileType = (cy * this.tilesheet.cellsPerRow) + cx;
-      if (this.tilesheet.tileAnimations){
-        for (let anim of this.tilesheet.tileAnimations){
-          const idx = anim.frames.findIndex((frame: number) => frame === tileType);
-          if (idx >= 1){
-            showOverlay = true;
-          }
-        }
-      }*/
 
       // Update view rect
       view.x += this.cellSize.x + padding;

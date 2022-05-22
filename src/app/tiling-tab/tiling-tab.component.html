@@ -50,13 +50,9 @@
       </select>
     </div>
     <div>
-      <span>Animations:</span>
+      <span>Animation:</span>
       <div class="animations-box">
         <div *ngIf="tileIsAnimated()" class="container column">
-          <div>
-            <label>Name:</label>
-            <input type="text" [value]="tileAnimation()?.name" />
-          </div>
           <div>
             <label>Speed:</label>
             <input type="number" min="1" [value]="tileAnimation()?.speed" />
