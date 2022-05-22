@@ -293,12 +293,9 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
         }
       }
 
-      // Base layer (0) must always be visibile.
-      if (layerIdx > 0){
-        this.editor.tilemap.layers[layerIdx].visible = e.visible;
-        const tilesheetId = this.editor.tilemap.layers[this.editor.topLayerIdx()].tilesheet.id;
-        this.eventBus.raise(EventType.TilesheetChange, { tilesheetId });
-      }
+      this.editor.tilemap.layers[layerIdx].visible = e.visible;
+      const tilesheetId = this.editor.tilemap.layers[this.editor.topLayerIdx()].tilesheet.id;
+      this.eventBus.raise(EventType.TilesheetChange, { tilesheetId });
     }
   }
 

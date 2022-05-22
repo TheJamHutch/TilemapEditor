@@ -55,8 +55,8 @@ export class Camera{
 
   worldToView(world: Vector): Vector {
     return {
-      x: world.x - this.world.x,
-      y: world.y - this.world.y
+      x: (world.x - this.world.x),
+      y: (world.y - this.world.y)
     };
   }
 

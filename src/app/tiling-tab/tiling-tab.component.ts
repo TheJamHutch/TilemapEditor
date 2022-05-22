@@ -91,10 +91,6 @@ export class TilingTabComponent implements OnInit, AfterViewInit {
     return animation;
   }
 
-  isBaseLayer(layerId: string): boolean {
-    return (layerId === this.mapInstance.baseLayerId());
-  }
-
   tilesheetSelected(tilesheetId: string): boolean {
     return (tilesheetId === this.mapInstance.topTilesheet()?.id);
   }
@@ -121,7 +117,7 @@ export class TilingTabComponent implements OnInit, AfterViewInit {
   }
 
   onAddLayerClick(): void {
-    this.eventBus.raise(EventType.AddLayer, { layerId: `Layer${this.mapInstance.layerCount()}` });
+    this.eventBus.raise(EventType.AddLayer, { layerId: `Layer${this.mapInstance.layerTotal()}` });
   }
 
   onRemoveLayerClick(layerId: string): void {

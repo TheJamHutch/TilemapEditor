@@ -6,8 +6,8 @@
       <div *ngFor="let layer of layerOptions()" class="layer-option" [style.border]="(layerSelected(layer.id)) ? '1px solid yellow' : null">
         <span>{{ layer.id }}</span>
         <div class="button-block">
-          <input type="checkbox" [checked]="layer.visible" [disabled]="isBaseLayer(layer.id)" (change)="onLayerVisibilityChange(layer.id, $event.target.checked)">
-          <button [disabled]="isBaseLayer(layer.id)" (click)="onRemoveLayerClick(layer.id)">X</button>
+          <input type="checkbox" [checked]="layer.visible" (change)="onLayerVisibilityChange(layer.id, $event.target.checked)">
+          <button [disabled]="layerOptions().length === 1" (click)="onRemoveLayerClick(layer.id)">X</button>
         </div>
       </div>
     </div>

@@ -12,15 +12,24 @@ export class MapInstanceService {
   name: string;
   dimensions: Vector;
   tilemap?: Tiling.Tilemap;
+  // The number of times an AddLayer event has occured.
+  layersAdded = 0;
 
   constructor(private eventBus: EventBusService) { }
 
   init(): void {
     this.eventBus.register(EventType.MapChange, this.onMapChange.bind(this));
+    this.eventBus.register(EventType.AddLayer, this.onAddLayer.bind(this));
   }
 
+  // The current number of layers in the tilemap
   layerCount(): number {
     return this.tilemap?.layers.length;
+  }
+
+  layerTotal(): number {
+    // @TODO: Will be dodgy when loading a map with many layers.
+    return this.layersAdded;
   }
 
   baseLayerId(): string {
@@ -61,5 +70,9 @@ export class MapInstanceService {
     this.name = e.name;
     this.dimensions = e.dimensions;
     this.tilemap = e.tilemap;
+  }
+
+  onAddLayer(e: any): void {
+    this.layersAdded++;
   }
 }

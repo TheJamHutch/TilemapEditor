@@ -89,17 +89,15 @@ export namespace Tiling{
           this.tiles[i] = -1;
           continue;
         }
-          
-        if (tiles[i] !== undefined){
-          this.tiles[i] = tiles[i];
-        }
+
+        this.tiles[i] = tiles[i];
       }
     }
 
 
   }
 
-  export function viewTiles(tilemap: Tilemap, camera: Camera, topLayerIdx: number): Tile[] {
+  export function viewTiles(tilemap: Tilemap, camera: Camera): Tile[] {
     const inView = {
       x: Math.ceil(camera.view.w / tilemap.tileSize),
       y: Math.ceil(camera.view.h / tilemap.tileSize)
@@ -117,11 +115,11 @@ export namespace Tiling{
     let viewTiles = [] as any;
 
     
-    for (let i = 0; i <= topLayerIdx; i++){
+    for (let layer of tilemap.layers){
+
       for (let y = start.y; y < end.y; y++){
         for (let x = start.x; x < end.x; x++){
           const tileIdx = (y * tilemap.dimensions.x) + x;
-          const layer = tilemap.layers[i];
           if (layer.tiles[tileIdx] > -1){
           
             const tileType = layer.tiles[tileIdx];
@@ -156,14 +154,12 @@ export namespace Tiling{
 
     return offset;
   }
-  
-  export function renderTilemap(context: Rendering.RenderContext, tilemap: Tilemap, camera: Camera, topLayerIdx: number, frameCount: number): void {
-    //
+
+  export function renderTilemap(context: Rendering.RenderContext, tilemap: Tilemap, camera: Camera, frameCount: number): void {
     const inView = {
       x: Math.ceil(camera.view.w / tilemap.tileSize),
       y: Math.ceil(camera.view.h / tilemap.tileSize)
     };
-    // 
     const start = {
       x: Math.floor(camera.world.x / tilemap.tileSize),
       y: Math.floor(camera.world.y / tilemap.tileSize)
@@ -175,13 +171,12 @@ export namespace Tiling{
     
     const offset = tilemapRenderOffset(tilemap, camera);
     
-    for (let i = 0; i <= topLayerIdx; i++){
-      const layer = tilemap.layers[i];
-
+    for (let layer of tilemap.layers){
       if (!layer.visible){
         continue;
       }
 
+      // Iterate tiles
       for (let y = start.y; y < end.y; y++){
         for (let x = start.x; x < end.x; x++){
           const tileIdx = (y * tilemap.dimensions.x) + x;

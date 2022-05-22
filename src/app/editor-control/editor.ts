@@ -92,12 +92,6 @@ export class Editor{
         this.camera.velocity.x = -1;
         break;
     }
-
-    // @TODO: Paste-in tiles while camera is moving but mouse isn't, or prevent them from being pasted in?
-    /*
-    if (this.paste){
-      this.updateTileAtCursorPos();
-    }*/
   }
 
   selectTiles(...tiles: Vector[]): void {
@@ -211,7 +205,7 @@ export class Editor{
     this.context.setFillColor('black');
     this.context.fillRect(new Rect({ x: 0, y: 0, w: this.context.resolution.x, h: this.context.resolution.y }));
 
-    Tiling.renderTilemap(this.context, this.tilemap, this.camera, this.topLayerIdx(), frameCount);
+    Tiling.renderTilemap(this.context, this.tilemap, this.camera, frameCount);
 
     if (this.showGrid){
       this.renderGrid();
