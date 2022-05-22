@@ -34,69 +34,30 @@ export class TilingTabComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    
   }
 
   tileIsSolid(): boolean {
-    let isSolid = false;
-
     const tilesheet = this.mapInstance.topTilesheet();
-    if (tilesheet){
-      isSolid = (tilesheet.solidMap[this.tileIdx] === 1);
-    }
-
-    return isSolid;
+    return !!(tilesheet?.tileData[this.tileIdx].solid);
   }
 
   tileIsAnimated(): boolean {
-    let isAnimated = false;
-    
     const tilesheet = this.mapInstance.topTilesheet();
-    if (tilesheet){
-      for (let anim of tilesheet.tileAnimations){
-        if (anim.frames.find((frame: number) => this.tileIdx === frame)){
-          isAnimated = true;
-          break;
-        }
-      }
-    }
-
-    return isAnimated;
+    return !!(tilesheet?.tileData[this.tileIdx].animation);
   }
 
   tileEffectSelected(effectOptionIdx: number): boolean {
-    let selected = false;
-
     const tilesheet = this.mapInstance.topTilesheet();
-    if (tilesheet){
-      selected = (effectOptionIdx === tilesheet.effectMap[this.tileIdx]);
-    }
-
-    return selected;
+    return (effectOptionIdx === tilesheet?.tileData[this.tileIdx].effect);
   }
 
   tileAnimation(): any {
-    let animation = null;
     const tilesheet = this.mapInstance.topTilesheet();
-
-    if (tilesheet?.tileAnimations){
-      for (let anim of tilesheet.tileAnimations){
-        if (anim.frames.find((frame: number) => this.tileIdx === frame)){
-          animation = anim;
-          break;
-        }
-      }
-    }
-
-    return animation;
+    return tilesheet?.tileData[this.tileIdx].animation;
   }
 
   tilesheetSelected(tilesheetId: string): boolean {
     return (tilesheetId === this.mapInstance.topTilesheet()?.id);
-  }
-
-  tilesheetAnimations(): any[] {
-    return this.mapInstance.topTilesheet()?.tileAnimations;
   }
 
   layerSelected(layerId: string): boolean {

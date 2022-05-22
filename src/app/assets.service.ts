@@ -15,9 +15,9 @@ export class AssetsService {
     data: 'assets/data/'
   };
   readonly assetFiles = {
-    textures: ['basetiles', 'glass', 'glass_night', 'toptiles', 'villager', 'slime', 'player'],
+    textures: ['basetiles', 'glass', 'glass_night', 'toptiles', 'villager', 'slime', 'player', 'terrain'],
     maps: [ ],
-    tilesheets: ['basetiles', 'toptiles' ],
+    tilesheets: [ 'terrain' ],
     spritesheets: ['player', 'slime', 'villager'],
     data: ['archetypes']
   };
@@ -44,11 +44,11 @@ export class AssetsService {
     this.eventBus.raise(EventType.AssetsUpdate);
   }
 
-  exportJson(id: string, obj: any): void {
+  exportJson(name: string, obj: any): void {
     const json = JSON.stringify(obj);
     const a = document.createElement('a');
     a.href = `data:application/json;charset=utf-8,${json}`;
-    a.download = `${id}.json`;
+    a.download = `${name}.json`;
     a.click();
   }
 
@@ -164,6 +164,7 @@ export class AssetsService {
     for (let fileName of this.assetFiles.tilesheets){
       try{
         const url = this.assetFolders.tilesheets + fileName + ext;
+        
         const rawJson = await this.fetchFileJson(url);
 
         this.loadTilesheet(rawJson, textures)

@@ -2,6 +2,7 @@ import { Rendering } from '../core/rendering';
 import { Rect, Vector } from "../core/primitives";
 import { Camera, CameraDirection } from "../core/camera";
 import { Tiling } from "../core/tilemap";
+import { Assets } from '../core/assets';
 
 export class Editor{
 
@@ -41,7 +42,7 @@ export class Editor{
     this.camera = new Camera(this.context.resolution, this.tilemap.resolution);
   }
 
-  saveMap(mapId: string): any {
+  saveMap(mapName: string): any {
     let layers = [];
     for (const layer of this.tilemap!.layers){
       layers.push({
@@ -51,7 +52,7 @@ export class Editor{
     }
 
     return {
-      id: mapId,
+      name: mapName,
       type: 'map',
       tilemap: {
         dimensions: this.tilemap.dimensions,
@@ -285,12 +286,11 @@ export class Editor{
 
   generateNewMap(tilesheet: any, mapDims: Vector): any {
     const mapObj = {
-      id: '',
+      id: Assets.generateID(),
       tilemap: {
         dimensions: mapDims,
         layers: [
           {
-            id: 'Base',
             tilesheet,
             tiles: [] as any[]
           }
@@ -315,13 +315,14 @@ export class Editor{
   }
 
   addLayer(layerId: string, tilesheet: any): void {
-    const layer = new Tiling.TilemapLayer(layerId, [], tilesheet, this.tilemap.dimensions);
-    this.tilemap.layers.push(layer);
+    const layer = this.tilemap.addLayer([], tilesheet);
+    layer.id = layerId;
+    layer.name = `Layer${this.tilemap.layers.length + 1}`;
   }
 
   removeLayer(layerId: string): void {
-    let layerIdx = this.tilemap.layers.findIndex((layer: Tiling.TilemapLayer) => layer.id === layerId)
-    this.tilemap.layers.splice(layerIdx, 1);
+    //let layerIdx = this.tilemap.layers.findIndex((layer: Tiling.TilemapLayer) => layer.id === layerId)
+    //this.tilemap.layers.splice(layerIdx, 1);
   }
 
   topLayerIdx(): number {

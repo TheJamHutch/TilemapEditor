@@ -1,6 +1,7 @@
 import { Vector } from "./primitives";
 import { Rendering } from "./rendering";
 import { Tiling } from "./tilemap";
+import { v4 as uuid } from 'uuid';
 
 export namespace Assets{
 
@@ -38,9 +39,9 @@ export namespace Assets{
     clipSize: number;
     nCells: number;
     cellsPerRow: number;
-    solidMap: number[];
-    effectMap: number[];
-    tileAnimations: Tiling.TileAnimation[];
+
+    // @TODO: Stronger typing for tileData
+    tileData: any;
   }
 
   export type Spritesheet = {
@@ -50,6 +51,10 @@ export namespace Assets{
     clipSize: Vector;
     scaleFactor: number;
     animations: any;
+  }
+
+  export function generateID(): string {
+    return uuid();
   }
 
   export function createTexture(id: string, path: string): Assets.Texture {

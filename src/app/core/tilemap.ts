@@ -49,9 +49,14 @@ export namespace Tiling{
       this.layers = [];
 
       for (let layer of tilemap.layers){
-        this.layers.push(new TilemapLayer(layer.id, layer.tiles, layer.tilesheet, this.dimensions));
+        this.layers.push(new TilemapLayer(layer.tiles, layer.tilesheet, this.dimensions));
       }
-  
+    }
+
+    addLayer(tiles: number[], tilesheet: any): TilemapLayer {
+      const layer = new TilemapLayer(tiles, tilesheet, this.dimensions);
+      this.layers.push(layer);
+      return layer
     }
 
     setTile(layerIdx: number, pos: Vector, tileType: number){
@@ -72,13 +77,13 @@ export namespace Tiling{
   }
   
   export class TilemapLayer{
-    id: string // @TODO: Distinguish layer ID from name?
+    id?: string;
+    name?: string;
     tilesheet: any;
     tiles: number[];
     visible = true;
   
-    constructor(id: string, tiles: number[], tilesheet: any, dimensions: Vector){
-      this.id = id;
+    constructor(tiles: number[], tilesheet: any, dimensions: Vector){
       this.tilesheet = tilesheet;
       this.tiles = [];
   
@@ -93,8 +98,6 @@ export namespace Tiling{
         this.tiles[i] = tiles[i];
       }
     }
-
-
   }
 
   export function viewTiles(tilemap: Tilemap, camera: Camera): Tile[] {
@@ -123,8 +126,8 @@ export namespace Tiling{
           if (layer.tiles[tileIdx] > -1){
           
             const tileType = layer.tiles[tileIdx];
-            const solid = (layer.tilesheet.solidMap[tileType] === 1) ? true : false;
-            const effect = layer.tilesheet.effectMap[tileType];
+            const solid = (layer.tilesheet.tileData[tileType].solid) ? true : false;
+            const effect = layer.tilesheet.tileData[tileType].effect;
             const tile = {
               pos: { x, y },
               solid,
@@ -251,8 +254,8 @@ export namespace Tiling{
       if (rawTile > -1){
         tile = {
           pos: tilePos,
-          solid: layer.tilesheet.solidMap[rawTile],
-          effect: layer.tilesheet.effectMap[rawTile],
+          solid: layer.tilesheet.tileData[rawTile].solid,
+          effect: layer.tilesheet.tileData[rawTile].effect,
           topLayerIdx: layerIdx
         };
       }

@@ -4,6 +4,7 @@ import { Rendering } from '../core/rendering';
 import { Camera, CameraDirection } from "../core/camera";
 import { AssetsService } from '../assets.service';
 import { Editor } from './editor';
+import { Assets } from '../core/assets';
 import { PerformanceCounterService } from '../performance-counter.service';
 import { ConfigService } from '../config.service';
 
@@ -259,8 +260,12 @@ export class EditorControlComponent implements OnInit, AfterViewInit {
   }
 
   onSaveMap(e: any): void {
-    const savedMap = this.editor.saveMap(e.name);
-    this.assets.exportJson(savedMap.id, savedMap);
+    const mapName = (e.name) ? e.name : (new Date()).toString();
+    let savedMap = this.editor.saveMap(mapName);
+    // Update to add ID
+    savedMap = Object.assign({ id: Assets.generateID() }, savedMap);
+
+    this.assets.exportJson(savedMap.name, savedMap);
   }
 
   onTilesheetChange(e: any): void {
