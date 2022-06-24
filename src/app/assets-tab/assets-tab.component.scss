@@ -1,0 +1,37 @@
+select{
+  width: 250px;
+  height: 200px;
+  overflow-y: auto;
+}
+
+.props{
+}
+
+.asset-list{
+  margin-top: 50px;
+}
+
+.list-header{
+  display: flex;
+  justify-content: flex-start;
+}
+
+.button-block{
+  gap: 5px;
+}
+
+.tilesheet-props{
+  min-width: 200px !important;
+
+  padding: 10px;
+  gap: 10px;
+  input{
+    width: 100px;
+  }
+  .button-block{
+    gap: 2px;
+    button{
+      width: 100px;
+    }
+  }
+}

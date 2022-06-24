@@ -1,0 +1,39 @@
+:host {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: stretch;
+  min-width: 0;
+  min-height: 0;
+
+  .container {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: stretch;
+    min-width: 0;
+    min-height: 0;
+    flex-direction: row;
+
+    &.column {
+      flex-direction: column;
+    }
+    &.static {
+      align-self: stretch;
+      flex: 0 0 auto;
+      width: fit-content;
+      height: fit-content;
+    }
+    &.right {
+      justify-content: flex-end;
+    }
+    &.center {
+      justify-content: center;
+    }
+    &.space-between{
+      justify-content: space-between;
+    }
+    &.space-evenly{
+      justify-content: space-evenly;
+    }
+  }
+}
+

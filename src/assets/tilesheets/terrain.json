@@ -1,0 +1,112 @@
+{
+  "id": "terrain",
+  "name": "terrain",
+  "textureId": "terrain",
+  "clipSize": 16,
+  "nCells": 30,
+  "cellsPerRow": 16,
+  "tileData": [
+    {
+      "name": "grass",
+      "solid": false,
+      "effect": 0
+    },
+    {
+      "name": "path",
+      "solid": false,
+      "effect": 1
+    },
+    {
+      "name": "water0",
+      "solid": true,
+      "effect": 0,
+      "animation": {
+        "speed": 30,
+        "frames": [ 2, 3, 4 ]
+      }
+    },
+    {
+      "name": "water1",
+      "solid": true,
+      "effect": 0,
+      "animation": {
+        "speed": 30,
+        "frames": [ 2, 3, 4 ]
+      }
+    },
+    {
+      "name": "water2",
+      "solid": true,
+      "effect": 0,
+      "animation": {
+        "speed": 30,
+        "frames": [ 2, 3, 4 ]
+      }
+    },
+    {
+      "name": "cliff",
+      "solid": true,
+      "effect": 0
+    },
+    {
+      "name": "cliff",
+      "solid": true,
+      "effect": 0
+    },
+    {
+      "name": "cliff",
+      "solid": true,
+      "effect": 0
+    },
+    {
+      "name": "cliff",
+      "solid": true,
+      "effect": 0
+    },
+    {
+      "name": "cliff",
+      "solid": true,
+      "effect": 0
+    },
+    {
+      "name": "cliff",
+      "solid": true,
+      "effect": 0
+    },
+    {
+      "name": "cliff",
+      "solid": true,
+      "effect": 0
+    },
+    {
+      "name": "cliff",
+      "solid": true,
+      "effect": 0
+    },
+    {
+      "name": "cliff",
+      "solid": true,
+      "effect": 0
+    },
+    {
+      "name": "cliff",
+      "solid": true,
+      "effect": 0
+    },
+    {
+      "name": "cliff",
+      "solid": true,
+      "effect": 0
+    },
+    {
+      "name": "cliff",
+      "solid": true,
+      "effect": 0
+    },
+    {
+      "name": "cliff",
+      "solid": true,
+      "effect": 0
+    }
+  ]
+}

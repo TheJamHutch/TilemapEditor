@@ -1,0 +1,26 @@
+<div class="app container column">
+
+
+  <div class="toolbar">
+    <app-toolbar></app-toolbar>
+  </div>
+
+  <div class="workspace bordered">
+    <app-editor-control></app-editor-control>
+  </div>
+
+  <div class="toolbox bordered">
+    <app-tab-bar (selected)="onToolboxTabSelect($event)"></app-tab-bar>
+
+    <div [hidden]="selectedTab !== 'Assets'">
+      <app-assets-tab></app-assets-tab>
+    </div>
+    <div [hidden]="selectedTab !== 'Tiling'">
+      <app-tiling-tab></app-tiling-tab>
+    </div>
+    <div [hidden]="selectedTab !== 'Entities'">
+      <app-entities-tab></app-entities-tab>
+    </div>
+  </div>
+
+</div>

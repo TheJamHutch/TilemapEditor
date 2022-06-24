@@ -1,0 +1,5 @@
+<div class="tab-bar bordered">
+  <div *ngFor="let tabId of tabs" class="tab"  (click)="onTabClick(tabId)" [style.color]="(tabId === selectedTabId) ? 'yellow' : null">
+    <span>{{tabId}}</span>
+  </div>
+</div>

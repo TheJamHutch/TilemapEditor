@@ -1,0 +1,16 @@
+.tab-bar{
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+}
+
+.tab{
+    width: 120px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid grey;
+    font-size: 20px;
+    cursor: pointer;
+}
