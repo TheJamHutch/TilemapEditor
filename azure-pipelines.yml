@@ -10,7 +10,6 @@ trigger:
 
 variables:
   azureSubscription: 'Microsoft Internal Subscription 1(ba6e1630-d997-4f12-8308-6df3b9856477)'
-  environmentName: 'tilemapeditor'
   webAppName: 'tilemapeditor'
 
 stages:
@@ -56,7 +55,6 @@ stages:
     - deployment: DeploymentJob
       pool:
         vmImage: 'ubuntu-20.04'
-      environment: $(environmentName)
       strategy:
         runOnce:
           deploy:
