@@ -8,6 +8,11 @@ trigger:
     include:
     - '*'
 
+variables:
+  azureSubscription: 'Microsoft Internal Subscription 1(5648d12a-ba49-4789-8793-6f7cc54e1556)'
+  environmentName: 'demoangularmimott'
+  webAppName: 'demoangularmimott'
+
 stages:
   - stage: Build
     displayName: Build stage
@@ -30,7 +35,7 @@ stages:
         - task: ArchiveFiles@2
           displayName: 'Archive files'
           inputs:
-            rootFolderOrFile: '$(System.DefaultWorkingDirectory)/HelloWorld/dist/HelloWorld/'
+            rootFolderOrFile: '$(System.DefaultWorkingDirectory)/TilemapEditor/dist/TilemapEditor/'
             includeRootFolder: false
             archiveType: zip
             archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
@@ -41,3 +46,4 @@ stages:
             PathtoPublish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
             ArtifactName: 'drop'
             publishLocation: 'Container'
+
