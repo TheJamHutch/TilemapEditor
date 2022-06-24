@@ -9,7 +9,7 @@ trigger:
     - '*'
 
 variables:
-  azureSubscription: 'Microsoft Internal Subscription 1(ba6e1630-d997-4f12-8308-6df3b9856477)'
+  azureSubscription: 'ba6e1630-d997-4f12-8308-6df3b9856477'
   environmentName: 'tilegame'
   webAppName: 'tilemapeditor'
 
