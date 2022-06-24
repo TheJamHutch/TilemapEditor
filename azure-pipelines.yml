@@ -9,9 +9,9 @@ trigger:
     - '*'
 
 variables:
-  azureSubscription: 'Microsoft Internal Subscription 1(5648d12a-ba49-4789-8793-6f7cc54e1556)'
-  environmentName: 'demoangularmimott'
-  webAppName: 'demoangularmimott'
+  azureSubscription: 'Microsoft Internal Subscription 1(ba6e1630-d997-4f12-8308-6df3b9856477)'
+  environmentName: 'tilemapeditor'
+  webAppName: 'tilemapeditor'
 
 stages:
   - stage: Build
@@ -48,3 +48,24 @@ stages:
             ArtifactName: 'drop'
             publishLocation: 'Container'
 
+  - stage: Deploy
+    displayName: 'Deploy Web App'
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+    - deployment: DeploymentJob
+      pool:
+        vmImage: 'ubuntu-20.04'
+      environment: $(environmentName)
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+       
+            - task: AzureWebApp@1
+              displayName: 'Deploy Azure Web App : $(webAppName)'
+              inputs:
+                azureSubscription: $(azureSubscription)
+                appName: $(webAppName)
+                appType: webAppLinux
+                package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip 
