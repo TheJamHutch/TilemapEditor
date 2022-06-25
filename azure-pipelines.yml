@@ -70,5 +70,5 @@ stages:
                 azureSubscription: 'aztilegame'
                 appType: 'webAppLinux'
                 WebAppName: 'tilemapeditor'
-                packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+                packageForLinux: '$(Pipeline.Workspace)/$(artifactName)/$(Build.BuildId).zip'
                 RuntimeStack: 'NODE|16-lts'
