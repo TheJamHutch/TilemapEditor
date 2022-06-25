@@ -64,11 +64,6 @@ stages:
           deploy:
             steps:
        
-            - task: AzureRmWebAppDeployment@4
-              inputs:
-                ConnectionType: 'AzureRM'
-                azureSubscription: 'aztilegame'
-                appType: 'webAppLinux'
-                WebAppName: 'tilemapeditor'
-                packageForLinux: '/home/vsts/work/1/*.zip'
-                RuntimeStack: 'NODE|16-lts'
+            - task: Bash@3
+              displayName: 'wtf'
+            - script: 'ls ; pwd'
