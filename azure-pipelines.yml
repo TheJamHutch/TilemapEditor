@@ -47,6 +47,9 @@ stages:
             ArtifactName: 'drop'
             publishLocation: 'Container'
 
+
+
+
   - stage: Deploy
     displayName: 'Deploy Web App'
     dependsOn: Build
@@ -61,10 +64,11 @@ stages:
           deploy:
             steps:
        
-            - task: AzureWebApp@1
-              displayName: 'Deploy Azure Web App : $(webAppName)'
+            - task: AzureRmWebAppDeployment@4
               inputs:
-                azureSubscription: ba6e1630-d997-4f12-8308-6df3b9856477
-                appName: $(webAppName)
-                appType: webAppLinux
-                package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip 
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'aztilegame'
+                appType: 'webAppLinux'
+                WebAppName: 'tilemapeditor'
+                packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+                RuntimeStack: 'NODE|16-lts'
