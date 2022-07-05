@@ -9,9 +9,8 @@ trigger:
     - '*'
 
 variables:
-  azureSubscription: 'Microsoft Internal Subscription 1(5648d12a-ba49-4789-8793-6f7cc54e1556)'
-  environmentName: 'demoangularmimott'
-  webAppName: 'demoangularmimott'
+  environmentName: 'tilegame'
+  webAppName: 'tilemapeditor'
 
 stages:
   - stage: Build
@@ -47,4 +46,13 @@ stages:
             PathtoPublish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
             ArtifactName: 'drop'
             publishLocation: 'Container'
-
+            FileCopyOptions: 
+          
+        - task: AzureRmWebAppDeployment@4
+          inputs:
+            ConnectionType: 'AzureRM'
+            azureSubscription: 'aztilegame'
+            appType: 'webAppLinux'
+            WebAppName: 'tilemapeditor'
+            packageForLinux: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+            RuntimeStack: 'NODE|16-lts'
